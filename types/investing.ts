@@ -72,6 +72,35 @@ export type LearningCard = {
   example: string;
 };
 
+export type OnboardingQuestionId =
+  | "budget"
+  | "goal"
+  | "timeHorizon"
+  | "riskComfort"
+  | "experience"
+  | "interests"
+  | "portfolioStyle"
+  | "investmentApproach";
+
+export type OnboardingAnswers = {
+  budget: string;
+  goal: string;
+  timeHorizon: string;
+  riskComfort: string;
+  experience: string;
+  interests: string[];
+  portfolioStyle: string;
+  investmentApproach: string;
+};
+
+export type OnboardingQuestion = {
+  id: OnboardingQuestionId;
+  label: string;
+  question: string;
+  options: string[];
+  multiple?: boolean;
+};
+
 export type FeatureCard = {
   title: string;
   description: string;
