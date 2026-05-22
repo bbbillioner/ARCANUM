@@ -21,9 +21,9 @@ const onboardingQuestions: OnboardingQuestion[] = [
     question: "How much are you planning to invest?",
     options: [
       "Under $100",
-      "$100–$500",
-      "$500–$1,000",
-      "$1,000–$5,000",
+      "$100-$500",
+      "$500-$1,000",
+      "$1,000-$5,000",
       "$5,000+",
     ],
   },
@@ -36,14 +36,14 @@ const onboardingQuestions: OnboardingQuestion[] = [
       "Grow long-term wealth",
       "Build a balanced portfolio",
       "Prepare for finance club / competition",
-      "Explore stocks I’m interested in",
+      "Explore stocks I'm interested in",
     ],
   },
   {
     id: "timeHorizon",
     label: "Time horizon",
     question: "How long do you plan to hold investments?",
-    options: ["Less than 1 year", "1–3 years", "3–5 years", "5+ years"],
+    options: ["Less than 1 year", "1-3 years", "3-5 years", "5+ years"],
   },
   {
     id: "riskComfort",
@@ -59,7 +59,7 @@ const onboardingQuestions: OnboardingQuestion[] = [
       "Complete beginner",
       "I know basic terms",
       "I have bought stocks before",
-      "I’m in a finance/investment competition",
+      "I'm in a finance/investment competition",
     ],
   },
   {

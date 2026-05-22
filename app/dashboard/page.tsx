@@ -253,7 +253,7 @@ export default function DashboardPage() {
               organize your command center around it.
             </p>
             <ButtonLink className="mt-7 w-full sm:w-auto" href="/onboarding">
-              Start onboarding
+              Start building my portfolio
             </ButtonLink>
           </Card>
         </section>
@@ -304,6 +304,12 @@ export default function DashboardPage() {
               Retake onboarding
             </ButtonLink>
           </div>
+          <Card className="border-amber-200/15 bg-amber-200/[0.045]">
+            <p className="text-sm leading-6 text-amber-50/80">
+              Educational dashboard only. This is not financial advice, a
+              recommendation, or a prediction.
+            </p>
+          </Card>
         </div>
       </section>
 
@@ -457,13 +463,19 @@ export default function DashboardPage() {
                   <span className="font-semibold text-zinc-300">Key risk: </span>
                   {keyRisk}
                 </p>
-                <ButtonLink
-                  className="mt-6 w-full sm:w-auto"
-                  href={`/stocks/${encodeURIComponent(holding.ticker)}`}
-                  variant="secondary"
-                >
-                  View research
-                </ButtonLink>
+                {profile ? (
+                  <ButtonLink
+                    className="mt-6 w-full sm:w-auto"
+                    href={`/stocks/${encodeURIComponent(holding.ticker)}`}
+                    variant="secondary"
+                  >
+                    View research
+                  </ButtonLink>
+                ) : (
+                  <p className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-zinc-400">
+                    Research page not needed for this cash reserve.
+                  </p>
+                )}
               </Card>
             );
           })}

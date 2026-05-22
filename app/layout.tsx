@@ -14,7 +14,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "ARCANUM",
-  description: "Your beginner investor command center.",
+  description:
+    "A beginner investor command center for portfolios, stock research, market briefs, and investing education.",
 };
 
 export default function RootLayout({

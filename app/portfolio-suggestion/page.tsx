@@ -190,7 +190,7 @@ export default function PortfolioSuggestionPage() {
               before it can prepare a starter portfolio direction.
             </p>
             <ButtonLink className="mt-7 w-full sm:w-auto" href="/onboarding">
-              Start onboarding
+              Start building my portfolio
             </ButtonLink>
           </Card>
         </section>

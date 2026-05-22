@@ -34,7 +34,9 @@ export default function Home() {
                 in the market.
               </p>
             </div>
-            <ButtonLink href="/onboarding">Start building my portfolio</ButtonLink>
+            <ButtonLink className="w-full sm:w-auto" href="/onboarding">
+              Start building my portfolio
+            </ButtonLink>
           </div>
 
           <div className="w-full max-w-xl lg:flex-1">
