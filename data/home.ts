@@ -1,11 +1,9 @@
+import type { AllocationSegment, FeatureCard, Metric } from "@/types/investing";
 import type {
-  AllocationSegment,
-  FeatureCard,
-  Holding,
-  LearningLesson,
-  MarketBrief,
-  Metric,
-} from "@/types/investing";
+  HomepageBrief,
+  HomepageHolding,
+  HomepageLesson,
+} from "@/types/home";
 
 export const featureCards: FeatureCard[] = [
   {
@@ -37,7 +35,7 @@ export const allocationPreview: AllocationSegment[] = [
   { label: "Cash", percentage: 20, colorClass: "bg-zinc-400" },
 ];
 
-export const holdingPreview: Holding = {
+export const holdingPreview: HomepageHolding = {
   symbol: "MSFT",
   name: "Microsoft",
   summary:
@@ -45,7 +43,7 @@ export const holdingPreview: Holding = {
   riskLevel: "moderate",
 };
 
-export const briefingPreview: MarketBrief = {
+export const briefingPreview: HomepageBrief = {
   category: "Daily brief",
   title: "Rates, earnings, and sentiment",
   summary:
@@ -53,7 +51,7 @@ export const briefingPreview: MarketBrief = {
   readTime: "3 min read",
 };
 
-export const learningPreview: LearningLesson = {
+export const learningPreview: HomepageLesson = {
   level: "Beginner lesson",
   title: "What is diversification?",
   summary:

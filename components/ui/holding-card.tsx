@@ -1,10 +1,10 @@
-import type { Holding } from "@/types/investing";
+import type { HomepageHolding } from "@/types/home";
 
 import { Card } from "./card";
 import { RiskBadge } from "./risk-badge";
 
 type HoldingCardProps = {
-  holding: Holding;
+  holding: HomepageHolding;
 };
 
 export function HoldingCard({ holding }: HoldingCardProps) {

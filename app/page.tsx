@@ -1,9 +1,9 @@
 import { AllocationBar } from "@/components/ui/allocation-bar";
 import { Badge } from "@/components/ui/badge";
 import { BriefCard } from "@/components/ui/brief-card";
-import { ButtonLink } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { HoldingCard } from "@/components/ui/holding-card";
+import { HomepageCta } from "@/components/ui/homepage-cta";
 import { LearningCard } from "@/components/ui/learning-card";
 import { MetricCard } from "@/components/ui/metric-card";
 import { RiskBadge } from "@/components/ui/risk-badge";
@@ -34,9 +34,7 @@ export default function Home() {
                 in the market.
               </p>
             </div>
-            <ButtonLink className="w-full sm:w-auto" href="/onboarding">
-              Start building my portfolio
-            </ButtonLink>
+            <HomepageCta />
           </div>
 
           <div className="w-full max-w-xl lg:flex-1">

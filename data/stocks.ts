@@ -4,8 +4,11 @@ export const stockProfiles: StockProfile[] = [
   {
     ticker: "VOO",
     name: "Vanguard S&P 500 ETF",
+    assetType: "ETF",
     sector: "Diversified U.S. large-cap equities",
     beginnerRiskLevel: "low",
+    beginnerSummary:
+      "A broad S&P 500 ETF that gives practice exposure to many large U.S. companies in one holding.",
     portfolioRole: "Core portfolio anchor",
     companySummary:
       "VOO is an ETF that tracks the S&P 500, giving investors exposure to roughly 500 of the largest public companies in the United States.",
@@ -56,8 +59,11 @@ export const stockProfiles: StockProfile[] = [
   {
     ticker: "QQQ",
     name: "Invesco QQQ Trust",
+    assetType: "ETF",
     sector: "Growth and technology-heavy equities",
     beginnerRiskLevel: "moderate",
+    beginnerSummary:
+      "A Nasdaq-100 ETF that leans toward large growth and technology companies.",
     portfolioRole: "Growth tilt",
     companySummary:
       "QQQ is an ETF that tracks the Nasdaq-100, a growth-oriented index with heavy exposure to technology and communication companies.",
@@ -95,8 +101,7 @@ export const stockProfiles: StockProfile[] = [
       {
         label: "Dividend focus",
         value: "Low",
-        explanation:
-          "QQQ is usually owned for growth, not income.",
+        explanation: "QQQ is usually owned for growth, not income.",
       },
     ],
     whatToResearchNext: [
@@ -108,8 +113,11 @@ export const stockProfiles: StockProfile[] = [
   {
     ticker: "MSFT",
     name: "Microsoft",
+    assetType: "Stock",
     sector: "Technology",
     beginnerRiskLevel: "moderate",
+    beginnerSummary:
+      "A large software and cloud company used to practice analyzing a durable individual business.",
     portfolioRole: "Quality compounder",
     companySummary:
       "Microsoft is a global software, cloud, gaming, and productivity company with products used by consumers, developers, and enterprises.",
@@ -160,8 +168,11 @@ export const stockProfiles: StockProfile[] = [
   {
     ticker: "NVDA",
     name: "NVIDIA",
+    assetType: "Stock",
     sector: "Semiconductors",
     beginnerRiskLevel: "elevated",
+    beginnerSummary:
+      "A high-growth semiconductor company tied to AI infrastructure, with higher volatility and expectations.",
     portfolioRole: "High-growth semiconductor exposure",
     companySummary:
       "NVIDIA designs graphics processors, data-center accelerators, networking products, and software used in AI, gaming, and professional computing.",
@@ -212,8 +223,11 @@ export const stockProfiles: StockProfile[] = [
   {
     ticker: "COST",
     name: "Costco Wholesale",
+    assetType: "Stock",
     sector: "Consumer staples",
     beginnerRiskLevel: "moderate",
+    beginnerSummary:
+      "A membership-based retailer often studied as a resilient consumer business with premium valuation risk.",
     portfolioRole: "Defensive quality business",
     companySummary:
       "Costco operates membership warehouses that sell groceries, household goods, fuel, and other products at low markups.",
@@ -231,8 +245,7 @@ export const stockProfiles: StockProfile[] = [
     ],
     bullCase:
       "Membership renewal remains strong, new warehouses perform well, and pricing discipline deepens customer loyalty.",
-    baseCase:
-      "Costco compounds steadily with moderate growth and resilient demand.",
+    baseCase: "Costco compounds steadily with moderate growth and resilient demand.",
     bearCase:
       "Valuation falls, consumer spending weakens, or expansion returns slow.",
     beginnerMetrics: [

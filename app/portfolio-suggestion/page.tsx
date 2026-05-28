@@ -8,93 +8,18 @@ import { ButtonLink } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { RiskBadge } from "@/components/ui/risk-badge";
 import { SectionHeader } from "@/components/ui/section-header";
-import { portfolioTemplates } from "@/data/portfolios";
-import { stockProfiles } from "@/data/stocks";
+import {
+  buildAllocationSegments,
+  getHoldingFallback,
+  isOnboardingAnswers,
+  selectPortfolioTemplate,
+  stockProfileByTicker,
+} from "@/lib/portfolio";
 import type {
-  AllocationSegment,
   OnboardingAnswers,
   PortfolioTemplate,
-  RiskLevel,
   StockProfile,
 } from "@/types/investing";
-
-const allocationColors = [
-  "bg-teal-300",
-  "bg-amber-300",
-  "bg-sky-300",
-  "bg-zinc-400",
-  "bg-emerald-300",
-];
-
-const stockProfileByTicker = new Map(
-  stockProfiles.map((profile) => [profile.ticker, profile]),
-);
-
-function isOnboardingAnswers(value: unknown): value is OnboardingAnswers {
-  if (!value || typeof value !== "object") {
-    return false;
-  }
-
-  const answers = value as Partial<OnboardingAnswers>;
-
-  return (
-    typeof answers.budget === "string" &&
-    typeof answers.goal === "string" &&
-    typeof answers.timeHorizon === "string" &&
-    typeof answers.riskComfort === "string" &&
-    typeof answers.experience === "string" &&
-    Array.isArray(answers.interests) &&
-    typeof answers.portfolioStyle === "string" &&
-    typeof answers.investmentApproach === "string"
-  );
-}
-
-function getTemplateById(id: string) {
-  const template = portfolioTemplates.find((portfolio) => portfolio.id === id);
-
-  if (!template) {
-    throw new Error(`Missing portfolio template: ${id}`);
-  }
-
-  return template;
-}
-
-function selectPortfolioTemplate(answers: OnboardingAnswers): PortfolioTemplate {
-  if (
-    answers.riskComfort === "Low" ||
-    answers.portfolioStyle === "Safe and diversified"
-  ) {
-    return getTemplateById("conservative-beginner");
-  }
-
-  if (
-    answers.riskComfort === "High" ||
-    answers.portfolioStyle === "High-growth companies" ||
-    answers.portfolioStyle === "Thematic portfolio"
-  ) {
-    return getTemplateById("aggressive-growth");
-  }
-
-  return getTemplateById("balanced-growth");
-}
-
-function getHoldingFallback(ticker: string) {
-  if (ticker === "CASH") {
-    return {
-      sector: "Cash reserve",
-      beginnerRiskLevel: "low" as RiskLevel,
-      companySummary:
-        "Cash is included as a buffer, not as a return engine. It can reduce pressure to sell during volatility and gives room to rebalance.",
-    };
-  }
-
-  return {
-    sector: "Research needed",
-    beginnerRiskLevel: "moderate" as RiskLevel,
-    companySummary:
-      "This holding needs a dedicated profile before it can be analyzed in detail.",
-  };
-}
 
 function getPersonalizedExplanation(
   answers: OnboardingAnswers,
@@ -119,9 +44,7 @@ export default function PortfolioSuggestionPage() {
       const storedAnswers = localStorage.getItem("arcanum-onboarding");
 
       if (!storedAnswers) {
-        if (!cancelled) {
-          setHasLoaded(true);
-        }
+        if (!cancelled) setHasLoaded(true);
         return;
       }
 
@@ -132,13 +55,9 @@ export default function PortfolioSuggestionPage() {
           setAnswers(parsedAnswers);
         }
       } catch {
-        if (!cancelled) {
-          setAnswers(null);
-        }
+        if (!cancelled) setAnswers(null);
       } finally {
-        if (!cancelled) {
-          setHasLoaded(true);
-        }
+        if (!cancelled) setHasLoaded(true);
       }
     }, 0);
 
@@ -153,14 +72,10 @@ export default function PortfolioSuggestionPage() {
     [answers],
   );
 
-  const allocationSegments: AllocationSegment[] = useMemo(
+  const allocationSegments = useMemo(
     () =>
       selectedPortfolio
-        ? selectedPortfolio.assetMix.map((item, index) => ({
-            label: item.assetClass,
-            percentage: item.percentage,
-            colorClass: allocationColors[index % allocationColors.length],
-          }))
+        ? buildAllocationSegments(selectedPortfolio.assetMix)
         : [],
     [selectedPortfolio],
   );
@@ -178,7 +93,7 @@ export default function PortfolioSuggestionPage() {
   if (!answers || !selectedPortfolio) {
     return (
       <main className="min-h-screen overflow-hidden bg-background text-foreground">
-        <section className="relative flex min-h-screen items-center px-5 py-12">
+        <section className="relative flex min-h-[calc(100vh-3.5rem)] items-center px-5 py-12">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(20,184,166,0.14),transparent_30%),radial-gradient(circle_at_85%_8%,rgba(245,158,11,0.1),transparent_26%),linear-gradient(180deg,rgba(255,255,255,0.055),transparent_46%)]" />
           <Card className="relative mx-auto w-full max-w-xl p-7 text-center">
             <Badge>Portfolio suggestion</Badge>
@@ -241,7 +156,7 @@ export default function PortfolioSuggestionPage() {
       </section>
 
       <section className="mx-auto grid w-full max-w-7xl gap-5 px-5 py-10 sm:px-8 lg:grid-cols-[1.1fr_0.9fr] lg:px-10">
-        <Card title="Asset Mix">
+        <Card title="Asset Mix" variant="primary">
           <AllocationBar segments={allocationSegments} />
           <div className="mt-6 grid gap-3">
             {selectedPortfolio.assetMix.map((item) => (
@@ -352,7 +267,9 @@ export default function PortfolioSuggestionPage() {
           <div className="mt-6 grid gap-3 sm:grid-cols-3">
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
               <p className="text-xs text-zinc-500">Goal</p>
-              <p className="mt-2 text-sm font-medium text-white">{answers.goal}</p>
+              <p className="mt-2 text-sm font-medium text-white">
+                {answers.goal}
+              </p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
               <p className="text-xs text-zinc-500">Approach</p>
@@ -371,21 +288,21 @@ export default function PortfolioSuggestionPage() {
 
         <Card title="What to do next">
           <div className="space-y-3">
-            {[
-              "Review your dashboard",
-              "Study each holding",
-              "Read today's brief",
-            ].map((step, index) => (
-              <div
-                className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4"
-                key={step}
-              >
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-teal-300 text-sm font-semibold text-zinc-950">
-                  {index + 1}
-                </span>
-                <span className="text-sm font-medium text-zinc-200">{step}</span>
-              </div>
-            ))}
+            {["Review your dashboard", "Study each holding", "Read today's brief"].map(
+              (step, index) => (
+                <div
+                  className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4"
+                  key={step}
+                >
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-teal-300 text-sm font-semibold text-zinc-950">
+                    {index + 1}
+                  </span>
+                  <span className="text-sm font-medium text-zinc-200">
+                    {step}
+                  </span>
+                </div>
+              ),
+            )}
           </div>
           <div className="mt-7 flex flex-col gap-3 sm:flex-row">
             <ButtonLink className="w-full sm:w-auto" href="/dashboard">

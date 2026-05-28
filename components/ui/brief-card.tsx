@@ -1,9 +1,9 @@
-import type { MarketBrief } from "@/types/investing";
+import type { HomepageBrief } from "@/types/home";
 
 import { Card } from "./card";
 
 type BriefCardProps = {
-  brief: MarketBrief;
+  brief: HomepageBrief;
 };
 
 export function BriefCard({ brief }: BriefCardProps) {

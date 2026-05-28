@@ -8,79 +8,24 @@ import { ButtonLink } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { MetricCard } from "@/components/ui/metric-card";
 import { RiskBadge } from "@/components/ui/risk-badge";
+import { NewsFeed } from "@/components/ui/news-feed";
 import { SectionHeader } from "@/components/ui/section-header";
-import { dailyBriefs } from "@/data/briefs";
+import { Term } from "@/components/ui/term";
 import { learningCards } from "@/data/learning-cards";
-import { portfolioTemplates } from "@/data/portfolios";
-import { stockProfiles } from "@/data/stocks";
+import {
+  buildAllocationSegments,
+  getHoldingFallback,
+  isOnboardingAnswers,
+  selectPortfolioTemplate,
+  stockProfileByTicker,
+} from "@/lib/portfolio";
 import type {
-  AllocationSegment,
   OnboardingAnswers,
   PortfolioHolding,
   PortfolioTemplate,
   RiskLevel,
   StockProfile,
 } from "@/types/investing";
-
-const allocationColors = [
-  "bg-teal-300",
-  "bg-amber-300",
-  "bg-sky-300",
-  "bg-zinc-400",
-  "bg-emerald-300",
-];
-
-const stockProfileByTicker = new Map(
-  stockProfiles.map((profile) => [profile.ticker, profile]),
-);
-
-function isOnboardingAnswers(value: unknown): value is OnboardingAnswers {
-  if (!value || typeof value !== "object") {
-    return false;
-  }
-
-  const answers = value as Partial<OnboardingAnswers>;
-
-  return (
-    typeof answers.budget === "string" &&
-    typeof answers.goal === "string" &&
-    typeof answers.timeHorizon === "string" &&
-    typeof answers.riskComfort === "string" &&
-    typeof answers.experience === "string" &&
-    Array.isArray(answers.interests) &&
-    typeof answers.portfolioStyle === "string" &&
-    typeof answers.investmentApproach === "string"
-  );
-}
-
-function getTemplateById(id: string) {
-  const template = portfolioTemplates.find((portfolio) => portfolio.id === id);
-
-  if (!template) {
-    throw new Error(`Missing portfolio template: ${id}`);
-  }
-
-  return template;
-}
-
-function selectPortfolioTemplate(answers: OnboardingAnswers): PortfolioTemplate {
-  if (
-    answers.riskComfort === "Low" ||
-    answers.portfolioStyle === "Safe and diversified"
-  ) {
-    return getTemplateById("conservative-beginner");
-  }
-
-  if (
-    answers.riskComfort === "High" ||
-    answers.portfolioStyle === "High-growth companies" ||
-    answers.portfolioStyle === "Thematic portfolio"
-  ) {
-    return getTemplateById("aggressive-growth");
-  }
-
-  return getTemplateById("balanced-growth");
-}
 
 function getRiskLabel(riskLevel: RiskLevel) {
   const labels: Record<RiskLevel, string> = {
@@ -90,26 +35,6 @@ function getRiskLabel(riskLevel: RiskLevel) {
   };
 
   return labels[riskLevel];
-}
-
-function getHoldingFallback(ticker: string) {
-  if (ticker === "CASH") {
-    return {
-      sector: "Cash reserve",
-      beginnerRiskLevel: "low" as RiskLevel,
-      companySummary:
-        "Cash lowers portfolio pressure and gives room to rebalance when markets move.",
-      keyRisks: ["Cash can lag inflation and does not compound like productive assets."],
-    };
-  }
-
-  return {
-    sector: "Research needed",
-    beginnerRiskLevel: "moderate" as RiskLevel,
-    companySummary:
-      "This holding needs a dedicated profile before it can be analyzed in detail.",
-    keyRisks: ["The main risk is not yet classified in the static research data."],
-  };
 }
 
 function getMainExposure(template: PortfolioTemplate) {
@@ -135,14 +60,8 @@ function getConcentrationRisk(template: PortfolioTemplate) {
     ...template.holdings.map((holding) => holding.allocation),
   );
 
-  if (largestHolding >= 40) {
-    return "Elevated";
-  }
-
-  if (largestHolding >= 25) {
-    return "Moderate";
-  }
-
+  if (largestHolding >= 40) return "Elevated";
+  if (largestHolding >= 25) return "Moderate";
   return "Low";
 }
 
@@ -182,9 +101,7 @@ export default function DashboardPage() {
       const storedAnswers = localStorage.getItem("arcanum-onboarding");
 
       if (!storedAnswers) {
-        if (!cancelled) {
-          setHasLoaded(true);
-        }
+        if (!cancelled) setHasLoaded(true);
         return;
       }
 
@@ -195,13 +112,9 @@ export default function DashboardPage() {
           setAnswers(parsedAnswers);
         }
       } catch {
-        if (!cancelled) {
-          setAnswers(null);
-        }
+        if (!cancelled) setAnswers(null);
       } finally {
-        if (!cancelled) {
-          setHasLoaded(true);
-        }
+        if (!cancelled) setHasLoaded(true);
       }
     }, 0);
 
@@ -216,14 +129,10 @@ export default function DashboardPage() {
     [answers],
   );
 
-  const allocationSegments: AllocationSegment[] = useMemo(
+  const allocationSegments = useMemo(
     () =>
       selectedPortfolio
-        ? selectedPortfolio.assetMix.map((item, index) => ({
-            label: item.assetClass,
-            percentage: item.percentage,
-            colorClass: allocationColors[index % allocationColors.length],
-          }))
+        ? buildAllocationSegments(selectedPortfolio.assetMix)
         : [],
     [selectedPortfolio],
   );
@@ -241,7 +150,7 @@ export default function DashboardPage() {
   if (!answers || !selectedPortfolio) {
     return (
       <main className="min-h-screen overflow-hidden bg-background text-foreground">
-        <section className="relative flex min-h-screen items-center px-5 py-12">
+        <section className="relative flex min-h-[calc(100vh-3.5rem)] items-center px-5 py-12">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(20,184,166,0.14),transparent_30%),radial-gradient(circle_at_85%_8%,rgba(245,158,11,0.1),transparent_26%),linear-gradient(180deg,rgba(255,255,255,0.055),transparent_46%)]" />
           <Card className="relative mx-auto w-full max-w-xl p-7 text-center">
             <Badge>ARCANUM dashboard</Badge>
@@ -270,7 +179,6 @@ export default function DashboardPage() {
   const learningCard =
     learningCards.find((card) => card.term === "Concentration Risk") ??
     learningCards[0];
-  const briefPreview = dailyBriefs.slice(0, 3);
 
   return (
     <main className="min-h-screen overflow-hidden bg-background text-foreground">
@@ -296,20 +204,19 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <ButtonLink
-              className="w-full sm:w-auto"
-              href="/onboarding"
-              variant="secondary"
-            >
-              Retake onboarding
-            </ButtonLink>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <ButtonLink className="w-full sm:w-auto" href="/simulator">
+                Start demo investing
+              </ButtonLink>
+              <ButtonLink
+                className="w-full sm:w-auto"
+                href="/onboarding"
+                variant="secondary"
+              >
+                Retake onboarding
+              </ButtonLink>
+            </div>
           </div>
-          <Card className="border-amber-200/15 bg-amber-200/[0.045]">
-            <p className="text-sm leading-6 text-amber-50/80">
-              Educational dashboard only. This is not financial advice, a
-              recommendation, or a prediction.
-            </p>
-          </Card>
         </div>
       </section>
 
@@ -317,7 +224,13 @@ export default function DashboardPage() {
         <SectionHeader
           eyebrow="Portfolio Health"
           title="A quick read on your portfolio structure."
-          description="These are static signals derived from the selected template, designed to teach what to watch before adding complexity."
+          description={
+            <>
+              Hover any metric to see what it means. These are educational
+              signals derived from the selected template, designed to teach what
+              to watch before adding complexity.
+            </>
+          }
         />
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <MetricCard
@@ -359,7 +272,7 @@ export default function DashboardPage() {
 
       <section className="border-y border-white/10 bg-white/[0.025]">
         <div className="mx-auto grid w-full max-w-7xl gap-5 px-5 py-10 sm:px-8 lg:grid-cols-[1.1fr_0.9fr] lg:px-10">
-          <Card title="Allocation">
+          <Card title="Allocation" variant="primary">
             <AllocationBar segments={allocationSegments} />
             <div className="mt-6 grid gap-3">
               {selectedPortfolio.assetMix.map((item) => (
@@ -460,7 +373,9 @@ export default function DashboardPage() {
                   {thesis}
                 </p>
                 <p className="mt-3 text-sm leading-6 text-zinc-500">
-                  <span className="font-semibold text-zinc-300">Key risk: </span>
+                  <span className="font-semibold text-zinc-300">
+                    Key risk:{" "}
+                  </span>
                   {keyRisk}
                 </p>
                 {profile ? (
@@ -486,41 +401,41 @@ export default function DashboardPage() {
         <div className="mx-auto w-full max-w-7xl px-5 py-10 sm:px-8 lg:px-10">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
             <SectionHeader
-              eyebrow="Today's Brief Preview"
-              title="What matters today."
-              description="A market brief should connect events to sectors, holdings, and plain-language investor implications."
+              eyebrow="Your portfolio in the news"
+              title="Live headlines about what you hold."
+              description="Real stories from Yahoo Finance, sorted by recency and filtered to the tickers in your starter portfolio. Refreshed every 30 minutes."
             />
-            <ButtonLink className="w-full sm:w-auto" href="/brief">
-              View full daily brief
+            <ButtonLink className="w-full sm:w-auto" href="/brief" variant="secondary">
+              Open full brief
             </ButtonLink>
           </div>
-          <div className="mt-8 grid gap-4 lg:grid-cols-3">
-            {briefPreview.map((brief) => (
-              <Card key={brief.title} title={brief.title}>
-                <p className="text-sm leading-6 text-zinc-400">
-                  {brief.whyItMatters}
-                </p>
-                <div className="mt-5 flex flex-wrap gap-2">
-                  {brief.affectedHoldings.map((ticker) => (
-                    <span
-                      className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs font-semibold text-teal-100"
-                      key={ticker}
-                    >
-                      {ticker}
-                    </span>
-                  ))}
-                </div>
-                <p className="mt-5 text-sm leading-6 text-zinc-500">
-                  {brief.beginnerTranslation}
-                </p>
-              </Card>
-            ))}
+          <div className="mt-8">
+            <NewsFeed
+              emptyMessage="No fresh stories on your holdings right now. The simulator tickers don't always have daily coverage — try again later."
+              tickers={selectedPortfolio.holdings
+                .map((h) => h.ticker)
+                .filter((t) => t !== "CASH")}
+            />
           </div>
         </div>
       </section>
 
       <section className="mx-auto w-full max-w-7xl px-5 py-10 sm:px-8 lg:px-10">
-        <Card eyebrow="Learning Card" title={learningCard.term}>
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+          <SectionHeader
+            eyebrow="Learning Card"
+            title="One concept to anchor today."
+            description="Each card explains an investing idea in plain terms and ties it back to portfolio decisions."
+          />
+          <ButtonLink
+            className="w-full sm:w-auto"
+            href="/learn"
+            variant="secondary"
+          >
+            Browse all concepts
+          </ButtonLink>
+        </div>
+        <Card className="mt-8" eyebrow="Concept" title={learningCard.term}>
           <div className="grid gap-4 md:grid-cols-3">
             <div>
               <p className="text-xs font-medium uppercase tracking-[0.18em] text-zinc-500">

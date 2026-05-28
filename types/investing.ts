@@ -39,11 +39,15 @@ export type BeginnerMetric = {
   explanation: string;
 };
 
+export type AssetType = "ETF" | "Stock";
+
 export type StockProfile = {
   ticker: string;
   name: string;
+  assetType: AssetType;
   sector: string;
   beginnerRiskLevel: RiskLevel;
+  beginnerSummary: string;
   portfolioRole: string;
   companySummary: string;
   businessModel: string;
@@ -118,23 +122,53 @@ export type AllocationSegment = {
   colorClass: string;
 };
 
-export type Holding = {
-  symbol: string;
+
+export type SimulatorTransactionType = "buy" | "sell";
+
+export type SimulatorHolding = {
+  ticker: string;
   name: string;
-  summary: string;
-  riskLevel: RiskLevel;
+  shares: number;
+  averageCost: number;
+  currentPrice: number;
+  investedAmount: number;
+  marketValue: number;
+  unrealizedGainLoss: number;
+  unrealizedGainLossPercent: number;
+  allocationPercent: number;
 };
 
-export type MarketBrief = {
-  category: string;
-  title: string;
-  summary: string;
-  readTime: string;
+export type SimulatorTransaction = {
+  id: string;
+  type: SimulatorTransactionType;
+  ticker: string;
+  shares: number;
+  price: number;
+  amount: number;
+  createdAt: string;
 };
 
-export type LearningLesson = {
-  level: string;
-  title: string;
-  summary: string;
-  progress: number;
+export type SimulatorState = {
+  startingCash: number;
+  cashBalance: number;
+  holdings: SimulatorHolding[];
+  transactions: SimulatorTransaction[];
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type SimulatorSummary = {
+  totalPortfolioValue: number;
+  cashBalance: number;
+  investedValue: number;
+  totalGainLoss: number;
+  totalGainLossPercent: number;
+  cashAllocationPercent: number;
+  investedAllocationPercent: number;
+};
+
+export type SimulatorActionResult = {
+  success: boolean;
+  message: string;
+  state: SimulatorState | null;
 };

@@ -1,9 +1,9 @@
-import type { LearningLesson } from "@/types/investing";
+import type { HomepageLesson } from "@/types/home";
 
 import { Card } from "./card";
 
 type LearningCardProps = {
-  lesson: LearningLesson;
+  lesson: HomepageLesson;
 };
 
 export function LearningCard({ lesson }: LearningCardProps) {
