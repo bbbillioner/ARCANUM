@@ -1,15 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
-import { AllocationBar } from "@/components/ui/allocation-bar";
-import { Badge } from "@/components/ui/badge";
-import { ButtonLink } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { RiskBadge } from "@/components/ui/risk-badge";
-import { SectionHeader } from "@/components/ui/section-header";
 import {
-  buildAllocationSegments,
   getHoldingFallback,
   isOnboardingAnswers,
   selectPortfolioTemplate,
@@ -39,18 +33,14 @@ export default function PortfolioSuggestionPage() {
 
   useEffect(() => {
     let cancelled = false;
-
     const timeoutId = window.setTimeout(() => {
       const storedAnswers = localStorage.getItem("arcanum-onboarding");
-
       if (!storedAnswers) {
         if (!cancelled) setHasLoaded(true);
         return;
       }
-
       try {
         const parsedAnswers: unknown = JSON.parse(storedAnswers);
-
         if (!cancelled && isOnboardingAnswers(parsedAnswers)) {
           setAnswers(parsedAnswers);
         }
@@ -60,7 +50,6 @@ export default function PortfolioSuggestionPage() {
         if (!cancelled) setHasLoaded(true);
       }
     }, 0);
-
     return () => {
       cancelled = true;
       window.clearTimeout(timeoutId);
@@ -72,252 +61,478 @@ export default function PortfolioSuggestionPage() {
     [answers],
   );
 
-  const allocationSegments = useMemo(
-    () =>
-      selectedPortfolio
-        ? buildAllocationSegments(selectedPortfolio.assetMix)
-        : [],
-    [selectedPortfolio],
-  );
-
   if (!hasLoaded) {
     return (
-      <main className="min-h-screen bg-background px-5 py-12 text-foreground">
-        <Card className="mx-auto max-w-xl">
-          <p className="text-sm text-zinc-400">Loading portfolio suggestion...</p>
-        </Card>
+      <main>
+        <section className="page-hero">
+          <div className="wrap">
+            <span className="eyebrow">
+              <span className="gem" />
+              Loading
+            </span>
+            <h1>Reading your profile…</h1>
+          </div>
+        </section>
       </main>
     );
   }
 
   if (!answers || !selectedPortfolio) {
     return (
-      <main className="min-h-screen overflow-hidden bg-background text-foreground">
-        <section className="relative flex min-h-[calc(100vh-3.5rem)] items-center px-5 py-12">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(20,184,166,0.14),transparent_30%),radial-gradient(circle_at_85%_8%,rgba(245,158,11,0.1),transparent_26%),linear-gradient(180deg,rgba(255,255,255,0.055),transparent_46%)]" />
-          <Card className="relative mx-auto w-full max-w-xl p-7 text-center">
-            <Badge>Portfolio suggestion</Badge>
-            <h1 className="mt-6 text-3xl font-semibold text-white">
-              Start with onboarding first
+      <main>
+        <section className="page-hero">
+          <div className="wrap" style={{ maxWidth: 640 }}>
+            <span className="eyebrow">
+              <span className="gem" />
+              Portfolio
+            </span>
+            <h1>
+              Start with <em>onboarding</em> first.
             </h1>
-            <p className="mt-4 text-base leading-7 text-zinc-400">
+            <p className="lede">
               ARCANUM needs your budget, goals, risk comfort, and interests
               before it can prepare a starter portfolio direction.
             </p>
-            <ButtonLink className="mt-7 w-full sm:w-auto" href="/onboarding">
-              Start building my portfolio
-            </ButtonLink>
-          </Card>
+            <div style={{ marginTop: 28 }}>
+              <Link className="btn btn-primary" href="/onboarding">
+                Open the 9-minute setup <span className="arrow">→</span>
+              </Link>
+            </div>
+          </div>
         </section>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen overflow-hidden bg-background text-foreground">
-      <section className="relative border-b border-white/10">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_12%,rgba(20,184,166,0.16),transparent_32%),radial-gradient(circle_at_85%_0%,rgba(245,158,11,0.12),transparent_28%),linear-gradient(180deg,rgba(255,255,255,0.06),transparent_48%)]" />
-        <div className="relative mx-auto flex w-full max-w-7xl flex-col gap-8 px-5 py-8 sm:px-8 lg:px-10 lg:py-14">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-3xl space-y-5">
-              <Badge>Suggested starter portfolio</Badge>
-              <div className="space-y-4">
-                <h1 className="text-4xl font-semibold leading-tight text-white sm:text-6xl">
-                  {selectedPortfolio.name}
-                </h1>
-                <p className="max-w-2xl text-lg leading-8 text-zinc-300">
-                  {selectedPortfolio.description}
-                </p>
+    <main>
+      {/* HERO */}
+      <section className="page-hero">
+        <div className="wrap">
+          <span className="eyebrow">
+            <span className="gem" />
+            Suggested starter portfolio
+          </span>
+          <h1>{selectedPortfolio.name}</h1>
+          <p className="lede">{selectedPortfolio.description}</p>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+              gap: 16,
+              marginTop: 32,
+              maxWidth: 720,
+            }}
+          >
+            <div className="metric-line">
+              <div className="label">Risk level</div>
+              <div className="value" style={{ color: "var(--accent)" }}>
+                {selectedPortfolio.riskLevel}
               </div>
             </div>
-
-            <div className="grid gap-3 sm:grid-cols-2 lg:min-w-80">
-              <Card className="p-4">
-                <p className="text-xs text-zinc-500">Risk level</p>
-                <div className="mt-3">
-                  <RiskBadge level={selectedPortfolio.riskLevel} />
-                </div>
-              </Card>
-              <Card className="p-4">
-                <p className="text-xs text-zinc-500">Time horizon</p>
-                <p className="mt-2 text-2xl font-semibold text-white">
-                  {selectedPortfolio.timeHorizon}
-                </p>
-              </Card>
+            <div className="metric-line">
+              <div className="label">Time horizon</div>
+              <div className="value">{selectedPortfolio.timeHorizon}</div>
+            </div>
+            <div className="metric-line">
+              <div className="label">Holdings</div>
+              <div className="value">{selectedPortfolio.holdings.length}</div>
             </div>
           </div>
-
-          <Card className="border-amber-200/15 bg-amber-200/[0.045]">
-            <p className="text-sm leading-6 text-amber-50/80">
-              {selectedPortfolio.disclaimer}
-            </p>
-          </Card>
         </div>
       </section>
 
-      <section className="mx-auto grid w-full max-w-7xl gap-5 px-5 py-10 sm:px-8 lg:grid-cols-[1.1fr_0.9fr] lg:px-10">
-        <Card title="Asset Mix" variant="primary">
-          <AllocationBar segments={allocationSegments} />
-          <div className="mt-6 grid gap-3">
-            {selectedPortfolio.assetMix.map((item) => (
-              <div
-                className="rounded-2xl border border-white/10 bg-white/[0.03] p-4"
-                key={item.assetClass}
-              >
-                <div className="flex items-center justify-between gap-4">
-                  <h3 className="font-semibold text-white">{item.assetClass}</h3>
-                  <span className="text-sm font-semibold text-teal-100">
-                    {item.percentage}%
-                  </span>
-                </div>
-                <p className="mt-2 text-sm leading-6 text-zinc-400">
-                  {item.rationale}
-                </p>
-              </div>
-            ))}
+      {/* ASSET MIX + SECTOR EXPOSURE */}
+      <section className="block">
+        <div className="wrap">
+          <div className="sec-head">
+            <span className="eyebrow">
+              <span className="gem" />
+              Asset mix
+            </span>
+            <h2>
+              The blocks your portfolio is <em>built from.</em>
+            </h2>
+            <p>
+              Each asset class plays a role — growth, stability, diversification,
+              or cash buffer. The mix decides how the portfolio behaves more than
+              any individual ticker.
+            </p>
           </div>
-        </Card>
 
-        <Card title="Sector Exposure">
-          <div className="space-y-4">
-            {selectedPortfolio.sectorExposure.map((sector) => (
-              <div key={sector.sector}>
-                <div className="mb-2 flex items-center justify-between gap-4 text-sm">
-                  <span className="font-medium text-zinc-200">
-                    {sector.sector}
-                  </span>
-                  <span className="text-zinc-500">{sector.percentage}%</span>
-                </div>
-                <div className="h-2 overflow-hidden rounded-full bg-white/10">
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1.1fr 0.9fr",
+              gap: 32,
+            }}
+            className="ps-grid"
+          >
+            <div style={{ display: "grid", gap: 14 }}>
+              {selectedPortfolio.assetMix.map((item) => (
+                <div className="card-line" key={item.assetClass}>
                   <div
-                    className="h-full rounded-full bg-amber-300"
-                    style={{ width: `${sector.percentage}%` }}
-                  />
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "baseline",
+                      marginBottom: 10,
+                    }}
+                  >
+                    <h3 style={{ marginBottom: 0 }}>{item.assetClass}</h3>
+                    <span
+                      style={{
+                        fontFamily: "var(--font-jetbrains-mono)",
+                        fontWeight: 600,
+                        fontSize: "1.2rem",
+                        color: "var(--accent)",
+                      }}
+                    >
+                      {item.percentage}%
+                    </span>
+                  </div>
+                  <div
+                    style={{
+                      height: 2,
+                      background: "var(--stroke)",
+                      marginBottom: 14,
+                      position: "relative",
+                      overflow: "hidden",
+                    }}
+                  >
+                    <div
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        width: `${item.percentage}%`,
+                        background: "var(--accent)",
+                      }}
+                    />
+                  </div>
+                  <p>{item.rationale}</p>
                 </div>
+              ))}
+            </div>
+
+            <div className="card-line">
+              <div
+                style={{
+                  fontFamily: "var(--font-jetbrains-mono)",
+                  fontSize: "0.68rem",
+                  letterSpacing: "0.18em",
+                  textTransform: "uppercase",
+                  color: "var(--muted)",
+                  marginBottom: 20,
+                }}
+              >
+                Sector exposure
               </div>
-            ))}
+              <div style={{ display: "grid", gap: 16 }}>
+                {selectedPortfolio.sectorExposure.map((sector) => (
+                  <div key={sector.sector}>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        fontSize: "0.88rem",
+                        marginBottom: 6,
+                      }}
+                    >
+                      <span style={{ color: "var(--foreground)" }}>
+                        {sector.sector}
+                      </span>
+                      <span
+                        style={{
+                          fontFamily: "var(--font-jetbrains-mono)",
+                          color: "var(--accent)",
+                        }}
+                      >
+                        {sector.percentage}%
+                      </span>
+                    </div>
+                    <div
+                      style={{
+                        height: 2,
+                        background: "var(--stroke)",
+                        position: "relative",
+                        overflow: "hidden",
+                      }}
+                    >
+                      <div
+                        style={{
+                          position: "absolute",
+                          inset: 0,
+                          width: `${sector.percentage}%`,
+                          background: "var(--accent)",
+                          opacity: 0.85,
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-        </Card>
+        </div>
       </section>
 
-      <section className="border-y border-white/10 bg-white/[0.025]">
-        <div className="mx-auto w-full max-w-7xl px-5 py-10 sm:px-8 lg:px-10">
-          <SectionHeader
-            eyebrow="Suggested Holdings"
-            title="The building blocks and why they are here."
-            description="Each holding has a portfolio role. The point is to understand the job it does, not to chase a ticker."
-          />
-          <div className="mt-8 grid gap-4 lg:grid-cols-2">
+      {/* HOLDINGS */}
+      <section className="block" style={{ paddingTop: 0 }}>
+        <div className="wrap">
+          <div className="sec-head">
+            <span className="eyebrow">
+              <span className="gem" />
+              Holdings
+            </span>
+            <h2>
+              The building blocks, and <em>why they&apos;re here.</em>
+            </h2>
+            <p>
+              Each holding has a job. The point is to understand the job it
+              does, not to chase a ticker.
+            </p>
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+              gap: 1,
+              background: "var(--stroke)",
+              border: "1px solid var(--stroke)",
+            }}
+          >
             {selectedPortfolio.holdings.map((holding) => {
-              const profile: StockProfile | undefined = stockProfileByTicker.get(
-                holding.ticker,
-              );
+              const profile: StockProfile | undefined =
+                stockProfileByTicker.get(holding.ticker);
               const fallback = getHoldingFallback(holding.ticker);
               const sector = profile?.sector ?? fallback.sector;
-              const riskLevel =
-                profile?.beginnerRiskLevel ?? fallback.beginnerRiskLevel;
               const explanation =
                 profile?.companySummary ?? fallback.companySummary;
-
               return (
-                <Card className="p-5" key={holding.ticker}>
-                  <div className="flex items-start justify-between gap-4">
+                <div
+                  key={holding.ticker}
+                  style={{
+                    background: "var(--surface)",
+                    padding: 28,
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "flex-start",
+                      marginBottom: 18,
+                    }}
+                  >
                     <div>
-                      <p className="text-3xl font-semibold text-white">
+                      <p
+                        style={{
+                          fontFamily: "var(--font-jetbrains-mono)",
+                          fontWeight: 600,
+                          fontSize: "1.8rem",
+                          letterSpacing: "0.03em",
+                          color: "var(--foreground)",
+                          lineHeight: 1,
+                        }}
+                      >
                         {holding.ticker}
                       </p>
-                      <h3 className="mt-2 text-lg font-semibold text-zinc-100">
+                      <p
+                        style={{
+                          fontSize: "0.92rem",
+                          color: "var(--muted)",
+                          marginTop: 6,
+                        }}
+                      >
                         {holding.name}
-                      </h3>
-                    </div>
-                    <RiskBadge level={riskLevel} />
-                  </div>
-                  <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
-                      <p className="text-xs text-zinc-500">Allocation</p>
-                      <p className="mt-1 text-xl font-semibold text-white">
-                        {holding.allocation}%
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3 sm:col-span-2">
-                      <p className="text-xs text-zinc-500">Sector</p>
-                      <p className="mt-1 text-sm font-medium text-zinc-200">
-                        {sector}
-                      </p>
-                    </div>
+                    <span
+                      style={{
+                        fontFamily: "var(--font-jetbrains-mono)",
+                        fontSize: "1rem",
+                        color: "var(--accent)",
+                        fontWeight: 600,
+                      }}
+                    >
+                      {holding.allocation}%
+                    </span>
                   </div>
-                  <p className="mt-5 text-sm leading-6 text-zinc-400">
+                  <p
+                    style={{
+                      fontSize: "0.72rem",
+                      letterSpacing: "0.18em",
+                      textTransform: "uppercase",
+                      color: "var(--muted)",
+                      fontFamily: "var(--font-jetbrains-mono)",
+                      marginBottom: 6,
+                    }}
+                  >
+                    {sector}
+                  </p>
+                  <p
+                    style={{
+                      fontSize: "0.92rem",
+                      color: "var(--muted)",
+                      lineHeight: 1.6,
+                      marginTop: 14,
+                    }}
+                  >
+                    <span
+                      style={{
+                        color: "var(--foreground)",
+                        fontWeight: 500,
+                      }}
+                    >
+                      Role.{" "}
+                    </span>
                     {holding.role}
                   </p>
-                  <p className="mt-3 text-sm leading-6 text-zinc-500">
+                  <p
+                    style={{
+                      fontSize: "0.88rem",
+                      color: "var(--muted)",
+                      lineHeight: 1.6,
+                      marginTop: 12,
+                    }}
+                  >
                     {explanation}
                   </p>
-                </Card>
+                </div>
               );
             })}
           </div>
         </div>
       </section>
 
-      <section className="mx-auto grid w-full max-w-7xl gap-5 px-5 py-10 sm:px-8 lg:grid-cols-[1fr_0.8fr] lg:px-10">
-        <Card title="Why this portfolio fits you">
-          <p className="text-sm leading-7 text-zinc-400">
-            {getPersonalizedExplanation(answers, selectedPortfolio)}
-          </p>
-          <div className="mt-6 grid gap-3 sm:grid-cols-3">
-            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-              <p className="text-xs text-zinc-500">Goal</p>
-              <p className="mt-2 text-sm font-medium text-white">
-                {answers.goal}
+      {/* WHY + NEXT */}
+      <section className="block" style={{ paddingTop: 0 }}>
+        <div className="wrap">
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1.1fr 0.9fr",
+              gap: 24,
+            }}
+            className="ps-grid"
+          >
+            <div className="card-line">
+              <h3>Why this fits you</h3>
+              <p style={{ lineHeight: 1.75, marginBottom: 22 }}>
+                {getPersonalizedExplanation(answers, selectedPortfolio)}
               </p>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-              <p className="text-xs text-zinc-500">Approach</p>
-              <p className="mt-2 text-sm font-medium text-white">
-                {answers.investmentApproach}
-              </p>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-              <p className="text-xs text-zinc-500">Risk</p>
-              <p className="mt-2 text-sm font-medium text-white">
-                {answers.riskComfort} comfort
-              </p>
-            </div>
-          </div>
-        </Card>
-
-        <Card title="What to do next">
-          <div className="space-y-3">
-            {["Review your dashboard", "Study each holding", "Read today's brief"].map(
-              (step, index) => (
-                <div
-                  className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4"
-                  key={step}
-                >
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-teal-300 text-sm font-semibold text-zinc-950">
-                    {index + 1}
-                  </span>
-                  <span className="text-sm font-medium text-zinc-200">
-                    {step}
-                  </span>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(3, 1fr)",
+                  gap: 12,
+                }}
+              >
+                <div className="metric-line" style={{ padding: 14 }}>
+                  <div className="label">Goal</div>
+                  <div
+                    style={{
+                      fontSize: "0.95rem",
+                      color: "var(--foreground)",
+                      marginTop: 6,
+                    }}
+                  >
+                    {answers.goal}
+                  </div>
                 </div>
-              ),
-            )}
+                <div className="metric-line" style={{ padding: 14 }}>
+                  <div className="label">Approach</div>
+                  <div
+                    style={{
+                      fontSize: "0.95rem",
+                      color: "var(--foreground)",
+                      marginTop: 6,
+                    }}
+                  >
+                    {answers.investmentApproach}
+                  </div>
+                </div>
+                <div className="metric-line" style={{ padding: 14 }}>
+                  <div className="label">Risk</div>
+                  <div
+                    style={{
+                      fontSize: "0.95rem",
+                      color: "var(--foreground)",
+                      marginTop: 6,
+                    }}
+                  >
+                    {answers.riskComfort}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="card-line">
+              <h3>What to do next</h3>
+              <ol
+                style={{
+                  listStyle: "none",
+                  padding: 0,
+                  margin: "18px 0",
+                  display: "grid",
+                  gap: 10,
+                }}
+              >
+                {[
+                  "Open the dashboard and read each holding's job",
+                  "Read today's brief for news that touches your holdings",
+                  "Practice a buy in the simulator before any real money",
+                ].map((step, index) => (
+                  <li
+                    key={step}
+                    style={{
+                      display: "flex",
+                      gap: 14,
+                      alignItems: "flex-start",
+                      padding: "12px 0",
+                      borderBottom: "1px solid var(--stroke)",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontFamily: "var(--font-jetbrains-mono)",
+                        color: "var(--accent)",
+                        fontWeight: 600,
+                        fontSize: "0.85rem",
+                      }}
+                    >
+                      0{index + 1}
+                    </span>
+                    <span style={{ color: "var(--foreground)", fontSize: "0.92rem" }}>
+                      {step}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+              <div
+                style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 20 }}
+              >
+                <Link className="btn btn-primary" href="/dashboard">
+                  Open dashboard <span className="arrow">→</span>
+                </Link>
+                <Link className="btn btn-ghost" href="/onboarding">
+                  Retake onboarding
+                </Link>
+              </div>
+            </div>
           </div>
-          <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-            <ButtonLink className="w-full sm:w-auto" href="/dashboard">
-              Continue to dashboard
-            </ButtonLink>
-            <ButtonLink
-              className="w-full sm:w-auto"
-              href="/onboarding"
-              variant="secondary"
-            >
-              Retake onboarding
-            </ButtonLink>
-          </div>
-        </Card>
+        </div>
       </section>
+
+      <style>{`
+        @media (max-width: 880px) {
+          .ps-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
     </main>
   );
 }

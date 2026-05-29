@@ -1,70 +1,70 @@
 import Link from "next/link";
 
-const footerSections = [
+import { Wordmark } from "./wordmark";
+
+const footerCols = [
   {
     heading: "Product",
     links: [
-      { href: "/dashboard", label: "Dashboard" },
-      { href: "/stocks", label: "Stocks" },
-      { href: "/simulator", label: "Simulator" },
+      { href: "/dashboard", label: "Terminal" },
+      { href: "/stocks", label: "Watchlist" },
+      { href: "/learn", label: "Lessons" },
+      { href: "/simulator", label: "Paper trading" },
     ],
   },
   {
-    heading: "Learn",
+    heading: "Company",
     links: [
-      { href: "/learn", label: "Concepts" },
+      { href: "/#method", label: "Method" },
+      { href: "/#pricing", label: "Pricing" },
       { href: "/brief", label: "Daily brief" },
-      { href: "/onboarding", label: "Build your profile" },
+      { href: "/onboarding", label: "Begin" },
+    ],
+  },
+  {
+    heading: "Legal",
+    links: [
+      { href: "/", label: "Disclosures" },
+      { href: "/", label: "Terms" },
+      { href: "/", label: "Privacy" },
+      { href: "/", label: "Contact" },
     ],
   },
 ];
 
 export function Footer() {
   return (
-    <footer className="mt-20 border-t border-white/10 bg-[#05070a]">
-      <div className="mx-auto w-full max-w-7xl px-5 py-10 sm:px-8 lg:px-10">
-        <div className="grid gap-8 sm:grid-cols-[1.4fr_1fr_1fr] sm:gap-12">
-          <div className="space-y-3">
-            <p className="text-sm font-semibold tracking-wide text-white">
-              ARCANUM
-            </p>
-            <p className="max-w-sm text-sm leading-6 text-zinc-400">
-              A beginner investor command center for portfolio structure,
-              stock research, market context, and investing literacy.
+    <footer className="site-footer">
+      <div className="wrap">
+        <div className="foot-grid">
+          <div className="foot-brand">
+            <Link href="/">
+              <Wordmark />
+            </Link>
+            <p>
+              A beginner investor command center. Built so your first decade is
+              calmer than everyone else&apos;s first year.
             </p>
           </div>
-          {footerSections.map((section) => (
-            <div className="space-y-3" key={section.heading}>
-              <p className="text-xs font-medium uppercase tracking-[0.18em] text-zinc-500">
-                {section.heading}
-              </p>
-              <ul className="space-y-2">
-                {section.links.map((link) => (
-                  <li key={link.href}>
-                    <Link
-                      className="text-sm text-zinc-300 transition hover:text-teal-200"
-                      href={link.href}
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+          {footerCols.map((col) => (
+            <div className="fcol" key={col.heading}>
+              <h5>{col.heading}</h5>
+              {col.links.map((link) => (
+                <Link href={link.href} key={`${col.heading}-${link.label}`}>
+                  {link.label}
+                </Link>
+              ))}
             </div>
           ))}
         </div>
-
-        <div className="mt-10 border-t border-white/[0.06] pt-6">
-          <p className="text-xs leading-6 text-zinc-500">
-            <span className="font-semibold text-zinc-300">
-              Educational use only.
-            </span>{" "}
-            ARCANUM is not a broker, advisor, or signal service. Nothing on this
-            site is financial advice, a recommendation, or a prediction. Prices
-            are historical snapshots from public sources and may be stale. Do
-            your own research and consult a qualified professional before
-            investing.
+        <div className="foot-bottom">
+          <p className="fine">
+            ARCANUM is a product mockup. Investing involves risk, including
+            possible loss of principal. Past performance is not indicative of
+            future results. Figures, tickers, and balances shown are
+            illustrative and not investment advice.
           </p>
+          <span className="cc">© 2026 ARCANUM LABS</span>
         </div>
       </div>
     </footer>

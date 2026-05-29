@@ -1,11 +1,7 @@
-import { Badge } from "@/components/ui/badge";
-import { ButtonLink } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import Link from "next/link";
+
 import { ChartFull } from "@/components/ui/chart-full";
 import { NewsCard } from "@/components/ui/news-card";
-import { RiskBadge } from "@/components/ui/risk-badge";
-import { SectionHeader } from "@/components/ui/section-header";
-import { Term } from "@/components/ui/term";
 import { stockProfiles } from "@/data/stocks";
 import { fetchTickerNews } from "@/lib/news";
 import {
@@ -17,154 +13,205 @@ import {
 } from "@/lib/prices";
 
 type StockPageProps = {
-  params: Promise<{
-    ticker: string;
-  }>;
+  params: Promise<{ ticker: string }>;
 };
 
+function formatCurrency(value: number) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  }).format(value);
+}
+
 export function generateStaticParams() {
-  return stockProfiles.map((profile) => ({
-    ticker: profile.ticker,
-  }));
+  return stockProfiles.map((profile) => ({ ticker: profile.ticker }));
 }
 
 export default async function StockResearchPage({ params }: StockPageProps) {
   const { ticker } = await params;
   const normalizedTicker = ticker.toUpperCase();
   const profile = stockProfiles.find(
-    (stockProfile) => stockProfile.ticker.toUpperCase() === normalizedTicker,
+    (p) => p.ticker.toUpperCase() === normalizedTicker,
   );
-
-  const news = profile ? await fetchTickerNews(normalizedTicker, 6) : [];
 
   if (!profile) {
     return (
-      <main className="min-h-screen overflow-hidden bg-background text-foreground">
-        <section className="relative flex min-h-screen items-center px-5 py-12">
-          <Card className="relative mx-auto w-full max-w-xl p-7 text-center">
-            <Badge>Stock research</Badge>
-            <h1 className="mt-6 text-3xl font-semibold text-white">
-              Stock profile not found
+      <main>
+        <section className="page-hero">
+          <div className="wrap" style={{ maxWidth: 640 }}>
+            <span className="eyebrow">
+              <span className="gem" />
+              Not found
+            </span>
+            <h1>
+              No research <em>profile.</em>
             </h1>
-            <p className="mt-4 text-base leading-7 text-zinc-400">
-              ARCANUM does not have a static research profile for{" "}
-              <span className="font-semibold text-zinc-200">
-                {normalizedTicker}
-              </span>{" "}
-              yet.
+            <p className="lede">
+              ARCANUM does not have a static profile for {normalizedTicker} yet.
             </p>
-            <ButtonLink className="mt-7 w-full sm:w-auto" href="/dashboard">
-              Back to dashboard
-            </ButtonLink>
-          </Card>
+            <div style={{ marginTop: 28 }}>
+              <Link className="btn btn-primary" href="/stocks">
+                Back to all stocks <span className="arrow">→</span>
+              </Link>
+            </div>
+          </div>
         </section>
       </main>
     );
   }
 
+  const news = await fetchTickerNews(normalizedTicker, 6);
+  const currentPrice = getCurrentPrice(profile.ticker);
+  const change1Y = getTimeframeChangePercent(profile.ticker, "1Y");
+  const fetchedAt = getFetchedAt(profile.ticker);
+  const positive = change1Y >= 0;
+
   return (
-    <main className="min-h-screen overflow-hidden bg-background text-foreground">
-      <section className="relative border-b border-white/10">
-        <div className="relative mx-auto flex w-full max-w-7xl flex-col gap-8 px-5 py-8 sm:px-8 lg:px-10 lg:py-14">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-3xl space-y-5">
-              <Badge>Stock research</Badge>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-lg font-semibold text-teal-100">
-                    {profile.ticker}
-                  </p>
-                  <h1 className="mt-2 text-4xl font-semibold leading-tight text-white sm:text-6xl">
-                    {profile.name}
-                  </h1>
-                </div>
-                <div className="flex flex-wrap items-center gap-3">
-                  <RiskBadge level={profile.beginnerRiskLevel} />
-                  <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs font-semibold text-zinc-300">
-                    {profile.sector}
-                  </span>
-                </div>
-                <p className="max-w-3xl text-base leading-8 text-zinc-300 sm:text-lg">
-                  {profile.portfolioRole}
-                </p>
-              </div>
-            </div>
-
-            <ButtonLink
-              className="w-full sm:w-auto"
-              href="/dashboard"
-              variant="secondary"
-            >
-              Back to dashboard
-            </ButtonLink>
-          </div>
-        </div>
-      </section>
-
-      <section className="border-y border-white/10 bg-white/[0.025]">
-        <div className="mx-auto w-full max-w-7xl px-5 py-10 sm:px-8 lg:px-10">
-          <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+    <main>
+      {/* HERO */}
+      <section className="page-hero">
+        <div className="wrap">
+          <span className="eyebrow">
+            <span className="gem" />
+            Research · {profile.assetType}
+          </span>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-end",
+              justifyContent: "space-between",
+              gap: 32,
+              flexWrap: "wrap",
+              marginTop: 12,
+            }}
+          >
             <div>
-              <p className="text-xs font-medium uppercase tracking-[0.18em] text-zinc-500">
-                Price
+              <p
+                style={{
+                  fontFamily: "var(--font-jetbrains-mono)",
+                  fontWeight: 600,
+                  fontSize: "0.92rem",
+                  letterSpacing: "0.18em",
+                  color: "var(--accent)",
+                  marginBottom: 12,
+                }}
+              >
+                {profile.ticker}
               </p>
-              <div className="mt-3 flex flex-wrap items-baseline gap-3">
-                <p className="text-4xl font-semibold text-white">
-                  {new Intl.NumberFormat("en-US", {
-                    style: "currency",
-                    currency: "USD",
-                  }).format(getCurrentPrice(profile.ticker))}
-                </p>
-                {(() => {
-                  const change = getTimeframeChangePercent(profile.ticker, "1Y");
-                  const positive = change >= 0;
-                  return (
-                    <p
-                      className={`text-sm font-semibold ${positive ? "text-teal-200" : "text-rose-200"}`}
-                    >
-                      {positive ? "+" : ""}
-                      {change.toFixed(2)}%{" "}
-                      <span className="text-zinc-500">1Y</span>
-                    </p>
-                  );
-                })()}
-              </div>
+              <h1 style={{ marginBottom: 14 }}>{profile.name}</h1>
+              <p
+                style={{
+                  fontFamily: "var(--font-jetbrains-mono)",
+                  fontSize: "0.72rem",
+                  letterSpacing: "0.18em",
+                  textTransform: "uppercase",
+                  color: "var(--muted)",
+                }}
+              >
+                {profile.sector}
+              </p>
             </div>
-            {(() => {
-              const fetchedAt = getFetchedAt(profile.ticker);
-              if (!fetchedAt) return null;
-              return (
-                <p className="text-xs text-zinc-500">
-                  Prices as of {formatFetchedAt(fetchedAt)} (Yahoo Finance)
-                </p>
-              );
-            })()}
-          </div>
-          <div className="mt-6">
-            <ChartFull bars={getPriceBars(profile.ticker)} defaultTimeframe="1Y" />
+            <div style={{ textAlign: "right" }}>
+              <p
+                style={{
+                  fontFamily: "var(--font-jetbrains-mono)",
+                  fontSize: "0.66rem",
+                  letterSpacing: "0.18em",
+                  textTransform: "uppercase",
+                  color: "var(--muted)",
+                  marginBottom: 8,
+                }}
+              >
+                Last close
+              </p>
+              <p
+                style={{
+                  fontFamily: "var(--font-jetbrains-mono)",
+                  fontWeight: 600,
+                  fontSize: "2.4rem",
+                  letterSpacing: "-0.02em",
+                  color: "var(--accent)",
+                  lineHeight: 1,
+                }}
+              >
+                {formatCurrency(currentPrice)}
+              </p>
+              <p
+                style={{
+                  fontFamily: "var(--font-jetbrains-mono)",
+                  fontSize: "0.92rem",
+                  color: positive ? "var(--accent)" : "#ff6878",
+                  marginTop: 8,
+                }}
+              >
+                {positive ? "+" : ""}
+                {change1Y.toFixed(2)}%{" "}
+                <span style={{ color: "var(--muted)" }}>1Y</span>
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-7xl px-5 py-10 sm:px-8 lg:px-10">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <SectionHeader
-            eyebrow="In the news"
-            title={`Recent stories on ${profile.ticker}.`}
-            description="Fresh headlines from Yahoo Finance — refreshed every 30 minutes. Click through for the full article. Where the headline gives us a clear topic, we add a one-line beginner cue."
-          />
-          <p className="text-xs text-zinc-500">Updated continuously</p>
+      {/* CHART */}
+      <section className="block" style={{ paddingTop: "clamp(2rem,4vw,3rem)" }}>
+        <div className="wrap">
+          <ChartFull bars={getPriceBars(profile.ticker)} defaultTimeframe="1Y" />
+          {fetchedAt && (
+            <p
+              style={{
+                fontFamily: "var(--font-jetbrains-mono)",
+                fontSize: "0.66rem",
+                letterSpacing: "0.14em",
+                textTransform: "uppercase",
+                color: "var(--muted)",
+                marginTop: 14,
+                textAlign: "right",
+              }}
+            >
+              Prices via Yahoo Finance · {formatFetchedAt(fetchedAt)}
+            </p>
+          )}
         </div>
-        <div className="mt-8">
+      </section>
+
+      {/* NEWS */}
+      <section className="block" style={{ paddingTop: 0 }}>
+        <div className="wrap">
+          <div className="sec-head">
+            <span className="eyebrow">
+              <span className="gem" />
+              In the news
+            </span>
+            <h2>
+              Recent stories on <em>{profile.ticker}.</em>
+            </h2>
+            <p>
+              Fresh headlines from Yahoo Finance, updated every 30 minutes. When
+              we can read a clear topic, a one-line beginner cue is added.
+            </p>
+          </div>
           {news.length === 0 ? (
-            <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-5">
-              <p className="text-sm leading-6 text-zinc-400">
-                No recent news for {profile.ticker} from Yahoo Finance right now.
-                Check back in a bit.
+            <div
+              style={{
+                background: "var(--surface)",
+                border: "1px solid var(--stroke)",
+                padding: 24,
+              }}
+            >
+              <p style={{ color: "var(--muted)", fontSize: "0.92rem" }}>
+                No recent news for {profile.ticker} right now. Check back in a
+                bit.
               </p>
             </div>
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+                gap: 16,
+              }}
+            >
               {news.map((item) => (
                 <NewsCard
                   highlightTickers={[profile.ticker]}
@@ -177,121 +224,342 @@ export default async function StockResearchPage({ params }: StockPageProps) {
         </div>
       </section>
 
-      <section className="border-y border-white/10 bg-white/[0.025]">
-        <div className="mx-auto grid w-full max-w-7xl gap-5 px-5 py-10 sm:px-8 lg:grid-cols-2 lg:px-10">
-          <Card title="Company / Fund Summary">
-            <p className="text-sm leading-7 text-zinc-400">
-              {profile.companySummary}
-            </p>
-          </Card>
-          <Card title="Business Model">
-            <p className="text-sm leading-7 text-zinc-400">
-              {profile.businessModel}
-            </p>
-          </Card>
-        </div>
-      </section>
-
-      <section className="mx-auto grid w-full max-w-7xl gap-5 px-5 py-10 sm:px-8 lg:grid-cols-2 lg:px-10">
-          <Card title="Why People Invest">
-            <div className="grid gap-3">
-              {profile.whyPeopleInvest.map((reason, index) => (
-                <div
-                  className="flex gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4"
-                  key={reason}
-                >
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-teal-300 text-xs font-semibold text-zinc-950">
-                    {index + 1}
-                  </span>
-                  <p className="text-sm leading-6 text-zinc-300">{reason}</p>
-                </div>
-              ))}
+      {/* COMPANY + BUSINESS */}
+      <section className="block" style={{ paddingTop: 0 }}>
+        <div className="wrap">
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: 18,
+            }}
+            className="sd-2col"
+          >
+            <div className="card-line">
+              <h3>Company / Fund Summary</h3>
+              <p>{profile.companySummary}</p>
             </div>
-          </Card>
-
-          <Card title="Key Risks">
-            <div className="grid gap-3">
-              {profile.keyRisks.map((risk, index) => (
-                <div
-                  className="flex gap-3 rounded-2xl border border-rose-200/10 bg-rose-200/[0.035] p-4"
-                  key={risk}
-                >
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-rose-200 text-xs font-semibold text-zinc-950">
-                    {index + 1}
-                  </span>
-                  <p className="text-sm leading-6 text-zinc-300">{risk}</p>
-                </div>
-              ))}
+            <div className="card-line">
+              <h3>Business Model</h3>
+              <p>{profile.businessModel}</p>
             </div>
-          </Card>
-      </section>
-
-      <section className="mx-auto w-full max-w-7xl px-5 py-10 sm:px-8 lg:px-10">
-        <SectionHeader
-          eyebrow="Scenarios"
-          title="Bull, base, and bear cases."
-          description="A serious investor does not need to predict the future. They need to understand what different outcomes could look like."
-        />
-        <div className="mt-8 grid gap-4 lg:grid-cols-3">
-          <Card title={<Term>Bull case</Term>}>
-            <p className="text-sm leading-7 text-zinc-400">{profile.bullCase}</p>
-          </Card>
-          <Card title={<Term>Base case</Term>}>
-            <p className="text-sm leading-7 text-zinc-400">{profile.baseCase}</p>
-          </Card>
-          <Card title={<Term>Bear case</Term>}>
-            <p className="text-sm leading-7 text-zinc-400">{profile.bearCase}</p>
-          </Card>
-        </div>
-      </section>
-
-      <section className="border-y border-white/10 bg-white/[0.025]">
-        <div className="mx-auto w-full max-w-7xl px-5 py-10 sm:px-8 lg:px-10">
-          <SectionHeader
-            eyebrow="Beginner Metrics"
-            title="Signals worth understanding."
-            description="These are not buy or sell signals. They are prompts for learning how the holding behaves."
-          />
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {profile.beginnerMetrics.map((metric) => (
-              <Card className="p-5" key={metric.label}>
-                <p className="text-xs font-medium uppercase tracking-[0.18em] text-zinc-500">
-                  {metric.label}
-                </p>
-                <p className="mt-3 text-2xl font-semibold text-white">
-                  {metric.value}
-                </p>
-                <p className="mt-3 text-sm leading-6 text-zinc-400">
-                  {metric.explanation}
-                </p>
-              </Card>
-            ))}
           </div>
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-7xl px-5 py-10 sm:px-8 lg:px-10">
-        <Card title="What To Research Next">
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {profile.whatToResearchNext.map((item, index) => (
-              <div
-                className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4"
-                key={item}
+      {/* WHY + RISKS */}
+      <section className="block" style={{ paddingTop: 0 }}>
+        <div className="wrap">
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: 18,
+            }}
+            className="sd-2col"
+          >
+            <div className="card-line">
+              <h3>Why people invest</h3>
+              <ol
+                style={{
+                  listStyle: "none",
+                  padding: 0,
+                  margin: "16px 0 0",
+                  display: "grid",
+                  gap: 12,
+                }}
               >
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-300 text-sm font-semibold text-zinc-950">
-                  {index + 1}
-                </span>
-                <div>
-                  <p className="text-sm font-semibold text-zinc-100">
-                    Research checkpoint
-                  </p>
-                  <p className="mt-1 text-sm leading-6 text-zinc-400">{item}</p>
-                </div>
+                {profile.whyPeopleInvest.map((reason, index) => (
+                  <li
+                    key={reason}
+                    style={{
+                      display: "flex",
+                      gap: 14,
+                      paddingTop: 10,
+                      borderTop: index === 0 ? "none" : "1px solid var(--stroke)",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontFamily: "var(--font-jetbrains-mono)",
+                        color: "var(--accent)",
+                        fontWeight: 600,
+                        fontSize: "0.85rem",
+                      }}
+                    >
+                      0{index + 1}
+                    </span>
+                    <span
+                      style={{
+                        color: "var(--foreground)",
+                        fontSize: "0.92rem",
+                        lineHeight: 1.6,
+                      }}
+                    >
+                      {reason}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+
+            <div className="card-line">
+              <h3>Key risks</h3>
+              <ol
+                style={{
+                  listStyle: "none",
+                  padding: 0,
+                  margin: "16px 0 0",
+                  display: "grid",
+                  gap: 12,
+                }}
+              >
+                {profile.keyRisks.map((risk, index) => (
+                  <li
+                    key={risk}
+                    style={{
+                      display: "flex",
+                      gap: 14,
+                      paddingTop: 10,
+                      borderTop: index === 0 ? "none" : "1px solid var(--stroke)",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontFamily: "var(--font-jetbrains-mono)",
+                        color: "#ff6878",
+                        fontWeight: 600,
+                        fontSize: "0.85rem",
+                      }}
+                    >
+                      0{index + 1}
+                    </span>
+                    <span
+                      style={{
+                        color: "var(--foreground)",
+                        fontSize: "0.92rem",
+                        lineHeight: 1.6,
+                      }}
+                    >
+                      {risk}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SCENARIOS */}
+      <section className="block" style={{ paddingTop: 0 }}>
+        <div className="wrap">
+          <div className="sec-head">
+            <span className="eyebrow">
+              <span className="gem" />
+              Scenarios
+            </span>
+            <h2>
+              Bull, base, and <em>bear cases.</em>
+            </h2>
+            <p>
+              A serious investor doesn&apos;t need to predict the future. They
+              need to understand what different outcomes could look like.
+            </p>
+          </div>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+              gap: 1,
+              background: "var(--stroke)",
+              border: "1px solid var(--stroke)",
+            }}
+          >
+            <div style={{ background: "var(--surface)", padding: 28 }}>
+              <p
+                style={{
+                  fontFamily: "var(--font-jetbrains-mono)",
+                  fontSize: "0.68rem",
+                  letterSpacing: "0.18em",
+                  textTransform: "uppercase",
+                  color: "var(--accent)",
+                  marginBottom: 14,
+                }}
+              >
+                Bull case
+              </p>
+              <p
+                style={{
+                  color: "var(--muted)",
+                  fontSize: "0.94rem",
+                  lineHeight: 1.65,
+                }}
+              >
+                {profile.bullCase}
+              </p>
+            </div>
+            <div style={{ background: "var(--surface)", padding: 28 }}>
+              <p
+                style={{
+                  fontFamily: "var(--font-jetbrains-mono)",
+                  fontSize: "0.68rem",
+                  letterSpacing: "0.18em",
+                  textTransform: "uppercase",
+                  color: "var(--muted)",
+                  marginBottom: 14,
+                }}
+              >
+                Base case
+              </p>
+              <p
+                style={{
+                  color: "var(--muted)",
+                  fontSize: "0.94rem",
+                  lineHeight: 1.65,
+                }}
+              >
+                {profile.baseCase}
+              </p>
+            </div>
+            <div style={{ background: "var(--surface)", padding: 28 }}>
+              <p
+                style={{
+                  fontFamily: "var(--font-jetbrains-mono)",
+                  fontSize: "0.68rem",
+                  letterSpacing: "0.18em",
+                  textTransform: "uppercase",
+                  color: "#ff6878",
+                  marginBottom: 14,
+                }}
+              >
+                Bear case
+              </p>
+              <p
+                style={{
+                  color: "var(--muted)",
+                  fontSize: "0.94rem",
+                  lineHeight: 1.65,
+                }}
+              >
+                {profile.bearCase}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* BEGINNER METRICS */}
+      <section className="block" style={{ paddingTop: 0 }}>
+        <div className="wrap">
+          <div className="sec-head">
+            <span className="eyebrow">
+              <span className="gem" />
+              Beginner metrics
+            </span>
+            <h2>
+              Signals worth <em>understanding.</em>
+            </h2>
+            <p>
+              These are not buy or sell signals. They are prompts for learning
+              how the holding behaves.
+            </p>
+          </div>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+              gap: 14,
+            }}
+          >
+            {profile.beginnerMetrics.map((metric) => (
+              <div className="card-line" key={metric.label}>
+                <p
+                  style={{
+                    fontFamily: "var(--font-jetbrains-mono)",
+                    fontSize: "0.66rem",
+                    letterSpacing: "0.18em",
+                    textTransform: "uppercase",
+                    color: "var(--muted)",
+                  }}
+                >
+                  {metric.label}
+                </p>
+                <p
+                  style={{
+                    fontFamily: "var(--font-jetbrains-mono)",
+                    fontWeight: 600,
+                    fontSize: "1.5rem",
+                    color: "var(--accent)",
+                    marginTop: 10,
+                  }}
+                >
+                  {metric.value}
+                </p>
+                <p
+                  style={{
+                    fontSize: "0.88rem",
+                    color: "var(--muted)",
+                    lineHeight: 1.6,
+                    marginTop: 12,
+                  }}
+                >
+                  {metric.explanation}
+                </p>
               </div>
             ))}
           </div>
-        </Card>
+        </div>
       </section>
+
+      {/* RESEARCH NEXT */}
+      <section className="block" style={{ paddingTop: 0 }}>
+        <div className="wrap">
+          <div className="sec-head">
+            <span className="eyebrow">
+              <span className="gem" />
+              What to research next
+            </span>
+            <h2>
+              The next <em>checkpoints.</em>
+            </h2>
+          </div>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+              gap: 14,
+            }}
+          >
+            {profile.whatToResearchNext.map((item, index) => (
+              <div className="card-line" key={item}>
+                <p
+                  style={{
+                    fontFamily: "var(--font-jetbrains-mono)",
+                    fontSize: "0.72rem",
+                    letterSpacing: "0.14em",
+                    color: "var(--accent)",
+                    marginBottom: 8,
+                  }}
+                >
+                  Checkpoint 0{index + 1}
+                </p>
+                <p style={{ color: "var(--foreground)", fontSize: "0.95rem", lineHeight: 1.6 }}>
+                  {item}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <style>{`
+        @media (max-width: 880px) {
+          .sd-2col {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
     </main>
   );
 }

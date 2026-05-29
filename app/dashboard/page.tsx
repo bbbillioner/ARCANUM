@@ -1,19 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
-import { AllocationBar } from "@/components/ui/allocation-bar";
-import { Badge } from "@/components/ui/badge";
-import { ButtonLink } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { MetricCard } from "@/components/ui/metric-card";
-import { RiskBadge } from "@/components/ui/risk-badge";
 import { NewsFeed } from "@/components/ui/news-feed";
-import { SectionHeader } from "@/components/ui/section-header";
-import { Term } from "@/components/ui/term";
 import { learningCards } from "@/data/learning-cards";
 import {
-  buildAllocationSegments,
   getHoldingFallback,
   isOnboardingAnswers,
   selectPortfolioTemplate,
@@ -33,7 +25,6 @@ function getRiskLabel(riskLevel: RiskLevel) {
     moderate: "Moderate",
     elevated: "Elevated",
   };
-
   return labels[riskLevel];
 }
 
@@ -45,49 +36,30 @@ function getMainExposure(template: PortfolioTemplate) {
 
 function getEtfAllocation(holdings: PortfolioHolding[]) {
   return holdings
-    .filter((holding) => ["VOO", "QQQ"].includes(holding.ticker))
-    .reduce((total, holding) => total + holding.allocation, 0);
+    .filter((h) => ["VOO", "QQQ"].includes(h.ticker))
+    .reduce((t, h) => t + h.allocation, 0);
 }
 
 function getStockAllocation(holdings: PortfolioHolding[]) {
   return holdings
-    .filter((holding) => !["VOO", "QQQ", "CASH"].includes(holding.ticker))
-    .reduce((total, holding) => total + holding.allocation, 0);
+    .filter((h) => !["VOO", "QQQ", "CASH"].includes(h.ticker))
+    .reduce((t, h) => t + h.allocation, 0);
 }
 
 function getConcentrationRisk(template: PortfolioTemplate) {
-  const largestHolding = Math.max(
-    ...template.holdings.map((holding) => holding.allocation),
-  );
-
-  if (largestHolding >= 40) return "Elevated";
-  if (largestHolding >= 25) return "Moderate";
+  const largest = Math.max(...template.holdings.map((h) => h.allocation));
+  if (largest >= 40) return "Elevated";
+  if (largest >= 25) return "Moderate";
   return "Low";
 }
 
 function getDiversificationScore(template: PortfolioTemplate) {
   const holdingCount = template.holdings.length;
-  const largestHolding = Math.max(
-    ...template.holdings.map((holding) => holding.allocation),
-  );
+  const largest = Math.max(...template.holdings.map((h) => h.allocation));
   const sectorCount = template.sectorExposure.length;
-
-  if (holdingCount >= 5 && sectorCount >= 4 && largestHolding <= 45) {
-    return "Strong";
-  }
-
-  if (holdingCount >= 4 && sectorCount >= 3 && largestHolding <= 55) {
-    return "Balanced";
-  }
-
+  if (holdingCount >= 5 && sectorCount >= 4 && largest <= 45) return "Strong";
+  if (holdingCount >= 4 && sectorCount >= 3 && largest <= 55) return "Balanced";
   return "Focused";
-}
-
-function getHeaderExplanation(
-  answers: OnboardingAnswers,
-  template: PortfolioTemplate,
-) {
-  return `Built from your ${answers.riskComfort.toLowerCase()} risk comfort, ${answers.timeHorizon.toLowerCase()} time horizon, and ${answers.investmentApproach.toLowerCase()} approach. ${template.explanation}`;
 }
 
 export default function DashboardPage() {
@@ -96,20 +68,16 @@ export default function DashboardPage() {
 
   useEffect(() => {
     let cancelled = false;
-
     const timeoutId = window.setTimeout(() => {
-      const storedAnswers = localStorage.getItem("arcanum-onboarding");
-
-      if (!storedAnswers) {
+      const stored = localStorage.getItem("arcanum-onboarding");
+      if (!stored) {
         if (!cancelled) setHasLoaded(true);
         return;
       }
-
       try {
-        const parsedAnswers: unknown = JSON.parse(storedAnswers);
-
-        if (!cancelled && isOnboardingAnswers(parsedAnswers)) {
-          setAnswers(parsedAnswers);
+        const parsed: unknown = JSON.parse(stored);
+        if (!cancelled && isOnboardingAnswers(parsed)) {
+          setAnswers(parsed);
         }
       } catch {
         if (!cancelled) setAnswers(null);
@@ -117,7 +85,6 @@ export default function DashboardPage() {
         if (!cancelled) setHasLoaded(true);
       }
     }, 0);
-
     return () => {
       cancelled = true;
       window.clearTimeout(timeoutId);
@@ -129,42 +96,44 @@ export default function DashboardPage() {
     [answers],
   );
 
-  const allocationSegments = useMemo(
-    () =>
-      selectedPortfolio
-        ? buildAllocationSegments(selectedPortfolio.assetMix)
-        : [],
-    [selectedPortfolio],
-  );
-
   if (!hasLoaded) {
     return (
-      <main className="min-h-screen bg-background px-5 py-12 text-foreground">
-        <Card className="mx-auto max-w-xl">
-          <p className="text-sm text-zinc-400">Loading dashboard...</p>
-        </Card>
+      <main>
+        <section className="page-hero">
+          <div className="wrap">
+            <span className="eyebrow">
+              <span className="gem" />
+              Loading
+            </span>
+            <h1>Reading your profile…</h1>
+          </div>
+        </section>
       </main>
     );
   }
 
   if (!answers || !selectedPortfolio) {
     return (
-      <main className="min-h-screen overflow-hidden bg-background text-foreground">
-        <section className="relative flex min-h-[calc(100vh-3.5rem)] items-center px-5 py-12">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(20,184,166,0.14),transparent_30%),radial-gradient(circle_at_85%_8%,rgba(245,158,11,0.1),transparent_26%),linear-gradient(180deg,rgba(255,255,255,0.055),transparent_46%)]" />
-          <Card className="relative mx-auto w-full max-w-xl p-7 text-center">
-            <Badge>ARCANUM dashboard</Badge>
-            <h1 className="mt-6 text-3xl font-semibold text-white">
-              Build your investor profile first
+      <main>
+        <section className="page-hero">
+          <div className="wrap" style={{ maxWidth: 640 }}>
+            <span className="eyebrow">
+              <span className="gem" />
+              Dashboard
+            </span>
+            <h1>
+              Build your <em>investor profile</em> first.
             </h1>
-            <p className="mt-4 text-base leading-7 text-zinc-400">
+            <p className="lede">
               Complete onboarding so ARCANUM can choose a starter portfolio and
               organize your command center around it.
             </p>
-            <ButtonLink className="mt-7 w-full sm:w-auto" href="/onboarding">
-              Start building my portfolio
-            </ButtonLink>
-          </Card>
+            <div style={{ marginTop: 28 }}>
+              <Link className="btn btn-primary" href="/onboarding">
+                Start onboarding <span className="arrow">→</span>
+              </Link>
+            </div>
+          </div>
         </section>
       </main>
     );
@@ -174,295 +143,434 @@ export default function DashboardPage() {
   const etfAllocation = getEtfAllocation(selectedPortfolio.holdings);
   const stockAllocation = getStockAllocation(selectedPortfolio.holdings);
   const cashAllocation = selectedPortfolio.holdings.find(
-    (holding) => holding.ticker === "CASH",
+    (h) => h.ticker === "CASH",
   )?.allocation;
   const learningCard =
-    learningCards.find((card) => card.term === "Concentration Risk") ??
+    learningCards.find((c) => c.term === "Concentration Risk") ??
     learningCards[0];
+  const newsTickers = selectedPortfolio.holdings
+    .map((h) => h.ticker)
+    .filter((t) => t !== "CASH");
 
   return (
-    <main className="min-h-screen overflow-hidden bg-background text-foreground">
-      <section className="relative border-b border-white/10">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_12%,rgba(20,184,166,0.16),transparent_32%),radial-gradient(circle_at_85%_0%,rgba(245,158,11,0.12),transparent_28%),linear-gradient(180deg,rgba(255,255,255,0.06),transparent_48%)]" />
-        <div className="relative mx-auto flex w-full max-w-7xl flex-col gap-8 px-5 py-8 sm:px-8 lg:px-10 lg:py-14">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-3xl space-y-5">
-              <Badge>ARCANUM</Badge>
-              <div className="space-y-4">
-                <h1 className="text-4xl font-semibold leading-tight text-white sm:text-6xl">
-                  Your investor command center
-                </h1>
-                <div className="flex flex-wrap items-center gap-3">
-                  <p className="text-xl font-semibold text-teal-100">
-                    {selectedPortfolio.name}
-                  </p>
-                  <RiskBadge level={selectedPortfolio.riskLevel} />
-                </div>
-                <p className="max-w-3xl text-base leading-8 text-zinc-300 sm:text-lg">
-                  {getHeaderExplanation(answers, selectedPortfolio)}
-                </p>
+    <main>
+      {/* HERO */}
+      <section className="page-hero">
+        <div className="wrap">
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-end",
+              justifyContent: "space-between",
+              gap: 24,
+              flexWrap: "wrap",
+            }}
+          >
+            <div style={{ flex: 1, minWidth: 280 }}>
+              <span className="eyebrow">
+                <span className="gem" />
+                Command center
+              </span>
+              <h1>{selectedPortfolio.name}</h1>
+              <p className="lede">
+                Built from your{" "}
+                <strong style={{ color: "var(--foreground)" }}>
+                  {answers.riskComfort.toLowerCase()}
+                </strong>{" "}
+                risk comfort,{" "}
+                <strong style={{ color: "var(--foreground)" }}>
+                  {answers.timeHorizon.toLowerCase()}
+                </strong>{" "}
+                time horizon, and{" "}
+                <strong style={{ color: "var(--foreground)" }}>
+                  {answers.investmentApproach.toLowerCase()}
+                </strong>{" "}
+                approach. {selectedPortfolio.explanation}
+              </p>
+            </div>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+              <Link className="btn btn-primary" href="/simulator">
+                Open simulator <span className="arrow">→</span>
+              </Link>
+              <Link className="btn btn-ghost" href="/onboarding">
+                Retake onboarding
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* PORTFOLIO HEALTH */}
+      <section className="block">
+        <div className="wrap">
+          <div className="sec-head">
+            <span className="eyebrow">
+              <span className="gem" />
+              Portfolio health
+            </span>
+            <h2>
+              A read on your portfolio&apos;s <em>structure.</em>
+            </h2>
+            <p>
+              Hover any metric to see what it means. These are educational
+              signals derived from the selected template.
+            </p>
+          </div>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+              gap: 14,
+            }}
+          >
+            <div className="metric-line">
+              <div className="label">Risk level</div>
+              <div className="value" style={{ color: "var(--accent)" }}>
+                {getRiskLabel(selectedPortfolio.riskLevel)}
+              </div>
+              <div className="detail">Template profile</div>
+            </div>
+            <div className="metric-line">
+              <div className="label">Time horizon</div>
+              <div className="value">{selectedPortfolio.timeHorizon}</div>
+              <div className="detail">Suggested holding period</div>
+            </div>
+            <div className="metric-line">
+              <div className="label">Main exposure</div>
+              <div className="value" style={{ fontSize: "1.2rem" }}>
+                {mainExposure.sector}
+              </div>
+              <div className="detail">{mainExposure.percentage}% of template</div>
+            </div>
+            <div className="metric-line">
+              <div className="label">Diversification</div>
+              <div className="value" style={{ color: "var(--accent)" }}>
+                {getDiversificationScore(selectedPortfolio)}
+              </div>
+              <div className="detail">
+                {selectedPortfolio.holdings.length} holdings ·{" "}
+                {selectedPortfolio.sectorExposure.length} sectors
               </div>
             </div>
-
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <ButtonLink className="w-full sm:w-auto" href="/simulator">
-                Start demo investing
-              </ButtonLink>
-              <ButtonLink
-                className="w-full sm:w-auto"
-                href="/onboarding"
-                variant="secondary"
-              >
-                Retake onboarding
-              </ButtonLink>
+            <div className="metric-line">
+              <div className="label">ETF / Stock</div>
+              <div className="value">
+                {etfAllocation}% / {stockAllocation}%
+              </div>
+              <div className="detail">
+                {typeof cashAllocation === "number"
+                  ? `${cashAllocation}% cash`
+                  : "No cash reserve"}
+              </div>
+            </div>
+            <div className="metric-line">
+              <div className="label">Concentration</div>
+              <div className="value" style={{ color: "var(--accent)" }}>
+                {getConcentrationRisk(selectedPortfolio)}
+              </div>
+              <div className="detail">Largest holding weight</div>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-7xl px-5 py-10 sm:px-8 lg:px-10">
-        <SectionHeader
-          eyebrow="Portfolio Health"
-          title="A quick read on your portfolio structure."
-          description={
-            <>
-              Hover any metric to see what it means. These are educational
-              signals derived from the selected template, designed to teach what
-              to watch before adding complexity.
-            </>
-          }
-        />
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <MetricCard
-            label="Risk level"
-            value={getRiskLabel(selectedPortfolio.riskLevel)}
-            detail="Template profile"
-          />
-          <MetricCard
-            label="Time horizon"
-            value={selectedPortfolio.timeHorizon}
-            detail="Suggested holding period"
-          />
-          <MetricCard
-            label="Main exposure"
-            value={mainExposure.sector}
-            detail={`${mainExposure.percentage}% of template`}
-          />
-          <MetricCard
-            label="Diversification score"
-            value={getDiversificationScore(selectedPortfolio)}
-            detail={`${selectedPortfolio.holdings.length} holdings across ${selectedPortfolio.sectorExposure.length} exposures`}
-          />
-          <MetricCard
-            label="ETF vs stock balance"
-            value={`${etfAllocation}% / ${stockAllocation}%`}
-            detail={
-              typeof cashAllocation === "number"
-                ? `${cashAllocation}% cash reserve`
-                : "No cash reserve"
-            }
-          />
-          <MetricCard
-            label="Concentration risk"
-            value={getConcentrationRisk(selectedPortfolio)}
-            detail="Based on largest holding weight"
-          />
-        </div>
-      </section>
-
-      <section className="border-y border-white/10 bg-white/[0.025]">
-        <div className="mx-auto grid w-full max-w-7xl gap-5 px-5 py-10 sm:px-8 lg:grid-cols-[1.1fr_0.9fr] lg:px-10">
-          <Card title="Allocation" variant="primary">
-            <AllocationBar segments={allocationSegments} />
-            <div className="mt-6 grid gap-3">
-              {selectedPortfolio.assetMix.map((item) => (
-                <div
-                  className="rounded-2xl border border-white/10 bg-white/[0.03] p-4"
-                  key={item.assetClass}
-                >
-                  <div className="flex items-center justify-between gap-4">
-                    <h3 className="font-semibold text-white">
-                      {item.assetClass}
-                    </h3>
-                    <span className="text-sm font-semibold text-teal-100">
-                      {item.percentage}%
-                    </span>
-                  </div>
-                  <p className="mt-2 text-sm leading-6 text-zinc-400">
-                    {item.rationale}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </Card>
-
-          <Card title="Sector Exposure">
-            <div className="space-y-4">
-              {selectedPortfolio.sectorExposure.map((sector) => (
-                <div key={sector.sector}>
-                  <div className="mb-2 flex items-center justify-between gap-4 text-sm">
-                    <span className="font-medium text-zinc-200">
-                      {sector.sector}
-                    </span>
-                    <span className="text-zinc-500">{sector.percentage}%</span>
-                  </div>
-                  <div className="h-2 overflow-hidden rounded-full bg-white/10">
-                    <div
-                      className="h-full rounded-full bg-amber-300"
-                      style={{ width: `${sector.percentage}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Card>
-        </div>
-      </section>
-
-      <section className="mx-auto w-full max-w-7xl px-5 py-10 sm:px-8 lg:px-10">
-        <SectionHeader
-          eyebrow="Holdings"
-          title="Know what each position is supposed to do."
-          description="A beginner portfolio becomes easier to manage when every holding has a role, a thesis, and a risk to watch."
-        />
-        <div className="mt-8 grid gap-4 lg:grid-cols-2">
-          {selectedPortfolio.holdings.map((holding) => {
-            const profile: StockProfile | undefined = stockProfileByTicker.get(
-              holding.ticker,
-            );
-            const fallback = getHoldingFallback(holding.ticker);
-            const sector = profile?.sector ?? fallback.sector;
-            const thesis = profile?.companySummary ?? fallback.companySummary;
-            const keyRisk = profile?.keyRisks[0] ?? fallback.keyRisks[0];
-            const riskLevel =
-              profile?.beginnerRiskLevel ?? fallback.beginnerRiskLevel;
-
-            return (
-              <Card className="p-5" key={holding.ticker}>
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="text-3xl font-semibold text-white">
-                      {holding.ticker}
-                    </p>
-                    <h3 className="mt-2 text-lg font-semibold text-zinc-100">
-                      {holding.name}
-                    </h3>
-                  </div>
-                  <RiskBadge level={riskLevel} />
-                </div>
-                <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
-                    <p className="text-xs text-zinc-500">Allocation</p>
-                    <p className="mt-1 text-xl font-semibold text-white">
-                      {holding.allocation}%
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3 sm:col-span-2">
-                    <p className="text-xs text-zinc-500">Sector</p>
-                    <p className="mt-1 text-sm font-medium text-zinc-200">
-                      {sector}
-                    </p>
-                  </div>
-                </div>
-                <p className="mt-5 text-sm leading-6 text-zinc-400">
-                  <span className="font-semibold text-zinc-200">Role: </span>
-                  {holding.role}
-                </p>
-                <p className="mt-3 text-sm leading-6 text-zinc-400">
-                  <span className="font-semibold text-zinc-200">Thesis: </span>
-                  {thesis}
-                </p>
-                <p className="mt-3 text-sm leading-6 text-zinc-500">
-                  <span className="font-semibold text-zinc-300">
-                    Key risk:{" "}
-                  </span>
-                  {keyRisk}
-                </p>
-                {profile ? (
-                  <ButtonLink
-                    className="mt-6 w-full sm:w-auto"
-                    href={`/stocks/${encodeURIComponent(holding.ticker)}`}
-                    variant="secondary"
-                  >
-                    View research
-                  </ButtonLink>
-                ) : (
-                  <p className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-zinc-400">
-                    Research page not needed for this cash reserve.
-                  </p>
-                )}
-              </Card>
-            );
-          })}
-        </div>
-      </section>
-
-      <section className="border-y border-white/10 bg-white/[0.025]">
-        <div className="mx-auto w-full max-w-7xl px-5 py-10 sm:px-8 lg:px-10">
-          <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-            <SectionHeader
-              eyebrow="Your portfolio in the news"
-              title="Live headlines about what you hold."
-              description="Real stories from Yahoo Finance, sorted by recency and filtered to the tickers in your starter portfolio. Refreshed every 30 minutes."
-            />
-            <ButtonLink className="w-full sm:w-auto" href="/brief" variant="secondary">
-              Open full brief
-            </ButtonLink>
-          </div>
-          <div className="mt-8">
-            <NewsFeed
-              emptyMessage="No fresh stories on your holdings right now. The simulator tickers don't always have daily coverage — try again later."
-              tickers={selectedPortfolio.holdings
-                .map((h) => h.ticker)
-                .filter((t) => t !== "CASH")}
-            />
-          </div>
-        </div>
-      </section>
-
-      <section className="mx-auto w-full max-w-7xl px-5 py-10 sm:px-8 lg:px-10">
-        <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-          <SectionHeader
-            eyebrow="Learning Card"
-            title="One concept to anchor today."
-            description="Each card explains an investing idea in plain terms and ties it back to portfolio decisions."
-          />
-          <ButtonLink
-            className="w-full sm:w-auto"
-            href="/learn"
-            variant="secondary"
+      {/* PORTFOLIO IN THE NEWS */}
+      <section className="block" style={{ paddingTop: 0 }}>
+        <div className="wrap">
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-end",
+              gap: 24,
+              flexWrap: "wrap",
+              marginBottom: 32,
+            }}
           >
-            Browse all concepts
-          </ButtonLink>
+            <div className="sec-head" style={{ marginBottom: 0 }}>
+              <span className="eyebrow">
+                <span className="gem" />
+                Your portfolio · in the news
+              </span>
+              <h2>
+                Live stories on <em>what you hold.</em>
+              </h2>
+              <p>
+                Real headlines from Yahoo Finance, filtered to the tickers in
+                your starter portfolio. Refreshed every 30 minutes.
+              </p>
+            </div>
+            <Link className="btn btn-ghost" href="/brief">
+              Open full brief
+            </Link>
+          </div>
+          <NewsFeed
+            emptyMessage="No fresh stories on your holdings right now. Check back later."
+            tickers={newsTickers}
+          />
         </div>
-        <Card className="mt-8" eyebrow="Concept" title={learningCard.term}>
-          <div className="grid gap-4 md:grid-cols-3">
+      </section>
+
+      {/* HOLDINGS */}
+      <section className="block" style={{ paddingTop: 0 }}>
+        <div className="wrap">
+          <div className="sec-head">
+            <span className="eyebrow">
+              <span className="gem" />
+              Holdings
+            </span>
+            <h2>
+              Each position has <em>a job.</em>
+            </h2>
+            <p>
+              A beginner portfolio becomes easier to manage when every holding
+              has a role, a thesis, and a risk to watch.
+            </p>
+          </div>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+              gap: 1,
+              background: "var(--stroke)",
+              border: "1px solid var(--stroke)",
+            }}
+          >
+            {selectedPortfolio.holdings.map((holding) => {
+              const profile: StockProfile | undefined =
+                stockProfileByTicker.get(holding.ticker);
+              const fallback = getHoldingFallback(holding.ticker);
+              const sector = profile?.sector ?? fallback.sector;
+              const thesis = profile?.companySummary ?? fallback.companySummary;
+              const keyRisk = profile?.keyRisks[0] ?? fallback.keyRisks[0];
+              return (
+                <div
+                  key={holding.ticker}
+                  style={{ background: "var(--surface)", padding: 28 }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "flex-start",
+                      marginBottom: 14,
+                    }}
+                  >
+                    <div>
+                      <p
+                        style={{
+                          fontFamily: "var(--font-jetbrains-mono)",
+                          fontWeight: 600,
+                          fontSize: "1.8rem",
+                          letterSpacing: "0.03em",
+                          lineHeight: 1,
+                        }}
+                      >
+                        {holding.ticker}
+                      </p>
+                      <p
+                        style={{
+                          fontSize: "0.92rem",
+                          color: "var(--muted)",
+                          marginTop: 6,
+                        }}
+                      >
+                        {holding.name}
+                      </p>
+                    </div>
+                    <span
+                      style={{
+                        fontFamily: "var(--font-jetbrains-mono)",
+                        fontSize: "1rem",
+                        color: "var(--accent)",
+                        fontWeight: 600,
+                      }}
+                    >
+                      {holding.allocation}%
+                    </span>
+                  </div>
+                  <p
+                    style={{
+                      fontSize: "0.7rem",
+                      fontFamily: "var(--font-jetbrains-mono)",
+                      letterSpacing: "0.18em",
+                      textTransform: "uppercase",
+                      color: "var(--muted)",
+                      marginBottom: 16,
+                    }}
+                  >
+                    {sector}
+                  </p>
+                  <p
+                    style={{
+                      fontSize: "0.92rem",
+                      color: "var(--muted)",
+                      lineHeight: 1.6,
+                    }}
+                  >
+                    <span style={{ color: "var(--foreground)", fontWeight: 500 }}>
+                      Role.{" "}
+                    </span>
+                    {holding.role}
+                  </p>
+                  <p
+                    style={{
+                      fontSize: "0.88rem",
+                      color: "var(--muted)",
+                      lineHeight: 1.6,
+                      marginTop: 10,
+                    }}
+                  >
+                    <span style={{ color: "var(--foreground)", fontWeight: 500 }}>
+                      Thesis.{" "}
+                    </span>
+                    {thesis}
+                  </p>
+                  <p
+                    style={{
+                      fontSize: "0.84rem",
+                      color: "var(--muted)",
+                      lineHeight: 1.6,
+                      marginTop: 10,
+                      paddingTop: 12,
+                      borderTop: "1px solid var(--stroke)",
+                    }}
+                  >
+                    <span style={{ color: "var(--accent)" }}>Key risk.</span>{" "}
+                    {keyRisk}
+                  </p>
+                  {profile && (
+                    <Link
+                      className="btn btn-ghost"
+                      href={`/stocks/${encodeURIComponent(holding.ticker)}`}
+                      style={{
+                        marginTop: 18,
+                        fontSize: "0.85rem",
+                        padding: "0.6em 1.1em",
+                      }}
+                    >
+                      Open research <span className="arrow">→</span>
+                    </Link>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* LEARNING CARD */}
+      <section className="block" style={{ paddingTop: 0 }}>
+        <div className="wrap">
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-end",
+              gap: 24,
+              flexWrap: "wrap",
+              marginBottom: 32,
+            }}
+          >
+            <div className="sec-head" style={{ marginBottom: 0 }}>
+              <span className="eyebrow">
+                <span className="gem" />
+                Learning anchor
+              </span>
+              <h2>
+                One concept to <em>anchor today.</em>
+              </h2>
+              <p>
+                Each card explains an investing idea in plain terms and ties it
+                back to portfolio decisions.
+              </p>
+            </div>
+            <Link className="btn btn-ghost" href="/learn">
+              Browse all concepts
+            </Link>
+          </div>
+
+          <div
+            className="card-line"
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+              gap: 28,
+              padding: 32,
+            }}
+          >
             <div>
-              <p className="text-xs font-medium uppercase tracking-[0.18em] text-zinc-500">
+              <p
+                style={{
+                  fontFamily: "var(--font-jetbrains-mono)",
+                  fontSize: "0.66rem",
+                  letterSpacing: "0.18em",
+                  textTransform: "uppercase",
+                  color: "var(--accent)",
+                  marginBottom: 10,
+                }}
+              >
+                Concept
+              </p>
+              <h3
+                style={{
+                  fontFamily: "var(--font-fraunces)",
+                  fontWeight: 600,
+                  fontSize: "1.5rem",
+                  letterSpacing: "-0.01em",
+                }}
+              >
+                {learningCard.term}
+              </h3>
+            </div>
+            <div>
+              <p
+                style={{
+                  fontFamily: "var(--font-jetbrains-mono)",
+                  fontSize: "0.62rem",
+                  letterSpacing: "0.18em",
+                  textTransform: "uppercase",
+                  color: "var(--muted)",
+                  marginBottom: 10,
+                }}
+              >
                 Simple meaning
               </p>
-              <p className="mt-3 text-sm leading-6 text-zinc-300">
+              <p
+                style={{
+                  color: "var(--muted)",
+                  fontSize: "0.92rem",
+                  lineHeight: 1.6,
+                }}
+              >
                 {learningCard.simpleMeaning}
               </p>
             </div>
             <div>
-              <p className="text-xs font-medium uppercase tracking-[0.18em] text-zinc-500">
-                Why it matters
-              </p>
-              <p className="mt-3 text-sm leading-6 text-zinc-300">
-                {learningCard.whyItMatters}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs font-medium uppercase tracking-[0.18em] text-zinc-500">
+              <p
+                style={{
+                  fontFamily: "var(--font-jetbrains-mono)",
+                  fontSize: "0.62rem",
+                  letterSpacing: "0.18em",
+                  textTransform: "uppercase",
+                  color: "var(--muted)",
+                  marginBottom: 10,
+                }}
+              >
                 Example
               </p>
-              <p className="mt-3 text-sm leading-6 text-zinc-300">
+              <p
+                style={{
+                  color: "var(--muted)",
+                  fontSize: "0.92rem",
+                  lineHeight: 1.6,
+                }}
+              >
                 {learningCard.example}
               </p>
             </div>
           </div>
-        </Card>
+        </div>
       </section>
     </main>
   );

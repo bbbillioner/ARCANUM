@@ -167,7 +167,7 @@ export function ChartFull({
     const volume = chart.addSeries(HistogramSeries, {
       priceFormat: { type: "volume" },
       priceScaleId: "volume",
-      color: "rgba(94, 234, 212, 0.35)",
+      color: "rgba(0, 229, 168, 0.35)",
     });
     chart.priceScale("volume").applyOptions({
       scaleMargins: { top: 0.78, bottom: 0 },
@@ -220,12 +220,12 @@ export function ChartFull({
 
     if (chartType === "candles") {
       const candle = chart.addSeries(CandlestickSeries, {
-        upColor: "rgba(94, 234, 212, 0.95)",
-        downColor: "rgba(244, 114, 128, 0.95)",
-        borderUpColor: "rgba(94, 234, 212, 1)",
-        borderDownColor: "rgba(244, 114, 128, 1)",
-        wickUpColor: "rgba(94, 234, 212, 0.65)",
-        wickDownColor: "rgba(244, 114, 128, 0.65)",
+        upColor: "rgba(0, 229, 168, 0.95)",
+        downColor: "rgba(255, 104, 120, 0.95)",
+        borderUpColor: "rgba(0, 229, 168, 1)",
+        borderDownColor: "rgba(255, 104, 120, 1)",
+        wickUpColor: "rgba(0, 229, 168, 0.65)",
+        wickDownColor: "rgba(255, 104, 120, 0.65)",
         priceLineVisible: false,
       });
       candle.setData(
@@ -240,14 +240,14 @@ export function ChartFull({
       candleRef.current = candle;
     } else {
       const accentLine = positive
-        ? "rgba(94, 234, 212, 1)"
-        : "rgba(244, 114, 128, 1)";
+        ? "rgba(0, 229, 168, 1)"
+        : "rgba(255, 104, 120, 1)";
       const accentTop = positive
-        ? "rgba(94, 234, 212, 0.28)"
-        : "rgba(244, 114, 128, 0.28)";
+        ? "rgba(0, 229, 168, 0.28)"
+        : "rgba(255, 104, 120, 0.28)";
       const accentBottom = positive
-        ? "rgba(94, 234, 212, 0)"
-        : "rgba(244, 114, 128, 0)";
+        ? "rgba(0, 229, 168, 0)"
+        : "rgba(255, 104, 120, 0)";
 
       const area = chart.addSeries(AreaSeries, {
         lineColor: accentLine,
@@ -276,8 +276,8 @@ export function ChartFull({
             time: toUtcTimestamp(bar.date),
             value: bar.volume,
             color: isUp
-              ? "rgba(94, 234, 212, 0.35)"
-              : "rgba(244, 114, 128, 0.35)",
+              ? "rgba(0, 229, 168, 0.35)"
+              : "rgba(255, 104, 120, 0.35)",
           };
         }),
       );
@@ -287,7 +287,13 @@ export function ChartFull({
   }, [visibleBars, chartType, positive]);
 
   return (
-    <div className="rounded-3xl border border-white/10 bg-[#070a10]/70 p-4 sm:p-5">
+    <div
+      style={{
+        background: "var(--surface)",
+        border: "1px solid var(--stroke)",
+        padding: "20px",
+      }}
+    >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <Tooltip hover={activeHover} />
         <div className="flex flex-col gap-3 sm:items-end">
@@ -332,6 +338,7 @@ export function ChartFull({
         ref={containerRef}
         style={{ width: "100%", height }}
         className="mt-4 overflow-hidden"
+      data-chart-container
       />
     </div>
   );

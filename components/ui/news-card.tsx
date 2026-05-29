@@ -1,5 +1,4 @@
 import { formatRelativeTime, getTopicHint } from "@/lib/news";
-import { cn } from "@/lib/utils";
 import type { NewsItem } from "@/types/news";
 
 type NewsCardProps = {
@@ -19,55 +18,143 @@ export function NewsCard({ item, highlightTickers = [] }: NewsCardProps) {
 
   return (
     <a
-      className="group flex h-full flex-col gap-3 rounded-3xl border border-white/10 bg-white/[0.045] p-5 shadow-xl shadow-black/20 backdrop-blur transition hover:border-teal-300/30 hover:bg-white/[0.07]"
+      className="news-card"
       href={item.link}
       rel="noopener noreferrer"
       target="_blank"
     >
-      <div className="flex items-center gap-2 text-xs">
-        <span className="font-semibold text-teal-200">{item.publisher}</span>
-        <span className="text-zinc-600">•</span>
-        <span className="text-zinc-500">
-          {formatRelativeTime(item.publishedAt)}
-        </span>
+      <div className="news-meta">
+        <span className="news-publisher">{item.publisher}</span>
+        <span className="news-dot">·</span>
+        <span className="news-time">{formatRelativeTime(item.publishedAt)}</span>
       </div>
 
-      <h3 className="text-base font-semibold leading-6 text-white transition group-hover:text-teal-100 sm:text-lg sm:leading-7">
-        {item.title}
-      </h3>
+      <h3 className="news-title">{item.title}</h3>
 
       {hint && (
-        <p className="text-sm leading-6 text-zinc-400">
-          <span className="font-semibold text-zinc-200">Why this matters: </span>
+        <p className="news-hint">
+          <span className="news-hint-label">Why this matters</span>
           {hint}
         </p>
       )}
 
       {(yourTickers.length > 0 || otherTickers.length > 0) && (
-        <div className="mt-auto flex flex-wrap items-center gap-1.5 pt-1">
+        <div className="news-tickers">
           {yourTickers.map((ticker) => (
-            <span
-              className="rounded-full border border-teal-300/30 bg-teal-300/15 px-2.5 py-0.5 text-xs font-semibold text-teal-100"
-              key={ticker}
-            >
+            <span className="ticker-pill ticker-pill-strong" key={ticker}>
               {ticker}
             </span>
           ))}
           {otherTickers.map((ticker) => (
-            <span
-              className={cn(
-                "rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-0.5 text-xs font-semibold text-zinc-300",
-              )}
-              key={ticker}
-            >
+            <span className="ticker-pill" key={ticker}>
               {ticker}
             </span>
           ))}
-          <span className="ml-auto text-xs font-medium text-zinc-500 transition group-hover:text-teal-200">
-            Read →
+          <span className="news-read">
+            Read <span className="arrow">→</span>
           </span>
         </div>
       )}
+
+      <style>{`
+        .news-card {
+          display: flex;
+          flex-direction: column;
+          gap: 14px;
+          background: var(--surface);
+          border: 1px solid var(--stroke);
+          padding: 24px;
+          transition: border-color 0.2s ease, background 0.2s ease;
+          text-decoration: none;
+          color: inherit;
+          height: 100%;
+        }
+        .news-card:hover {
+          border-color: var(--accent);
+          background: var(--surface-2);
+        }
+        .news-card:hover .arrow {
+          transform: translateX(3px);
+        }
+        .news-meta {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-family: var(--font-jetbrains-mono);
+          font-size: 0.66rem;
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
+        }
+        .news-publisher {
+          color: var(--accent);
+          font-weight: 600;
+        }
+        .news-dot {
+          color: var(--stroke-strong);
+        }
+        .news-time {
+          color: var(--muted);
+        }
+        .news-title {
+          font-family: var(--font-fraunces);
+          font-weight: 600;
+          font-size: 1.18rem;
+          line-height: 1.25;
+          letter-spacing: -0.01em;
+          color: var(--foreground);
+        }
+        .news-hint {
+          font-size: 0.86rem;
+          line-height: 1.55;
+          color: var(--muted);
+          border-left: 2px solid var(--accent);
+          padding: 4px 0 4px 12px;
+        }
+        .news-hint-label {
+          display: block;
+          font-family: var(--font-jetbrains-mono);
+          font-size: 0.62rem;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+          color: var(--accent);
+          margin-bottom: 4px;
+        }
+        .news-tickers {
+          margin-top: auto;
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          gap: 8px;
+        }
+        .ticker-pill {
+          font-family: var(--font-jetbrains-mono);
+          font-size: 0.7rem;
+          font-weight: 600;
+          letter-spacing: 0.04em;
+          padding: 4px 10px;
+          border: 1px solid var(--stroke);
+          color: var(--muted);
+        }
+        .ticker-pill-strong {
+          border-color: var(--accent);
+          color: var(--accent);
+          background: rgba(0, 229, 168, 0.06);
+        }
+        .news-read {
+          margin-left: auto;
+          font-family: var(--font-jetbrains-mono);
+          font-size: 0.7rem;
+          letter-spacing: 0.1em;
+          color: var(--muted);
+        }
+        .news-card:hover .news-read {
+          color: var(--accent);
+        }
+        .arrow {
+          display: inline-block;
+          transition: transform 0.25s ease;
+        }
+      `}</style>
     </a>
   );
 }

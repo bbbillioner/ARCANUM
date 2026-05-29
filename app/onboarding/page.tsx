@@ -3,12 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { SectionHeader } from "@/components/ui/section-header";
 import { onboardingQuestions } from "@/data/onboarding";
-import { cn } from "@/lib/utils";
 import type {
   OnboardingAnswers,
   OnboardingQuestionId,
@@ -49,17 +44,16 @@ export default function OnboardingPage() {
     [answers],
   );
 
-  function selectSingleAnswer(id: Exclude<OnboardingQuestionId, "interests">, option: string) {
-    setAnswers((currentAnswers) => ({
-      ...currentAnswers,
-      [id]: option,
-    }));
+  function selectSingleAnswer(
+    id: Exclude<OnboardingQuestionId, "interests">,
+    option: string,
+  ) {
+    setAnswers((currentAnswers) => ({ ...currentAnswers, [id]: option }));
   }
 
   function toggleInterest(option: string) {
     setAnswers((currentAnswers) => {
       const exists = currentAnswers.interests.includes(option);
-
       return {
         ...currentAnswers,
         interests: exists
@@ -74,127 +68,237 @@ export default function OnboardingPage() {
   }
 
   function goNext() {
-    if (!hasSelection) {
-      return;
-    }
-
+    if (!hasSelection) return;
     if (!isFinalStep) {
       setCurrentStep((step) => step + 1);
       return;
     }
-
     localStorage.setItem("arcanum-onboarding", JSON.stringify(answers));
     router.push("/portfolio-suggestion");
   }
 
   return (
-    <main className="min-h-screen overflow-hidden bg-background text-foreground">
-      <section className="relative min-h-screen">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(20,184,166,0.14),transparent_30%),radial-gradient(circle_at_85%_8%,rgba(245,158,11,0.1),transparent_26%),linear-gradient(180deg,rgba(255,255,255,0.055),transparent_46%)]" />
-        <div className="relative mx-auto flex w-full max-w-6xl flex-col gap-8 px-5 py-8 sm:px-8 lg:px-10 lg:py-12">
-          <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-            <div className="space-y-5">
-              <Badge>ARCANUM onboarding</Badge>
-              <SectionHeader
-                title="Build your beginner investor profile."
-                description="Answer a few focused questions so ARCANUM can prepare a starter portfolio direction in the next step."
-              />
+    <main>
+      <section className="page-hero">
+        <div className="wrap">
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-end",
+              justifyContent: "space-between",
+              gap: 24,
+              flexWrap: "wrap",
+            }}
+          >
+            <div>
+              <span className="eyebrow">
+                <span className="gem" />
+                Onboarding
+              </span>
+              <h1>
+                Build your <em>investor profile.</em>
+              </h1>
+              <p className="lede">
+                Eight focused questions. ARCANUM uses them to assemble a starter
+                portfolio direction and tune the rest of the terminal to you.
+              </p>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-zinc-300">
-              {answeredCount} of {totalSteps} answered
+            <div
+              style={{
+                fontFamily: "var(--font-jetbrains-mono)",
+                fontSize: "0.74rem",
+                letterSpacing: "0.18em",
+                textTransform: "uppercase",
+                color: "var(--muted)",
+                border: "1px solid var(--stroke)",
+                padding: "12px 16px",
+              }}
+            >
+              {answeredCount} / {totalSteps} answered
             </div>
           </div>
-
-          <Card className="mx-auto w-full max-w-3xl p-5 sm:p-7">
-            <div className="mb-7 space-y-4">
-              <div className="flex items-center justify-between gap-4 text-sm">
-                <span className="font-medium text-teal-100">
-                  Step {currentStep + 1} of {totalSteps}
-                </span>
-                <span className="text-zinc-500">{currentQuestion.label}</span>
-              </div>
-              <div className="h-2 overflow-hidden rounded-full bg-white/10">
-                <div
-                  className="h-full rounded-full bg-teal-300 transition-all"
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-6">
-              <h1 className="text-2xl font-semibold leading-tight text-white sm:text-3xl">
-                {currentQuestion.question}
-              </h1>
-
-              <div className="grid gap-3">
-                {currentQuestion.options.map((option) => {
-                  const selected = Array.isArray(selectedValue)
-                    ? selectedValue.includes(option)
-                    : selectedValue === option;
-
-                  return (
-                    <button
-                      aria-pressed={selected}
-                      className={cn(
-                        "min-h-14 rounded-2xl border px-4 py-3 text-left text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-teal-300 focus:ring-offset-2 focus:ring-offset-background sm:text-base",
-                        selected
-                          ? "border-teal-300/60 bg-teal-300/12 text-teal-50 shadow-lg shadow-teal-950/20"
-                          : "border-white/10 bg-white/[0.035] text-zinc-300 hover:border-white/20 hover:bg-white/[0.06]",
-                      )}
-                      key={option}
-                      onClick={() => {
-                        if (currentQuestion.id === "interests") {
-                          toggleInterest(option);
-                          return;
-                        }
-
-                        selectSingleAnswer(currentQuestion.id, option);
-                      }}
-                      type="button"
-                    >
-                      <span className="flex items-center justify-between gap-4">
-                        <span>{option}</span>
-                        <span
-                          className={cn(
-                            "h-3 w-3 shrink-0 rounded-full border",
-                            selected
-                              ? "border-teal-200 bg-teal-200"
-                              : "border-zinc-600",
-                          )}
-                        />
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {currentQuestion.multiple && (
-                <p className="text-sm leading-6 text-zinc-500">
-                  Select one or more sectors. You can change these later.
-                </p>
-              )}
-            </div>
-
-            <div className="mt-8 flex flex-col-reverse gap-3 border-t border-white/10 pt-5 sm:flex-row sm:items-center sm:justify-between">
-              <Button
-                className="w-full sm:w-auto"
-                disabled={currentStep === 0}
-                onClick={goBack}
-                variant="secondary"
-              >
-                Back
-              </Button>
-              <Button
-                className="w-full sm:w-auto"
-                disabled={!hasSelection}
-                onClick={goNext}
-              >
-                {isFinalStep ? "Build my starter portfolio" : "Next"}
-              </Button>
-            </div>
-          </Card>
         </div>
       </section>
+
+      <section style={{ padding: "clamp(3rem, 6vw, 5rem) 0" }}>
+        <div className="wrap" style={{ maxWidth: 760 }}>
+          <div
+            style={{
+              background: "var(--surface)",
+              border: "1px solid var(--stroke)",
+              padding: "clamp(2rem, 4vw, 3rem)",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: 22,
+                fontFamily: "var(--font-jetbrains-mono)",
+                fontSize: "0.7rem",
+                letterSpacing: "0.18em",
+                textTransform: "uppercase",
+                color: "var(--muted)",
+              }}
+            >
+              <span style={{ color: "var(--accent)" }}>
+                Step {String(currentStep + 1).padStart(2, "0")} /{" "}
+                {String(totalSteps).padStart(2, "0")}
+              </span>
+              <span>{currentQuestion.label}</span>
+            </div>
+
+            <div
+              style={{
+                height: 2,
+                background: "var(--stroke)",
+                marginBottom: 36,
+                position: "relative",
+                overflow: "hidden",
+              }}
+            >
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: `${progress}%`,
+                  background: "var(--accent)",
+                  transition: "width 0.4s ease",
+                }}
+              />
+            </div>
+
+            <h2
+              style={{
+                fontFamily: "var(--font-fraunces)",
+                fontWeight: 600,
+                fontSize: "clamp(1.8rem, 3.2vw, 2.4rem)",
+                lineHeight: 1.15,
+                letterSpacing: "-0.02em",
+                marginBottom: 28,
+              }}
+            >
+              {currentQuestion.question}
+            </h2>
+
+            <div style={{ display: "grid", gap: 10 }}>
+              {currentQuestion.options.map((option) => {
+                const selected = Array.isArray(selectedValue)
+                  ? selectedValue.includes(option)
+                  : selectedValue === option;
+                return (
+                  <button
+                    aria-pressed={selected}
+                    className="onb-option"
+                    data-selected={selected}
+                    key={option}
+                    onClick={() => {
+                      if (currentQuestion.id === "interests") {
+                        toggleInterest(option);
+                        return;
+                      }
+                      selectSingleAnswer(currentQuestion.id, option);
+                    }}
+                    type="button"
+                  >
+                    <span>{option}</span>
+                    <span className="dot" aria-hidden />
+                  </button>
+                );
+              })}
+            </div>
+
+            {currentQuestion.multiple && (
+              <p
+                style={{
+                  fontSize: "0.86rem",
+                  color: "var(--muted)",
+                  marginTop: 18,
+                }}
+              >
+                Select one or more. You can change these later.
+              </p>
+            )}
+
+            <div
+              style={{
+                display: "flex",
+                gap: 12,
+                marginTop: 36,
+                paddingTop: 22,
+                borderTop: "1px solid var(--stroke)",
+                flexWrap: "wrap",
+              }}
+            >
+              <button
+                className="btn btn-ghost"
+                disabled={currentStep === 0}
+                onClick={goBack}
+                style={{
+                  opacity: currentStep === 0 ? 0.4 : 1,
+                  cursor: currentStep === 0 ? "not-allowed" : "pointer",
+                }}
+                type="button"
+              >
+                ← Back
+              </button>
+              <button
+                className="btn btn-primary"
+                disabled={!hasSelection}
+                onClick={goNext}
+                style={{
+                  marginLeft: "auto",
+                  opacity: hasSelection ? 1 : 0.5,
+                  cursor: hasSelection ? "pointer" : "not-allowed",
+                }}
+                type="button"
+              >
+                {isFinalStep ? "Build my starter portfolio" : "Next"}{" "}
+                <span className="arrow">→</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <style>{`
+        .onb-option {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 16px;
+          padding: 14px 18px;
+          border: 1px solid var(--stroke);
+          background: transparent;
+          color: var(--foreground);
+          font-family: var(--font-inter);
+          font-size: 0.95rem;
+          text-align: left;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        .onb-option:hover {
+          border-color: var(--stroke-strong);
+          background: var(--surface-2);
+        }
+        .onb-option[data-selected="true"] {
+          border-color: var(--accent);
+          background: rgba(0, 229, 168, 0.06);
+        }
+        .onb-option .dot {
+          width: 8px;
+          height: 8px;
+          border: 1px solid var(--stroke-strong);
+          transform: rotate(45deg);
+          flex: none;
+        }
+        .onb-option[data-selected="true"] .dot {
+          background: var(--accent);
+          border-color: var(--accent);
+          box-shadow: 0 0 10px rgba(0, 229, 168, 0.5);
+        }
+      `}</style>
     </main>
   );
 }

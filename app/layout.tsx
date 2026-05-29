@@ -1,24 +1,33 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
 import { Footer } from "@/components/ui/footer";
 import { Nav } from "@/components/ui/nav";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
+});
+
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
+  subsets: ["latin"],
+  style: ["normal", "italic"],
+  axes: ["opsz", "SOFT"],
 });
 
 export const metadata: Metadata = {
   title: "ARCANUM",
   description:
-    "A beginner investor command center for portfolios, stock research, market briefs, and investing education.",
+    "A beginner investor command center. Investing, made legible.",
 };
 
 export default function RootLayout({
@@ -29,9 +38,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${inter.variable} ${jetbrainsMono.variable} ${fraunces.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col bg-background text-foreground">
+      <body className="flex min-h-full flex-col bg-background font-sans text-foreground">
         <Nav />
         <div className="flex-1">{children}</div>
         <Footer />

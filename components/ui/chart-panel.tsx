@@ -64,13 +64,13 @@ export function ChartPanel({ bars, positive = true, height = 140 }: ChartPanelPr
 
     chartRef.current = chart;
 
-    const accentLine = positive ? "rgba(94, 234, 212, 1)" : "rgba(244, 114, 128, 1)";
+    const accentLine = positive ? "rgba(0, 229, 168, 1)" : "rgba(255, 104, 120, 1)";
     const accentTop = positive
-      ? "rgba(94, 234, 212, 0.32)"
-      : "rgba(244, 114, 128, 0.32)";
+      ? "rgba(0, 229, 168, 0.28)"
+      : "rgba(255, 104, 120, 0.28)";
     const accentBottom = positive
-      ? "rgba(94, 234, 212, 0.0)"
-      : "rgba(244, 114, 128, 0.0)";
+      ? "rgba(0, 229, 168, 0.0)"
+      : "rgba(255, 104, 120, 0.0)";
 
     const series = chart.addSeries(AreaSeries, {
       lineColor: accentLine,
