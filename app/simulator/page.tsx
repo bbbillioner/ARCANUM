@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
+import { useQuotes } from "@/components/hooks/use-quotes";
 import { ChartFull } from "@/components/ui/chart-full";
 import { ChartPanel } from "@/components/ui/chart-panel";
 import { stockProfiles } from "@/data/stocks";
@@ -75,6 +76,13 @@ export default function SimulatorPage() {
     };
   }, []);
 
+  const allTickers = useMemo(() => stockProfiles.map((p) => p.ticker), []);
+  const { quotes } = useQuotes(allTickers);
+
+  function priceFor(ticker: string): number {
+    return quotes[ticker.toUpperCase()]?.price ?? getCurrentPrice(ticker);
+  }
+
   const summary = useMemo(
     () => (simulator ? calculateSimulatorSummary(simulator) : null),
     [simulator],
@@ -108,13 +116,15 @@ export default function SimulatorPage() {
   }
 
   function handleBuy() {
-    const result = buyHolding(selectedTicker, Number(amount));
+    const livePrice = priceFor(selectedTicker);
+    const result = buyHolding(selectedTicker, Number(amount), livePrice);
     setSimulator(result.state);
     setMessage({ type: result.success ? "success" : "error", text: result.message });
   }
 
   function handleSell() {
-    const result = sellHolding(selectedTicker, Number(amount));
+    const livePrice = priceFor(selectedTicker);
+    const result = sellHolding(selectedTicker, Number(amount), livePrice);
     setSimulator(result.state);
     setMessage({ type: result.success ? "success" : "error", text: result.message });
   }
@@ -341,9 +351,13 @@ export default function SimulatorPage() {
               >
                 {stockProfiles.map((profile) => {
                   const isSelected = profile.ticker === selectedTicker;
-                  const currentPrice = getCurrentPrice(profile.ticker);
+                  const quote = quotes[profile.ticker];
+                  const currentPrice = quote?.price ?? getCurrentPrice(profile.ticker);
+                  const intraday = quote?.changePercent ?? 0;
                   const change6M = getTimeframeChangePercent(profile.ticker, "6M");
-                  const isPositive = change6M >= 0;
+                  const isPositive = (quote ? intraday : change6M) >= 0;
+                  const tfShown = quote ? "today" : "6M";
+                  const tfValue = quote ? intraday : change6M;
                   const panelBars = sliceByTimeframe(
                     getPriceBars(profile.ticker),
                     "6M",
@@ -364,10 +378,10 @@ export default function SimulatorPage() {
                         <p
                           className="ac-change"
                           style={{
-                            color: isPositive ? "var(--accent)" : "#ff6878",
+                            color: tfValue >= 0 ? "var(--accent)" : "#ff6878",
                           }}
                         >
-                          {formatChangePercent(change6M)}
+                          {formatChangePercent(tfValue)}
                         </p>
                       </div>
                       <ChartPanel
@@ -377,7 +391,7 @@ export default function SimulatorPage() {
                       />
                       <div className="ac-price">
                         <span>{formatCurrency(currentPrice)}</span>
-                        <span className="ac-tf">6M</span>
+                        <span className="ac-tf">{tfShown}</span>
                       </div>
                       <p className="ac-name">{profile.name}</p>
                     </button>
@@ -451,28 +465,56 @@ export default function SimulatorPage() {
                           </p>
                         </div>
                         <div style={{ textAlign: "right" }}>
-                          <p
-                            style={{
-                              fontFamily: "var(--font-jetbrains-mono)",
-                              fontSize: "0.62rem",
-                              letterSpacing: "0.18em",
-                              textTransform: "uppercase",
-                              color: "var(--muted)",
-                            }}
-                          >
-                            Last close
-                          </p>
-                          <p
-                            style={{
-                              fontFamily: "var(--font-jetbrains-mono)",
-                              fontWeight: 600,
-                              fontSize: "1.5rem",
-                              color: "var(--accent)",
-                              marginTop: 6,
-                            }}
-                          >
-                            {formatCurrency(getCurrentPrice(selectedProfile.ticker))}
-                          </p>
+                          {(() => {
+                            const q = quotes[selectedProfile.ticker];
+                            const isLive = q?.source === "live";
+                            const px = q?.price ?? getCurrentPrice(selectedProfile.ticker);
+                            const intra = q?.changePercent ?? 0;
+                            return (
+                              <>
+                                <p
+                                  style={{
+                                    fontFamily: "var(--font-jetbrains-mono)",
+                                    fontSize: "0.62rem",
+                                    letterSpacing: "0.18em",
+                                    textTransform: "uppercase",
+                                    color: isLive ? "var(--accent)" : "var(--muted)",
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: 6,
+                                  }}
+                                >
+                                  <span aria-hidden>{isLive ? "●" : "○"}</span>
+                                  {isLive ? "Live" : "Last close"}
+                                </p>
+                                <p
+                                  style={{
+                                    fontFamily: "var(--font-jetbrains-mono)",
+                                    fontWeight: 600,
+                                    fontSize: "1.5rem",
+                                    color: "var(--accent)",
+                                    marginTop: 6,
+                                  }}
+                                >
+                                  {formatCurrency(px)}
+                                </p>
+                                {q && (
+                                  <p
+                                    style={{
+                                      fontFamily: "var(--font-jetbrains-mono)",
+                                      fontSize: "0.78rem",
+                                      color: intra >= 0 ? "var(--accent)" : "#ff6878",
+                                      marginTop: 4,
+                                    }}
+                                  >
+                                    {intra >= 0 ? "+" : ""}
+                                    {intra.toFixed(2)}%{" "}
+                                    <span style={{ color: "var(--muted)" }}>today</span>
+                                  </p>
+                                )}
+                              </>
+                            );
+                          })()}
                         </div>
                       </div>
 

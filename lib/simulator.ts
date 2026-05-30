@@ -191,7 +191,11 @@ export function calculateSimulatorSummary(
   };
 }
 
-export function buyHolding(ticker: string, amount: number): SimulatorActionResult {
+export function buyHolding(
+  ticker: string,
+  amount: number,
+  tradePrice?: number,
+): SimulatorActionResult {
   const state = getSimulator();
   const normalizedAmount = normalizeAmount(amount);
   const profile = getStockProfile(ticker);
@@ -228,7 +232,10 @@ export function buyHolding(ticker: string, amount: number): SimulatorActionResul
     };
   }
 
-  const currentPrice = getCurrentPrice(profile.ticker);
+  const currentPrice =
+    typeof tradePrice === "number" && tradePrice > 0
+      ? tradePrice
+      : getCurrentPrice(profile.ticker);
 
   if (currentPrice <= 0) {
     return {
@@ -304,6 +311,7 @@ export function buyHolding(ticker: string, amount: number): SimulatorActionResul
 export function sellHolding(
   ticker: string,
   amount: number,
+  tradePrice?: number,
 ): SimulatorActionResult {
   const state = getSimulator();
   const normalizedAmount = normalizeAmount(amount);
@@ -344,7 +352,10 @@ export function sellHolding(
     };
   }
 
-  const livePrice = getCurrentPrice(holding.ticker);
+  const livePrice =
+    typeof tradePrice === "number" && tradePrice > 0
+      ? tradePrice
+      : getCurrentPrice(holding.ticker);
   const currentPrice = livePrice > 0 ? livePrice : holding.currentPrice;
   const sharesSold = roundShares(normalizedAmount / currentPrice);
   const remainingShares = roundShares(Math.max(holding.shares - sharesSold, 0));

@@ -11,6 +11,7 @@ import {
   getPriceBars,
   getTimeframeChangePercent,
 } from "@/lib/prices";
+import { fetchQuote } from "@/lib/quote";
 
 type StockPageProps = {
   params: Promise<{ ticker: string }>;
@@ -60,11 +61,16 @@ export default async function StockResearchPage({ params }: StockPageProps) {
     );
   }
 
-  const news = await fetchTickerNews(normalizedTicker, 6);
-  const currentPrice = getCurrentPrice(profile.ticker);
+  const [news, quote] = await Promise.all([
+    fetchTickerNews(normalizedTicker, 6),
+    fetchQuote(normalizedTicker),
+  ]);
+  const livePrice = quote?.price ?? getCurrentPrice(profile.ticker);
+  const intradayChange = quote?.changePercent ?? 0;
   const change1Y = getTimeframeChangePercent(profile.ticker, "1Y");
   const fetchedAt = getFetchedAt(profile.ticker);
   const positive = change1Y >= 0;
+  const isLive = quote?.source === "live";
 
   return (
     <main>
@@ -118,11 +124,15 @@ export default async function StockResearchPage({ params }: StockPageProps) {
                   fontSize: "0.66rem",
                   letterSpacing: "0.18em",
                   textTransform: "uppercase",
-                  color: "var(--muted)",
+                  color: isLive ? "var(--accent)" : "var(--muted)",
                   marginBottom: 8,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
                 }}
               >
-                Last close
+                <span aria-hidden>{isLive ? "●" : "○"}</span>
+                {isLive ? "Live" : "Last close"}
               </p>
               <p
                 style={{
@@ -134,14 +144,29 @@ export default async function StockResearchPage({ params }: StockPageProps) {
                   lineHeight: 1,
                 }}
               >
-                {formatCurrency(currentPrice)}
+                {formatCurrency(livePrice)}
               </p>
+              {quote && (
+                <p
+                  style={{
+                    fontFamily: "var(--font-jetbrains-mono)",
+                    fontSize: "0.92rem",
+                    color: intradayChange >= 0 ? "var(--accent)" : "#ff6878",
+                    marginTop: 8,
+                  }}
+                >
+                  {intradayChange >= 0 ? "+" : ""}
+                  {intradayChange.toFixed(2)}%{" "}
+                  <span style={{ color: "var(--muted)" }}>today</span>
+                </p>
+              )}
               <p
                 style={{
                   fontFamily: "var(--font-jetbrains-mono)",
-                  fontSize: "0.92rem",
+                  fontSize: "0.82rem",
                   color: positive ? "var(--accent)" : "#ff6878",
-                  marginTop: 8,
+                  marginTop: 4,
+                  opacity: 0.85,
                 }}
               >
                 {positive ? "+" : ""}
@@ -157,21 +182,20 @@ export default async function StockResearchPage({ params }: StockPageProps) {
       <section className="block" style={{ paddingTop: "clamp(2rem,4vw,3rem)" }}>
         <div className="wrap">
           <ChartFull bars={getPriceBars(profile.ticker)} defaultTimeframe="1Y" />
-          {fetchedAt && (
-            <p
-              style={{
-                fontFamily: "var(--font-jetbrains-mono)",
-                fontSize: "0.66rem",
-                letterSpacing: "0.14em",
-                textTransform: "uppercase",
-                color: "var(--muted)",
-                marginTop: 14,
-                textAlign: "right",
-              }}
-            >
-              Prices via Yahoo Finance · {formatFetchedAt(fetchedAt)}
-            </p>
-          )}
+          <p
+            style={{
+              fontFamily: "var(--font-jetbrains-mono)",
+              fontSize: "0.66rem",
+              letterSpacing: "0.14em",
+              textTransform: "uppercase",
+              color: "var(--muted)",
+              marginTop: 14,
+              textAlign: "right",
+            }}
+          >
+            {isLive ? "Live quote" : "Quote"} via Yahoo Finance ·{" "}
+            {fetchedAt ? `History as of ${formatFetchedAt(fetchedAt)}` : ""}
+          </p>
         </div>
       </section>
 

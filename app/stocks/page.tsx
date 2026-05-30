@@ -10,6 +10,8 @@ import {
   getTimeframeChangePercent,
   sliceByTimeframe,
 } from "@/lib/prices";
+import { fetchQuotes } from "@/lib/quote";
+import type { Quote } from "@/types/quote";
 import type { StockProfile } from "@/types/investing";
 
 function formatCurrency(value: number) {
@@ -19,13 +21,21 @@ function formatCurrency(value: number) {
   }).format(value);
 }
 
-function StockRow({ profile }: { profile: StockProfile }) {
-  const currentPrice = getCurrentPrice(profile.ticker);
+function StockRow({
+  profile,
+  quote,
+}: {
+  profile: StockProfile;
+  quote: Quote | undefined;
+}) {
+  const livePrice = quote?.price ?? getCurrentPrice(profile.ticker);
+  const intradayChange = quote?.changePercent ?? 0;
   const change1Y = getTimeframeChangePercent(profile.ticker, "1Y");
   const change6M = getTimeframeChangePercent(profile.ticker, "6M");
   const change1M = getTimeframeChangePercent(profile.ticker, "1M");
   const panelBars = sliceByTimeframe(getPriceBars(profile.ticker), "1Y");
   const positive = change1Y >= 0;
+  const isLive = quote?.source === "live";
 
   return (
     <Link className="stock-row" href={`/stocks/${profile.ticker}`}>
@@ -36,7 +46,15 @@ function StockRow({ profile }: { profile: StockProfile }) {
         </div>
         <div className="sr-meta">
           <span className="sr-type">{profile.assetType}</span>
-          <span className="sr-price">{formatCurrency(currentPrice)}</span>
+          <span className="sr-price">{formatCurrency(livePrice)}</span>
+          {quote && (
+            <span
+              className={`sr-today ${intradayChange >= 0 ? "up" : "down"}`}
+            >
+              {isLive ? "●" : "○"} {intradayChange >= 0 ? "+" : ""}
+              {intradayChange.toFixed(2)}% today
+            </span>
+          )}
         </div>
       </div>
 
@@ -127,6 +145,13 @@ function StockRow({ profile }: { profile: StockProfile }) {
           font-size: 1.1rem;
           color: var(--accent);
         }
+        .sr-today {
+          font-family: var(--font-jetbrains-mono);
+          font-size: 0.7rem;
+          letter-spacing: 0.04em;
+        }
+        .sr-today.up { color: var(--accent); }
+        .sr-today.down { color: #ff6878; }
         .sr-sector {
           font-family: var(--font-jetbrains-mono);
           font-size: 0.66rem;
@@ -191,11 +216,16 @@ function StockRow({ profile }: { profile: StockProfile }) {
   );
 }
 
-export default function StocksPage() {
+export default async function StocksPage() {
   const etfs = stockProfiles.filter((p) => p.assetType === "ETF");
   const stocks = stockProfiles.filter((p) => p.assetType === "Stock");
   const firstTicker = stockProfiles[0]?.ticker;
   const fetchedAt = firstTicker ? getFetchedAt(firstTicker) : null;
+
+  const quotes = await fetchQuotes(stockProfiles.map((p) => p.ticker));
+  const liveCount = Object.values(quotes).filter(
+    (q) => q.source === "live",
+  ).length;
 
   return (
     <main>
@@ -210,22 +240,26 @@ export default function StocksPage() {
           </h1>
           <p className="lede">
             Browse the stocks and ETFs ARCANUM uses to teach portfolio
-            decisions. Real five-year prices from Yahoo Finance.
+            decisions. Live prices via Yahoo Finance, five-year history snapshot.
           </p>
-          {fetchedAt && (
-            <p
-              style={{
-                fontFamily: "var(--font-jetbrains-mono)",
-                fontSize: "0.7rem",
-                letterSpacing: "0.14em",
-                textTransform: "uppercase",
-                color: "var(--muted)",
-                marginTop: 18,
-              }}
-            >
-              Prices as of {formatFetchedAt(fetchedAt)}
-            </p>
-          )}
+          <div
+            style={{
+              display: "flex",
+              gap: 14,
+              alignItems: "center",
+              marginTop: 18,
+              fontFamily: "var(--font-jetbrains-mono)",
+              fontSize: "0.7rem",
+              letterSpacing: "0.14em",
+              textTransform: "uppercase",
+              color: "var(--muted)",
+            }}
+          >
+            <span style={{ color: "var(--accent)" }}>
+              ● {liveCount} / {stockProfiles.length} live
+            </span>
+            {fetchedAt && <span>· History as of {formatFetchedAt(fetchedAt)}</span>}
+          </div>
         </div>
       </section>
 
@@ -253,7 +287,11 @@ export default function StocksPage() {
             }}
           >
             {etfs.map((profile) => (
-              <StockRow key={profile.ticker} profile={profile} />
+              <StockRow
+                key={profile.ticker}
+                profile={profile}
+                quote={quotes[profile.ticker]}
+              />
             ))}
           </div>
         </div>
@@ -283,7 +321,11 @@ export default function StocksPage() {
             }}
           >
             {stocks.map((profile) => (
-              <StockRow key={profile.ticker} profile={profile} />
+              <StockRow
+                key={profile.ticker}
+                profile={profile}
+                quote={quotes[profile.ticker]}
+              />
             ))}
           </div>
         </div>
@@ -301,7 +343,7 @@ export default function StocksPage() {
           <p>
             The simulator lets you allocate fake cash across any of these assets
             and watch cost basis, market value, and gain or loss update against
-            real historical prices.
+            live prices.
           </p>
           <Link className="btn btn-primary" href="/simulator">
             Open simulator <span className="arrow">→</span>

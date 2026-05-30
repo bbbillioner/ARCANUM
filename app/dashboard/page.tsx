@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
+import { useQuotes } from "@/components/hooks/use-quotes";
 import { NewsFeed } from "@/components/ui/news-feed";
 import { learningCards } from "@/data/learning-cards";
 import {
@@ -96,6 +97,17 @@ export default function DashboardPage() {
     [answers],
   );
 
+  const quoteTickers = useMemo(
+    () =>
+      selectedPortfolio
+        ? selectedPortfolio.holdings
+            .map((h) => h.ticker)
+            .filter((t) => t !== "CASH")
+        : [],
+    [selectedPortfolio],
+  );
+  const { quotes, status: quoteStatus } = useQuotes(quoteTickers);
+
   if (!hasLoaded) {
     return (
       <main>
@@ -148,9 +160,6 @@ export default function DashboardPage() {
   const learningCard =
     learningCards.find((c) => c.term === "Concentration Risk") ??
     learningCards[0];
-  const newsTickers = selectedPortfolio.holdings
-    .map((h) => h.ticker)
-    .filter((t) => t !== "CASH");
 
   return (
     <main>
@@ -306,7 +315,7 @@ export default function DashboardPage() {
           </div>
           <NewsFeed
             emptyMessage="No fresh stories on your holdings right now. Check back later."
-            tickers={newsTickers}
+            tickers={quoteTickers}
           />
         </div>
       </section>
@@ -343,6 +352,8 @@ export default function DashboardPage() {
               const sector = profile?.sector ?? fallback.sector;
               const thesis = profile?.companySummary ?? fallback.companySummary;
               const keyRisk = profile?.keyRisks[0] ?? fallback.keyRisks[0];
+              const quote = quotes[holding.ticker];
+              const intraday = quote?.changePercent ?? 0;
               return (
                 <div
                   key={holding.ticker}
@@ -378,16 +389,44 @@ export default function DashboardPage() {
                         {holding.name}
                       </p>
                     </div>
-                    <span
-                      style={{
-                        fontFamily: "var(--font-jetbrains-mono)",
-                        fontSize: "1rem",
-                        color: "var(--accent)",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {holding.allocation}%
-                    </span>
+                    <div style={{ textAlign: "right" }}>
+                      <span
+                        style={{
+                          fontFamily: "var(--font-jetbrains-mono)",
+                          fontSize: "1rem",
+                          color: "var(--accent)",
+                          fontWeight: 600,
+                        }}
+                      >
+                        {holding.allocation}%
+                      </span>
+                      {quote && (
+                        <p
+                          style={{
+                            fontFamily: "var(--font-jetbrains-mono)",
+                            fontSize: "0.78rem",
+                            color: intraday >= 0 ? "var(--accent)" : "#ff6878",
+                            marginTop: 6,
+                          }}
+                        >
+                          {intraday >= 0 ? "+" : ""}
+                          {intraday.toFixed(2)}%{" "}
+                          <span style={{ color: "var(--muted)" }}>today</span>
+                        </p>
+                      )}
+                      {quoteStatus === "loading" && !quote && holding.ticker !== "CASH" && (
+                        <p
+                          style={{
+                            fontFamily: "var(--font-jetbrains-mono)",
+                            fontSize: "0.72rem",
+                            color: "var(--muted)",
+                            marginTop: 6,
+                          }}
+                        >
+                          —
+                        </p>
+                      )}
+                    </div>
                   </div>
                   <p
                     style={{
