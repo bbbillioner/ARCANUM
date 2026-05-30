@@ -1,8 +1,9 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { ChartFull } from "@/components/ui/chart-full";
 import { NewsCard } from "@/components/ui/news-card";
-import { stockProfiles } from "@/data/stocks";
+import { WatchButton } from "@/components/ui/watch-button";
 import { fetchTickerNews } from "@/lib/news";
 import {
   formatFetchedAt,
@@ -12,6 +13,7 @@ import {
   getTimeframeChangePercent,
 } from "@/lib/prices";
 import { fetchQuote } from "@/lib/quote";
+import { allProfiles, getAnyProfile } from "@/lib/stocks";
 
 type StockPageProps = {
   params: Promise<{ ticker: string }>;
@@ -25,15 +27,32 @@ function formatCurrency(value: number) {
 }
 
 export function generateStaticParams() {
-  return stockProfiles.map((profile) => ({ ticker: profile.ticker }));
+  return allProfiles.map((profile) => ({ ticker: profile.ticker }));
+}
+
+export async function generateMetadata({
+  params,
+}: StockPageProps): Promise<Metadata> {
+  const { ticker } = await params;
+  const upper = ticker.toUpperCase();
+  const profile = getAnyProfile(upper);
+  if (!profile) {
+    return {
+      title: `${upper} · Not found`,
+      description: `ARCANUM does not have a research profile for ${upper}.`,
+    };
+  }
+  return {
+    title: `${profile.ticker} · ${profile.name}`,
+    description: `${profile.beginnerSummary} Live price, news, and a five-year chart on ARCANUM.`,
+  };
 }
 
 export default async function StockResearchPage({ params }: StockPageProps) {
   const { ticker } = await params;
   const normalizedTicker = ticker.toUpperCase();
-  const profile = stockProfiles.find(
-    (p) => p.ticker.toUpperCase() === normalizedTicker,
-  );
+  const profile = getAnyProfile(normalizedTicker);
+  const deep = profile?.deep ?? null;
 
   if (!profile) {
     return (
@@ -116,6 +135,9 @@ export default async function StockResearchPage({ params }: StockPageProps) {
               >
                 {profile.sector}
               </p>
+              <div style={{ marginTop: 18 }}>
+                <WatchButton ticker={profile.ticker} />
+              </div>
             </div>
             <div style={{ textAlign: "right" }}>
               <p
@@ -248,6 +270,60 @@ export default async function StockResearchPage({ params }: StockPageProps) {
         </div>
       </section>
 
+      {!deep && (
+        <section className="block" style={{ paddingTop: 0 }}>
+          <div className="wrap">
+            <div
+              style={{
+                background: "var(--surface)",
+                border: "1px solid var(--stroke)",
+                borderLeft: "2px solid var(--accent)",
+                padding: "20px 24px",
+              }}
+            >
+              <p
+                style={{
+                  fontFamily: "var(--font-jetbrains-mono)",
+                  fontSize: "0.66rem",
+                  letterSpacing: "0.18em",
+                  textTransform: "uppercase",
+                  color: "var(--accent)",
+                  marginBottom: 8,
+                }}
+              >
+                Lite profile
+              </p>
+              <p style={{ fontSize: "0.96rem", color: "var(--foreground)", lineHeight: 1.65 }}>
+                {profile.beginnerSummary}
+              </p>
+              <p
+                style={{
+                  fontSize: "0.86rem",
+                  color: "var(--muted)",
+                  marginTop: 12,
+                  lineHeight: 1.6,
+                }}
+              >
+                Deep research (bull/base/bear cases, beginner metrics, research
+                checkpoints) is hand-written for ARCANUM&apos;s core five —{" "}
+                <Link
+                  href="/stocks"
+                  style={{
+                    color: "var(--accent)",
+                    borderBottom: "1px solid rgba(0,229,168,0.4)",
+                  }}
+                >
+                  see the full set
+                </Link>
+                .
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {deep && (
+        <>
       {/* COMPANY + BUSINESS */}
       <section className="block" style={{ paddingTop: 0 }}>
         <div className="wrap">
@@ -261,11 +337,11 @@ export default async function StockResearchPage({ params }: StockPageProps) {
           >
             <div className="card-line">
               <h3>Company / Fund Summary</h3>
-              <p>{profile.companySummary}</p>
+              <p>{deep.companySummary}</p>
             </div>
             <div className="card-line">
               <h3>Business Model</h3>
-              <p>{profile.businessModel}</p>
+              <p>{deep.businessModel}</p>
             </div>
           </div>
         </div>
@@ -293,7 +369,7 @@ export default async function StockResearchPage({ params }: StockPageProps) {
                   gap: 12,
                 }}
               >
-                {profile.whyPeopleInvest.map((reason, index) => (
+                {deep.whyPeopleInvest.map((reason, index) => (
                   <li
                     key={reason}
                     style={{
@@ -338,7 +414,7 @@ export default async function StockResearchPage({ params }: StockPageProps) {
                   gap: 12,
                 }}
               >
-                {profile.keyRisks.map((risk, index) => (
+                {deep.keyRisks.map((risk, index) => (
                   <li
                     key={risk}
                     style={{
@@ -420,7 +496,7 @@ export default async function StockResearchPage({ params }: StockPageProps) {
                   lineHeight: 1.65,
                 }}
               >
-                {profile.bullCase}
+                {deep.bullCase}
               </p>
             </div>
             <div style={{ background: "var(--surface)", padding: 28 }}>
@@ -443,7 +519,7 @@ export default async function StockResearchPage({ params }: StockPageProps) {
                   lineHeight: 1.65,
                 }}
               >
-                {profile.baseCase}
+                {deep.baseCase}
               </p>
             </div>
             <div style={{ background: "var(--surface)", padding: 28 }}>
@@ -466,7 +542,7 @@ export default async function StockResearchPage({ params }: StockPageProps) {
                   lineHeight: 1.65,
                 }}
               >
-                {profile.bearCase}
+                {deep.bearCase}
               </p>
             </div>
           </div>
@@ -496,7 +572,7 @@ export default async function StockResearchPage({ params }: StockPageProps) {
               gap: 14,
             }}
           >
-            {profile.beginnerMetrics.map((metric) => (
+            {deep.beginnerMetrics.map((metric) => (
               <div className="card-line" key={metric.label}>
                 <p
                   style={{
@@ -555,7 +631,7 @@ export default async function StockResearchPage({ params }: StockPageProps) {
               gap: 14,
             }}
           >
-            {profile.whatToResearchNext.map((item, index) => (
+            {deep.whatToResearchNext.map((item, index) => (
               <div className="card-line" key={item}>
                 <p
                   style={{
@@ -576,6 +652,8 @@ export default async function StockResearchPage({ params }: StockPageProps) {
           </div>
         </div>
       </section>
+        </>
+      )}
 
       <style>{`
         @media (max-width: 880px) {

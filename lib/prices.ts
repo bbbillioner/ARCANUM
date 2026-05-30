@@ -1,16 +1,66 @@
+import AAPL from "@/data/prices/AAPL.json";
+import AMZN from "@/data/prices/AMZN.json";
+import BA from "@/data/prices/BA.json";
+import BND from "@/data/prices/BND.json";
+import BRK_B from "@/data/prices/BRK-B.json";
 import COST from "@/data/prices/COST.json";
+import DIS from "@/data/prices/DIS.json";
+import GOOGL from "@/data/prices/GOOGL.json";
+import HD from "@/data/prices/HD.json";
+import JNJ from "@/data/prices/JNJ.json";
+import JPM from "@/data/prices/JPM.json";
+import KO from "@/data/prices/KO.json";
+import LLY from "@/data/prices/LLY.json";
+import MA from "@/data/prices/MA.json";
+import MCD from "@/data/prices/MCD.json";
+import META from "@/data/prices/META.json";
 import MSFT from "@/data/prices/MSFT.json";
+import NKE from "@/data/prices/NKE.json";
 import NVDA from "@/data/prices/NVDA.json";
 import QQQ from "@/data/prices/QQQ.json";
+import SCHD from "@/data/prices/SCHD.json";
+import SPY from "@/data/prices/SPY.json";
+import TSLA from "@/data/prices/TSLA.json";
+import UNH from "@/data/prices/UNH.json";
+import V from "@/data/prices/V.json";
+import VEA from "@/data/prices/VEA.json";
 import VOO from "@/data/prices/VOO.json";
+import VTI from "@/data/prices/VTI.json";
+import WMT from "@/data/prices/WMT.json";
+import XOM from "@/data/prices/XOM.json";
 import type { PriceBar, PriceDataset, Timeframe } from "@/types/prices";
 
 const datasets: Record<string, PriceDataset> = {
-  VOO: VOO as PriceDataset,
-  QQQ: QQQ as PriceDataset,
-  MSFT: MSFT as PriceDataset,
-  NVDA: NVDA as PriceDataset,
+  AAPL: AAPL as PriceDataset,
+  AMZN: AMZN as PriceDataset,
+  BA: BA as PriceDataset,
+  BND: BND as PriceDataset,
+  "BRK-B": BRK_B as PriceDataset,
   COST: COST as PriceDataset,
+  DIS: DIS as PriceDataset,
+  GOOGL: GOOGL as PriceDataset,
+  HD: HD as PriceDataset,
+  JNJ: JNJ as PriceDataset,
+  JPM: JPM as PriceDataset,
+  KO: KO as PriceDataset,
+  LLY: LLY as PriceDataset,
+  MA: MA as PriceDataset,
+  MCD: MCD as PriceDataset,
+  META: META as PriceDataset,
+  MSFT: MSFT as PriceDataset,
+  NKE: NKE as PriceDataset,
+  NVDA: NVDA as PriceDataset,
+  QQQ: QQQ as PriceDataset,
+  SCHD: SCHD as PriceDataset,
+  SPY: SPY as PriceDataset,
+  TSLA: TSLA as PriceDataset,
+  UNH: UNH as PriceDataset,
+  V: V as PriceDataset,
+  VEA: VEA as PriceDataset,
+  VOO: VOO as PriceDataset,
+  VTI: VTI as PriceDataset,
+  WMT: WMT as PriceDataset,
+  XOM: XOM as PriceDataset,
 };
 
 export function getPriceDataset(ticker: string): PriceDataset | null {

@@ -6,7 +6,22 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const OUT_DIR = join(__dirname, "..", "data", "prices");
 
-const TICKERS = ["VOO", "QQQ", "MSFT", "NVDA", "COST"];
+const TICKERS = [
+  // Deep profiles
+  "VOO", "QQQ", "MSFT", "NVDA", "COST",
+  // Lite profiles — ETFs
+  "SPY", "VTI", "VEA", "SCHD", "BND",
+  // Lite profiles — Mega-cap tech
+  "AAPL", "GOOGL", "AMZN", "META", "TSLA",
+  // Lite profiles — Consumer
+  "WMT", "HD", "MCD", "KO", "DIS",
+  // Lite profiles — Finance
+  "JPM", "V", "MA",
+  // Lite profiles — Healthcare
+  "JNJ", "UNH", "LLY",
+  // Lite profiles — Other
+  "BRK-B", "BA", "XOM", "NKE",
+];
 
 mkdirSync(OUT_DIR, { recursive: true });
 

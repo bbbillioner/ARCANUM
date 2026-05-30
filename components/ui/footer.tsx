@@ -7,9 +7,10 @@ const footerCols = [
     heading: "Product",
     links: [
       { href: "/dashboard", label: "Terminal" },
-      { href: "/stocks", label: "Watchlist" },
-      { href: "/learn", label: "Lessons" },
+      { href: "/stocks", label: "Stocks & ETFs" },
+      { href: "/watchlist", label: "Watchlist" },
       { href: "/simulator", label: "Paper trading" },
+      { href: "/settings", label: "Settings" },
     ],
   },
   {
@@ -24,10 +25,10 @@ const footerCols = [
   {
     heading: "Legal",
     links: [
-      { href: "/", label: "Disclosures" },
-      { href: "/", label: "Terms" },
-      { href: "/", label: "Privacy" },
-      { href: "/", label: "Contact" },
+      { href: "/help", label: "Help & FAQ" },
+      { href: "/terms", label: "Terms" },
+      { href: "/privacy", label: "Privacy" },
+      { href: "mailto:hello@arcanum.example", label: "Contact" },
     ],
   },
 ];

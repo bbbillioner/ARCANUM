@@ -1,7 +1,15 @@
+import type { Metadata } from "next";
+
 import { NewsCard } from "@/components/ui/news-card";
 import { dailyBriefs } from "@/data/briefs";
 import { stockProfiles } from "@/data/stocks";
 import { fetchPortfolioNews } from "@/lib/news";
+
+export const metadata: Metadata = {
+  title: "Daily brief",
+  description:
+    "Live market headlines on the stocks ARCANUM tracks, plus editorial breakdowns of how to read a market event as a beginner.",
+};
 
 const beginnerTakeaways = [
   "News matters when it affects earnings, rates, demand, regulation, or sentiment.",

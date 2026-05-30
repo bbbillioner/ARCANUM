@@ -1,7 +1,7 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { ChartPanel } from "@/components/ui/chart-panel";
-import { stockProfiles } from "@/data/stocks";
 import {
   formatFetchedAt,
   getCurrentPrice,
@@ -11,8 +11,14 @@ import {
   sliceByTimeframe,
 } from "@/lib/prices";
 import { fetchQuotes } from "@/lib/quote";
+import { allProfiles, type AnyProfile } from "@/lib/stocks";
 import type { Quote } from "@/types/quote";
-import type { StockProfile } from "@/types/investing";
+
+export const metadata: Metadata = {
+  title: "Stocks & ETFs",
+  description:
+    "Browse the stocks and ETFs ARCANUM tracks. Live prices, five-year history, and beginner-friendly research on every ticker.",
+};
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat("en-US", {
@@ -25,7 +31,7 @@ function StockRow({
   profile,
   quote,
 }: {
-  profile: StockProfile;
+  profile: AnyProfile;
   quote: Quote | undefined;
 }) {
   const livePrice = quote?.price ?? getCurrentPrice(profile.ticker);
@@ -217,12 +223,12 @@ function StockRow({
 }
 
 export default async function StocksPage() {
-  const etfs = stockProfiles.filter((p) => p.assetType === "ETF");
-  const stocks = stockProfiles.filter((p) => p.assetType === "Stock");
-  const firstTicker = stockProfiles[0]?.ticker;
+  const etfs = allProfiles.filter((p) => p.assetType === "ETF");
+  const stocks = allProfiles.filter((p) => p.assetType === "Stock");
+  const firstTicker = allProfiles[0]?.ticker;
   const fetchedAt = firstTicker ? getFetchedAt(firstTicker) : null;
 
-  const quotes = await fetchQuotes(stockProfiles.map((p) => p.ticker));
+  const quotes = await fetchQuotes(allProfiles.map((p) => p.ticker));
   const liveCount = Object.values(quotes).filter(
     (q) => q.source === "live",
   ).length;
@@ -256,7 +262,7 @@ export default async function StocksPage() {
             }}
           >
             <span style={{ color: "var(--accent)" }}>
-              ● {liveCount} / {stockProfiles.length} live
+              ● {liveCount} / {allProfiles.length} live
             </span>
             {fetchedAt && <span>· History as of {formatFetchedAt(fetchedAt)}</span>}
           </div>

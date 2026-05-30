@@ -1,7 +1,14 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { learningCards } from "@/data/learning-cards";
 import type { LearningCard } from "@/types/investing";
+
+export const metadata: Metadata = {
+  title: "Learn",
+  description:
+    "Investing concepts explained plainly. Short lessons that help beginners understand what their portfolio is doing, not what the market will do next.",
+};
 
 type LearningSection = {
   eyebrow: string;
