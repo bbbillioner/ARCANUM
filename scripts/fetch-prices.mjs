@@ -68,9 +68,14 @@ async function fetchTicker(ticker) {
     });
   }
 
+  const lastBar = bars[bars.length - 1];
+  const fetchedAt = lastBar
+    ? `${lastBar.date}T20:00:00Z`
+    : new Date().toISOString();
+
   return {
     ticker,
-    fetchedAt: new Date().toISOString(),
+    fetchedAt,
     currency: result.meta?.currency ?? "USD",
     exchange: result.meta?.exchangeName ?? "",
     bars,
