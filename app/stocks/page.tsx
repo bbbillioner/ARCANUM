@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { ChartPanel } from "@/components/ui/chart-panel";
+import { RecommendedForYou } from "@/components/ui/recommended-for-you";
 import {
   formatFetchedAt,
   getCurrentPrice,
@@ -271,6 +272,7 @@ export default async function StocksPage() {
 
       <section className="block">
         <div className="wrap">
+          <RecommendedForYou />
           <div className="sec-head">
             <span className="eyebrow">
               <span className="gem" />

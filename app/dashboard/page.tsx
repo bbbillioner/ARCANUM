@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { useQuotes } from "@/components/hooks/use-quotes";
 import { NewsFeed } from "@/components/ui/news-feed";
-import { learningCards } from "@/data/learning-cards";
+import { derivePersonalization } from "@/lib/personalization";
 import {
   getHoldingFallback,
   isOnboardingAnswers,
@@ -157,9 +157,8 @@ export default function DashboardPage() {
   const cashAllocation = selectedPortfolio.holdings.find(
     (h) => h.ticker === "CASH",
   )?.allocation;
-  const learningCard =
-    learningCards.find((c) => c.term === "Concentration Risk") ??
-    learningCards[0];
+  const personalization = derivePersonalization(answers);
+  const learningCard = personalization.learningCard;
 
   return (
     <main>

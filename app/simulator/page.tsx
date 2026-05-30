@@ -7,6 +7,8 @@ import { useQuotes } from "@/components/hooks/use-quotes";
 import { ChartFull } from "@/components/ui/chart-full";
 import { ChartPanel } from "@/components/ui/chart-panel";
 import { stockProfiles } from "@/data/stocks";
+import { derivePersonalization } from "@/lib/personalization";
+import { loadOnboardingAnswers } from "@/lib/portfolio";
 import {
   getCurrentPrice,
   getPriceBars,
@@ -68,6 +70,14 @@ export default function SimulatorPage() {
     const timeoutId = window.setTimeout(() => {
       if (!cancelled) {
         setSimulator(getSimulator());
+        // Pre-select starting cash from the user's onboarding budget answer
+        const answers = loadOnboardingAnswers();
+        if (answers) {
+          const recommended = derivePersonalization(answers).defaultSimulatorCash;
+          if (startingCashOptions.includes(recommended)) {
+            setStartingCash(recommended);
+          }
+        }
         setHasLoaded(true);
       }
     }, 0);
