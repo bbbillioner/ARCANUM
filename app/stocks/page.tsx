@@ -266,6 +266,16 @@ export default async function StocksPage() {
               ● {liveCount} / {allProfiles.length} live
             </span>
             {fetchedAt && <span>· History as of {formatFetchedAt(fetchedAt)}</span>}
+            <Link
+              href="/compare"
+              style={{
+                color: "var(--accent)",
+                borderBottom: "1px solid rgba(0,229,168,0.4)",
+                textDecoration: "none",
+              }}
+            >
+              Compare two →
+            </Link>
           </div>
         </div>
       </section>

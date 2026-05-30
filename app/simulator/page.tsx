@@ -60,6 +60,7 @@ export default function SimulatorPage() {
   );
   const [amount, setAmount] = useState("100");
   const [thesis, setThesis] = useState("");
+  const [preMortem, setPreMortem] = useState("");
   const [message, setMessage] = useState<{
     type: "success" | "error";
     text: string;
@@ -128,10 +129,19 @@ export default function SimulatorPage() {
 
   function handleBuy() {
     const livePrice = priceFor(selectedTicker);
-    const result = buyHolding(selectedTicker, Number(amount), livePrice, thesis);
+    const result = buyHolding(
+      selectedTicker,
+      Number(amount),
+      livePrice,
+      thesis,
+      preMortem,
+    );
     setSimulator(result.state);
     setMessage({ type: result.success ? "success" : "error", text: result.message });
-    if (result.success) setThesis("");
+    if (result.success) {
+      setThesis("");
+      setPreMortem("");
+    }
   }
 
   function handleSell() {
@@ -653,6 +663,57 @@ export default function SimulatorPage() {
                             rows={2}
                             value={thesis}
                           />
+                        </label>
+
+                        <label style={{ display: "grid", gap: 8 }}>
+                          <span
+                            style={{
+                              fontFamily: "var(--font-jetbrains-mono)",
+                              fontSize: "0.66rem",
+                              letterSpacing: "0.18em",
+                              textTransform: "uppercase",
+                              color: "var(--muted)",
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "baseline",
+                            }}
+                          >
+                            <span>
+                              Pre-mortem ·{" "}
+                              <span style={{ color: "var(--muted)" }}>
+                                optional, recommended
+                              </span>
+                            </span>
+                            <span
+                              style={{
+                                color:
+                                  preMortem.length > 240
+                                    ? "#ff6878"
+                                    : "var(--muted)",
+                              }}
+                            >
+                              {preMortem.length} / 240
+                            </span>
+                          </span>
+                          <textarea
+                            className="trade-thesis"
+                            maxLength={240}
+                            onChange={(e) => setPreMortem(e.target.value)}
+                            placeholder="If this loses 50% over the next year, what would have caused it? e.g. 'AI capex slows and data-center growth stalls; competition from AMD takes share.'"
+                            rows={2}
+                            value={preMortem}
+                          />
+                          <span
+                            style={{
+                              fontSize: "0.76rem",
+                              color: "var(--muted)",
+                              lineHeight: 1.5,
+                            }}
+                          >
+                            Forcing yourself to imagine the bear case before
+                            buying is one of the most-skipped, highest-leverage
+                            investing skills.
+                          </span>
                         </label>
 
                         {message && (

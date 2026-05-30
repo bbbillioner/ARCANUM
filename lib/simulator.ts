@@ -196,6 +196,7 @@ export function buyHolding(
   amount: number,
   tradePrice?: number,
   thesis?: string,
+  preMortem?: string,
 ): SimulatorActionResult {
   const state = getSimulator();
   const normalizedAmount = normalizeAmount(amount);
@@ -246,6 +247,15 @@ export function buyHolding(
     return {
       success: false,
       message: "Keep the thesis under 240 characters — one clear sentence.",
+      state,
+    };
+  }
+
+  const trimmedPreMortem = (preMortem ?? "").trim();
+  if (trimmedPreMortem.length > 240) {
+    return {
+      success: false,
+      message: "Keep the pre-mortem under 240 characters too.",
       state,
     };
   }
@@ -315,6 +325,7 @@ export function buyHolding(
         amount: normalizedAmount,
         createdAt: new Date().toISOString(),
         thesis: trimmedThesis,
+        preMortem: trimmedPreMortem.length > 0 ? trimmedPreMortem : undefined,
         reviews: [],
       },
       ...state.transactions,

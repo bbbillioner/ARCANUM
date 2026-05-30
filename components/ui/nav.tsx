@@ -7,10 +7,10 @@ import { TickerSearch } from "./ticker-search";
 import { Wordmark } from "./wordmark";
 
 const navLinks = [
+  { href: "/today", label: "Today" },
   { href: "/dashboard", label: "Dashboard" },
   { href: "/stocks", label: "Stocks" },
   { href: "/watchlist", label: "Watchlist" },
-  { href: "/brief", label: "Brief" },
   { href: "/learn", label: "Learn" },
   { href: "/simulator", label: "Simulator" },
   { href: "/journal", label: "Journal" },

@@ -447,6 +447,41 @@ export default function JournalPage() {
                     </p>
                   </div>
 
+                  {tx.preMortem && (
+                    <div
+                      style={{
+                        borderLeft: "2px solid #ff6878",
+                        background: "var(--surface-2)",
+                        padding: "14px 18px",
+                      }}
+                    >
+                      <p
+                        style={{
+                          fontFamily: "var(--font-jetbrains-mono)",
+                          fontSize: "0.62rem",
+                          letterSpacing: "0.22em",
+                          textTransform: "uppercase",
+                          color: "#ff6878",
+                          marginBottom: 8,
+                        }}
+                      >
+                        Pre-mortem · imagined bear case
+                      </p>
+                      <p
+                        style={{
+                          fontFamily: "var(--font-fraunces)",
+                          fontStyle: "italic",
+                          fontWeight: 500,
+                          fontSize: "1.05rem",
+                          lineHeight: 1.55,
+                          color: "var(--foreground)",
+                        }}
+                      >
+                        &ldquo;{tx.preMortem}&rdquo;
+                      </p>
+                    </div>
+                  )}
+
                   {/* Reviews */}
                   {reviewCount > 0 && (
                     <div style={{ display: "grid", gap: 10 }}>

@@ -8,6 +8,7 @@ const footerCols = [
     links: [
       { href: "/dashboard", label: "Terminal" },
       { href: "/stocks", label: "Stocks & ETFs" },
+      { href: "/compare", label: "Compare" },
       { href: "/watchlist", label: "Watchlist" },
       { href: "/simulator", label: "Paper trading" },
       { href: "/journal", label: "Journal" },
@@ -15,12 +16,12 @@ const footerCols = [
     ],
   },
   {
-    heading: "Company",
+    heading: "Read",
     links: [
-      { href: "/#method", label: "Method" },
-      { href: "/#pricing", label: "Pricing" },
+      { href: "/today", label: "Today" },
       { href: "/brief", label: "Daily brief" },
-      { href: "/onboarding", label: "Begin" },
+      { href: "/learn", label: "Concepts" },
+      { href: "/onboarding", label: "Build profile" },
     ],
   },
   {

@@ -152,6 +152,7 @@ export type SimulatorTransaction = {
   amount: number;
   createdAt: string;
   thesis?: string;
+  preMortem?: string;
   reviews?: ThesisReview[];
 };
 
