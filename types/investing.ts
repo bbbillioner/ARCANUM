@@ -138,6 +138,11 @@ export type SimulatorHolding = {
   allocationPercent: number;
 };
 
+export type ThesisReview = {
+  note: string;
+  createdAt: string;
+};
+
 export type SimulatorTransaction = {
   id: string;
   type: SimulatorTransactionType;
@@ -146,6 +151,8 @@ export type SimulatorTransaction = {
   price: number;
   amount: number;
   createdAt: string;
+  thesis?: string;
+  reviews?: ThesisReview[];
 };
 
 export type SimulatorState = {

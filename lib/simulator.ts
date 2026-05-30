@@ -195,6 +195,7 @@ export function buyHolding(
   ticker: string,
   amount: number,
   tradePrice?: number,
+  thesis?: string,
 ): SimulatorActionResult {
   const state = getSimulator();
   const normalizedAmount = normalizeAmount(amount);
@@ -228,6 +229,23 @@ export function buyHolding(
     return {
       success: false,
       message: "You do not have enough fake cash for that purchase.",
+      state,
+    };
+  }
+
+  const trimmedThesis = (thesis ?? "").trim();
+  if (trimmedThesis.length < 10) {
+    return {
+      success: false,
+      message:
+        "Write one sentence on why you're buying — at least 10 characters. This is the part that builds the skill.",
+      state,
+    };
+  }
+  if (trimmedThesis.length > 240) {
+    return {
+      success: false,
+      message: "Keep the thesis under 240 characters — one clear sentence.",
       state,
     };
   }
@@ -296,6 +314,8 @@ export function buyHolding(
         price: currentPrice,
         amount: normalizedAmount,
         createdAt: new Date().toISOString(),
+        thesis: trimmedThesis,
+        reviews: [],
       },
       ...state.transactions,
     ],
@@ -303,7 +323,7 @@ export function buyHolding(
 
   return {
     success: true,
-    message: `Bought $${normalizedAmount.toFixed(2)} of ${profile.ticker}.`,
+    message: `Bought $${normalizedAmount.toFixed(2)} of ${profile.ticker}. Thesis saved to your journal.`,
     state: updatedState,
   };
 }
@@ -398,3 +418,48 @@ export function sellHolding(
     state: updatedState,
   };
 }
+
+export function addThesisReview(
+  transactionId: string,
+  note: string,
+): SimulatorActionResult {
+  const state = getSimulator();
+  if (!state) {
+    return {
+      success: false,
+      message: "Start a simulation before reviewing theses.",
+      state: null,
+    };
+  }
+  const trimmed = note.trim();
+  if (trimmed.length < 5) {
+    return {
+      success: false,
+      message: "Add at least a short note — even five words helps next time.",
+      state,
+    };
+  }
+  if (trimmed.length > 480) {
+    return {
+      success: false,
+      message: "Keep the review under 480 characters.",
+      state,
+    };
+  }
+
+  const review = { note: trimmed, createdAt: new Date().toISOString() };
+  const transactions = state.transactions.map((tx) =>
+    tx.id === transactionId
+      ? { ...tx, reviews: [...(tx.reviews ?? []), review] }
+      : tx,
+  );
+
+  const updatedState = saveSimulator({ ...state, transactions });
+
+  return {
+    success: true,
+    message: "Review saved.",
+    state: updatedState,
+  };
+}
+

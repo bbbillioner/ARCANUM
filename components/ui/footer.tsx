@@ -10,6 +10,7 @@ const footerCols = [
       { href: "/stocks", label: "Stocks & ETFs" },
       { href: "/watchlist", label: "Watchlist" },
       { href: "/simulator", label: "Paper trading" },
+      { href: "/journal", label: "Journal" },
       { href: "/settings", label: "Settings" },
     ],
   },

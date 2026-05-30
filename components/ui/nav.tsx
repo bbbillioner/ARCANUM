@@ -13,6 +13,7 @@ const navLinks = [
   { href: "/brief", label: "Brief" },
   { href: "/learn", label: "Learn" },
   { href: "/simulator", label: "Simulator" },
+  { href: "/journal", label: "Journal" },
 ];
 
 function isActive(pathname: string, href: string) {

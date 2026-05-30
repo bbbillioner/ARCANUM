@@ -57,6 +57,7 @@ export default function SimulatorPage() {
     stockProfiles[0]?.ticker ?? "VOO",
   );
   const [amount, setAmount] = useState("100");
+  const [thesis, setThesis] = useState("");
   const [message, setMessage] = useState<{
     type: "success" | "error";
     text: string;
@@ -117,9 +118,10 @@ export default function SimulatorPage() {
 
   function handleBuy() {
     const livePrice = priceFor(selectedTicker);
-    const result = buyHolding(selectedTicker, Number(amount), livePrice);
+    const result = buyHolding(selectedTicker, Number(amount), livePrice, thesis);
     setSimulator(result.state);
     setMessage({ type: result.success ? "success" : "error", text: result.message });
+    if (result.success) setThesis("");
   }
 
   function handleSell() {
@@ -263,13 +265,52 @@ export default function SimulatorPage() {
                     Your <em>fake-money</em> portfolio.
                   </h2>
                 </div>
-                <button
-                  className="btn btn-ghost"
-                  onClick={handleReset}
-                  type="button"
-                >
-                  Reset simulation
-                </button>
+                <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                  {(() => {
+                    const needsReview = simulator.transactions.filter(
+                      (t) =>
+                        t.type === "buy" &&
+                        t.thesis &&
+                        Date.now() - new Date(t.createdAt).getTime() >
+                          30 * 24 * 60 * 60 * 1000 &&
+                        (t.reviews?.length ?? 0) === 0,
+                    ).length;
+                    return (
+                      <Link
+                        className="btn btn-ghost"
+                        href="/journal"
+                        style={
+                          needsReview > 0
+                            ? {
+                                borderColor: "rgba(255,104,120,0.5)",
+                                color: "#ff6878",
+                              }
+                            : undefined
+                        }
+                      >
+                        Journal
+                        {needsReview > 0 && (
+                          <span
+                            style={{
+                              fontFamily: "var(--font-jetbrains-mono)",
+                              fontSize: "0.7rem",
+                              marginLeft: 8,
+                            }}
+                          >
+                            {needsReview} need review
+                          </span>
+                        )}
+                      </Link>
+                    );
+                  })()}
+                  <button
+                    className="btn btn-ghost"
+                    onClick={handleReset}
+                    type="button"
+                  >
+                    Reset simulation
+                  </button>
+                </div>
               </div>
               <div
                 style={{
@@ -560,6 +601,48 @@ export default function SimulatorPage() {
                               value={amount}
                             />
                           </div>
+                        </label>
+
+                        <label style={{ display: "grid", gap: 8 }}>
+                          <span
+                            style={{
+                              fontFamily: "var(--font-jetbrains-mono)",
+                              fontSize: "0.66rem",
+                              letterSpacing: "0.18em",
+                              textTransform: "uppercase",
+                              color: "var(--muted)",
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "baseline",
+                            }}
+                          >
+                            <span>
+                              Thesis ·{" "}
+                              <span style={{ color: "var(--accent)" }}>
+                                required for buys
+                              </span>
+                            </span>
+                            <span
+                              style={{
+                                color:
+                                  thesis.length > 240
+                                    ? "#ff6878"
+                                    : thesis.length >= 10
+                                    ? "var(--accent)"
+                                    : "var(--muted)",
+                              }}
+                            >
+                              {thesis.length} / 240
+                            </span>
+                          </span>
+                          <textarea
+                            className="trade-thesis"
+                            maxLength={240}
+                            onChange={(e) => setThesis(e.target.value)}
+                            placeholder="One sentence on why you're buying. e.g. 'AI infra demand keeps NVDA's data-center revenue compounding through 2026.'"
+                            rows={2}
+                            value={thesis}
+                          />
                         </label>
 
                         {message && (
@@ -912,6 +995,21 @@ export default function SimulatorPage() {
                           {tx.shares.toFixed(6)} sh @{" "}
                           {formatCurrency(tx.price)}
                         </p>
+                        {tx.thesis && (
+                          <p
+                            style={{
+                              fontFamily: "var(--font-fraunces)",
+                              fontStyle: "italic",
+                              fontSize: "0.88rem",
+                              color: "var(--foreground)",
+                              marginTop: 8,
+                              lineHeight: 1.5,
+                              maxWidth: "60ch",
+                            }}
+                          >
+                            &ldquo;{tx.thesis}&rdquo;
+                          </p>
+                        )}
                       </div>
                       <span
                         style={{
@@ -1050,6 +1148,27 @@ export default function SimulatorPage() {
         .trade-input:focus {
           border-color: var(--accent);
           background: var(--surface);
+        }
+        .trade-thesis {
+          width: 100%;
+          background: var(--surface-2);
+          border: 1px solid var(--stroke);
+          color: var(--foreground);
+          padding: 12px 14px;
+          font-family: var(--font-inter);
+          font-size: 0.92rem;
+          line-height: 1.55;
+          outline: none;
+          resize: vertical;
+          min-height: 64px;
+          transition: border-color 0.2s ease, background 0.2s ease;
+        }
+        .trade-thesis:focus {
+          border-color: var(--accent);
+          background: var(--surface);
+        }
+        .trade-thesis::placeholder {
+          color: var(--muted);
         }
         @media (max-width: 880px) {
           .sim-2col {
