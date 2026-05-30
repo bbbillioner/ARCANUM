@@ -59,10 +59,11 @@ export function Footer() {
         </div>
         <div className="foot-bottom">
           <p className="fine">
-            ARCANUM is a product mockup. Investing involves risk, including
+            ARCANUM is an educational tool in early access — not a broker,
+            advisor, or signal service. Investing involves risk, including the
             possible loss of principal. Past performance is not indicative of
-            future results. Figures, tickers, and balances shown are
-            illustrative and not investment advice.
+            future results. Prices come from public sources and may be delayed.
+            Nothing on this site is financial advice.
           </p>
           <span className="cc">© 2026 ARCANUM LABS</span>
         </div>

@@ -1,6 +1,99 @@
 import Link from "next/link";
 
-export default function Home() {
+import { stockProfiles } from "@/data/stocks";
+import {
+  getCurrentPrice,
+  getPriceBars,
+  sliceByTimeframe,
+} from "@/lib/prices";
+import { fetchQuotes } from "@/lib/quote";
+
+function formatCurrency(value: number) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 2,
+  }).format(value);
+}
+
+function formatChangePercent(value: number) {
+  const sign = value >= 0 ? "+" : "";
+  return `${sign}${value.toFixed(2)}%`;
+}
+
+const methodCards = [
+  {
+    number: "01",
+    label: "Decode",
+    title: "Read the market in plain English",
+    body: "Hover any ticker, term, or candle and ARCANUM explains it like a patient friend — no acronyms left unexplained, no chart left mysterious.",
+  },
+  {
+    number: "02",
+    label: "Guide",
+    title: "Guardrails for the first decade",
+    body: "Gentle prompts flag concentration, panic-selling, and fee traps before you commit — the seatbelt you'll outgrow but want on day one.",
+  },
+  {
+    number: "03",
+    label: "Command",
+    title: "One screen, fully in your hands",
+    body: "Watchlist, lessons, and a practice ledger live in a single calm terminal. Everything you need, nothing screaming for attention.",
+  },
+];
+
+const heroTickers = ["VOO", "QQQ", "NVDA", "MSFT"];
+
+function buildSparkPath(bars: number[]): { line: string; area: string } {
+  if (bars.length === 0) return { line: "", area: "" };
+  const min = Math.min(...bars);
+  const max = Math.max(...bars);
+  const range = max - min || 1;
+  const width = 320;
+  const height = 64;
+  const step = width / (bars.length - 1);
+  const points = bars.map(
+    (v, i) =>
+      `${(i * step).toFixed(1)},${(height - ((v - min) / range) * (height - 6) - 3).toFixed(1)}`,
+  );
+  const line = `M${points.join(" L")}`;
+  const area = `${line} L${width},${height} L0,${height} Z`;
+  return { line, area };
+}
+
+export default async function Home() {
+  const quotes = await fetchQuotes(heroTickers);
+
+  // Illustrative portfolio: equal-weight across hero tickers
+  const portfolioRows = heroTickers
+    .map((ticker) => {
+      const profile = stockProfiles.find((p) => p.ticker === ticker);
+      const quote = quotes[ticker];
+      if (!profile) return null;
+      const change = quote?.changePercent ?? 0;
+      const price = quote?.price ?? getCurrentPrice(ticker);
+      return { ticker, name: profile.name, change, price };
+    })
+    .filter(
+      (row): row is { ticker: string; name: string; change: number; price: number } =>
+        row !== null,
+    );
+
+  const sparklineBars = sliceByTimeframe(getPriceBars("VOO"), "1M").map(
+    (b) => b.close,
+  );
+  const sparkPath = buildSparkPath(sparklineBars);
+
+  // Illustrative total balance: $10K equally split across tickers
+  const totalBalance = 10000 * (
+    portfolioRows.reduce((sum, r) => sum + (1 + r.change / 100), 0) /
+      Math.max(portfolioRows.length, 1)
+  );
+  const portfolioChange =
+    portfolioRows.reduce((sum, r) => sum + r.change, 0) /
+    Math.max(portfolioRows.length, 1);
+  const todayDelta = (totalBalance * portfolioChange) / 100;
+
   return (
     <main>
       {/* HERO */}
@@ -27,32 +120,37 @@ export default function Home() {
                   Open the terminal <span className="arrow">→</span>
                 </Link>
                 <Link className="btn btn-ghost" href="/learn">
-                  Watch the 2-min tour
+                  Learn the method
                 </Link>
               </div>
               <div className="trust reveal d5">
-                <span>No fees to start</span>
+                <span>Free during early access</span>
                 <span className="dot">·</span>
                 <span>Paper-trade first</span>
                 <span className="dot">·</span>
-                <span>40,000 first-timers aboard</span>
+                <span>220+ in the first cohort</span>
               </div>
             </div>
 
             {/* Terminal card */}
             <div className="terminal reveal d4">
               <div className="term-bar">
-                <span className="label">Portfolio · Live</span>
+                <span className="label">Portfolio · Sample</span>
                 <span className="live">
                   <span className="pulse" />
-                  MARKETS OPEN
+                  LIVE QUOTES
                 </span>
               </div>
               <div className="term-body">
-                <div className="pf-label">Total balance</div>
-                <div className="pf-value">$24,310.88</div>
+                <div className="pf-label">Illustrative balance</div>
+                <div className="pf-value">{formatCurrency(totalBalance)}</div>
                 <div className="pf-change">
-                  Today <b>+$571.40 · +2.41%</b>
+                  Today{" "}
+                  <b>
+                    {todayDelta >= 0 ? "+" : ""}
+                    {formatCurrency(todayDelta)} ·{" "}
+                    {formatChangePercent(portfolioChange)}
+                  </b>
                 </div>
 
                 <div className="spark">
@@ -67,41 +165,33 @@ export default function Home() {
                         <stop offset="100%" stopColor="#00E5A8" stopOpacity="0" />
                       </linearGradient>
                     </defs>
-                    <path
-                      d="M0 50 L26 46 L52 52 L78 40 L104 44 L130 30 L156 34 L182 24 L208 28 L234 16 L260 22 L286 10 L320 6 L320 64 L0 64 Z"
-                      fill="url(#g)"
-                    />
-                    <path
-                      d="M0 50 L26 46 L52 52 L78 40 L104 44 L130 30 L156 34 L182 24 L208 28 L234 16 L260 22 L286 10 L320 6"
-                      stroke="#00E5A8"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="1.6"
-                    />
+                    {sparkPath.area && (
+                      <path d={sparkPath.area} fill="url(#g)" />
+                    )}
+                    {sparkPath.line && (
+                      <path
+                        d={sparkPath.line}
+                        stroke="#00E5A8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="1.6"
+                      />
+                    )}
                   </svg>
                 </div>
 
                 <div className="holdings">
-                  <div className="hrow">
-                    <span className="tkr">VOO</span>
-                    <span className="hname">S&amp;P 500 ETF</span>
-                    <span className="hchg up">+1.21%</span>
-                  </div>
-                  <div className="hrow">
-                    <span className="tkr">AAPL</span>
-                    <span className="hname">Apple Inc.</span>
-                    <span className="hchg up">+0.84%</span>
-                  </div>
-                  <div className="hrow">
-                    <span className="tkr">BTC</span>
-                    <span className="hname">Bitcoin</span>
-                    <span className="hchg flat">−0.62%</span>
-                  </div>
-                  <div className="hrow">
-                    <span className="tkr">MSFT</span>
-                    <span className="hname">Microsoft</span>
-                    <span className="hchg up">+0.39%</span>
-                  </div>
+                  {portfolioRows.map((row) => (
+                    <div className="hrow" key={row.ticker}>
+                      <span className="tkr">{row.ticker}</span>
+                      <span className="hname">{row.name}</span>
+                      <span
+                        className={`hchg ${row.change >= 0 ? "up" : "flat"}`}
+                      >
+                        {formatChangePercent(row.change)}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -114,16 +204,16 @@ export default function Home() {
         <div className="wrap">
           <div className="band-grid">
             <div className="stat">
-              <div className="num">9 min</div>
-              <div className="cap">Median time to first informed trade</div>
+              <div className="num">8</div>
+              <div className="cap">Questions to your starter portfolio</div>
             </div>
             <div className="stat">
-              <div className="num">312</div>
-              <div className="cap">Plain-English term breakdowns</div>
+              <div className="num">32</div>
+              <div className="cap">Concepts explained inline</div>
             </div>
             <div className="stat">
               <div className="num">$0</div>
-              <div className="cap">To open, learn, and paper-trade</div>
+              <div className="cap">Free during early access</div>
             </div>
           </div>
         </div>
@@ -147,35 +237,16 @@ export default function Home() {
             </p>
           </div>
           <div className="methods">
-            <div className="method">
-              <div className="idx">01 / DECODE</div>
-              <h3>Read the market in plain English</h3>
-              <p>
-                Hover any ticker, term, or candle and ARCANUM explains it like a
-                patient friend — no acronyms left unexplained, no chart left
-                mysterious.
-              </p>
-              <div className="line" />
-            </div>
-            <div className="method">
-              <div className="idx">02 / GUIDE</div>
-              <h3>Guardrails for the first decade</h3>
-              <p>
-                Gentle prompts flag concentration, panic-selling, and fee traps
-                before you commit — the seatbelt you&apos;ll outgrow but want on
-                day one.
-              </p>
-              <div className="line" />
-            </div>
-            <div className="method">
-              <div className="idx">03 / COMMAND</div>
-              <h3>One screen, fully in your hands</h3>
-              <p>
-                Watchlist, lessons, and orders live in a single calm terminal.
-                Everything you need, nothing screaming for attention.
-              </p>
-              <div className="line" />
-            </div>
+            {methodCards.map((card) => (
+              <div className="method" key={card.number}>
+                <div className="idx">
+                  {card.number} / {card.label.toUpperCase()}
+                </div>
+                <h3>{card.title}</h3>
+                <p>{card.body}</p>
+                <div className="line" />
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -192,8 +263,8 @@ export default function Home() {
               A desk that fits in one <em>glance.</em>
             </h2>
             <p>
-              Watch, learn, and act without ever switching context. This is the
-              whole product — not a teaser.
+              Watch, learn, and practice without ever switching context. This is
+              the whole product — not a teaser.
             </p>
           </div>
           <div className="showcase">
@@ -203,30 +274,14 @@ export default function Home() {
                 <span className="gem" />
                 Watchlist
               </div>
-              <div className="wl-row">
-                <span className="t">VOO</span>
-                <span className="p up">▲ 1.21%</span>
-              </div>
-              <div className="wl-row">
-                <span className="t">QQQ</span>
-                <span className="p up">▲ 0.94%</span>
-              </div>
-              <div className="wl-row">
-                <span className="t">AAPL</span>
-                <span className="p up">▲ 0.84%</span>
-              </div>
-              <div className="wl-row">
-                <span className="t">TSLA</span>
-                <span className="p">▼ 1.07%</span>
-              </div>
-              <div className="wl-row">
-                <span className="t">BTC</span>
-                <span className="p">▼ 0.62%</span>
-              </div>
-              <div className="wl-row">
-                <span className="t">SCHD</span>
-                <span className="p up">▲ 0.33%</span>
-              </div>
+              {portfolioRows.map((row) => (
+                <div className="wl-row" key={row.ticker}>
+                  <span className="t">{row.ticker}</span>
+                  <span className={`p ${row.change >= 0 ? "up" : ""}`}>
+                    {row.change >= 0 ? "▲" : "▼"} {Math.abs(row.change).toFixed(2)}%
+                  </span>
+                </div>
+              ))}
             </div>
 
             {/* Lesson */}
@@ -248,22 +303,22 @@ export default function Home() {
               </div>
               <div className="lesson">
                 <span className="tag">Up next · 4 min</span>
-                <h4>Why fees quietly compound</h4>
+                <h4>Concentration risk in plain words</h4>
                 <p>
-                  A 1% fee doesn&apos;t cost 1%. See the 30-year math before it
-                  costs you.
+                  When too much of your portfolio leans on one story. How to
+                  spot it before it bites.
                 </p>
               </div>
             </div>
 
-            {/* Order ticket */}
+            {/* Practice ticket */}
             <div className="panel ticket">
               <div className="ptitle">
                 <span className="gem" />
-                Order ticket
+                Practice ticket
               </div>
               <div className="field">
-                <div className="fl">Buy</div>
+                <div className="fl">Asset</div>
                 <div className="fv">
                   <span className="big">VOO</span>
                   <span style={{ color: "var(--muted)" }}>S&amp;P 500 ETF</span>
@@ -273,18 +328,18 @@ export default function Home() {
                 <div className="fl">Amount</div>
                 <div className="fv accent">
                   <span className="big">$250.00</span>
-                  <span style={{ color: "var(--muted)" }}>≈ 0.46 sh</span>
+                  <span style={{ color: "var(--muted)" }}>fake money</span>
                 </div>
               </div>
               <div className="field">
-                <div className="fl">Schedule</div>
+                <div className="fl">Settles at</div>
                 <div className="fv">
-                  <span className="big">Every Friday</span>
-                  <span style={{ color: "var(--muted)" }}>recurring</span>
+                  <span className="big">Live close</span>
+                  <span style={{ color: "var(--muted)" }}>Yahoo Finance</span>
                 </div>
               </div>
               <Link className="btn btn-primary submit" href="/simulator">
-                Review buy <span className="arrow">→</span>
+                Try the simulator <span className="arrow">→</span>
               </Link>
             </div>
           </div>
@@ -304,7 +359,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* PRICING */}
+      {/* PRICING — honest version */}
       <section className="block" id="pricing">
         <div className="wrap">
           <div className="sec-head">
@@ -313,61 +368,69 @@ export default function Home() {
               Pricing
             </span>
             <h2>
-              Start free. Stay <em>only if it helps.</em>
+              Free during <em>early access.</em>
             </h2>
             <p>
-              No card to begin. The terminal, the lessons, and paper trading are
-              free for as long as you&apos;re learning.
+              No card. No paywall. The full terminal, lessons, news, and
+              practice ledger are free while ARCANUM is in early access.
+              Whatever comes after will reward the early cohort.
             </p>
           </div>
           <div className="price-grid">
-            <div className="plan">
-              <div className="pname">Apprentice</div>
+            <div className="plan featured">
+              <div className="pname">Early access</div>
               <div className="pp free">
-                $0<span> / forever</span>
+                $0<span> / forever for the first cohort</span>
               </div>
               <ul>
                 <li>
-                  <span className="ck">+</span>Full command terminal &amp;
-                  watchlist
+                  <span className="ck">+</span>Personalised starter portfolio
                 </li>
                 <li>
-                  <span className="ck">+</span>312 plain-English breakdowns
+                  <span className="ck">+</span>Live prices &amp; news on what you
+                  hold
                 </li>
                 <li>
-                  <span className="ck">+</span>Unlimited paper trading
+                  <span className="ck">+</span>32 concepts tooltipped inline
                 </li>
                 <li>
-                  <span className="ck">+</span>Guardrail prompts on every order
+                  <span className="ck">+</span>Unlimited paper trading at live
+                  prices
+                </li>
+                <li>
+                  <span className="ck">+</span>5-year price history on every
+                  research page
+                </li>
+              </ul>
+              <Link className="btn btn-primary" href="/onboarding">
+                Join early access <span className="arrow">→</span>
+              </Link>
+            </div>
+            <div className="plan">
+              <div className="pname">On the roadmap</div>
+              <div className="pp" style={{ color: "var(--muted)" }}>
+                Later<span> · pricing TBD</span>
+              </div>
+              <ul>
+                <li>
+                  <span className="ck">·</span>Real brokerage connection
+                </li>
+                <li>
+                  <span className="ck">·</span>Recurring auto-invest schedules
+                </li>
+                <li>
+                  <span className="ck">·</span>&quot;Why I bought this&quot;
+                  thesis journal
+                </li>
+                <li>
+                  <span className="ck">·</span>Concentration &amp; drift alerts
+                </li>
+                <li>
+                  <span className="ck">·</span>Multi-device sync &amp; accounts
                 </li>
               </ul>
               <Link className="btn btn-ghost" href="/onboarding">
-                Create free account
-              </Link>
-            </div>
-            <div className="plan featured">
-              <div className="pname">Operator</div>
-              <div className="pp">
-                $12<span> / month</span>
-              </div>
-              <ul>
-                <li>
-                  <span className="ck">+</span>Everything in Apprentice
-                </li>
-                <li>
-                  <span className="ck">+</span>Live brokerage &amp; real
-                  fractional buys
-                </li>
-                <li>
-                  <span className="ck">+</span>Recurring auto-invest schedules
-                </li>
-                <li>
-                  <span className="ck">+</span>Portfolio health &amp;
-                  concentration alerts
-                </li>
-              </ul>
-              <Link className="btn btn-primary" href="/dashboard">
-                Open the terminal <span className="arrow">→</span>
+                Get on the list
               </Link>
             </div>
           </div>
@@ -385,8 +448,9 @@ export default function Home() {
             The market stops feeling <em>arcane</em> today.
           </h2>
           <p>
-            Open the terminal, place a paper trade, and decode your first ticker
-            in under ten minutes.
+            Eight questions tell ARCANUM how you think about money. The
+            terminal is built around the answers — your portfolio, your news,
+            your practice ledger.
           </p>
           <Link className="btn btn-primary" href="/onboarding">
             Open the terminal <span className="arrow">→</span>

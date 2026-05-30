@@ -45,8 +45,8 @@ export function Nav() {
           </div>
 
           <div className="nav-right">
-            <Link className="signin" href="/onboarding">
-              Get started
+            <Link className="signin" href="/learn">
+              Learn
             </Link>
             <Link className="btn btn-primary" href="/dashboard">
               Open Terminal
