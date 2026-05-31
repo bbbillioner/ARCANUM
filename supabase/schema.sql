@@ -1,6 +1,10 @@
 -- ARCANUM database schema
 -- Run this in your Supabase SQL Editor:
 -- Dashboard → SQL Editor → New query → paste this whole file → Run
+--
+-- Safe to re-run: every CREATE is wrapped in IF NOT EXISTS or preceded
+-- by DROP IF EXISTS, so running this on a partially-set-up database
+-- brings it to the right state without errors.
 
 -- ============================================
 -- 1. PROFILES (extends auth.users with onboarding answers)
@@ -27,14 +31,17 @@ create table if not exists public.profiles (
 
 alter table public.profiles enable row level security;
 
+drop policy if exists "Users can read their own profile" on public.profiles;
 create policy "Users can read their own profile"
   on public.profiles for select
   using (auth.uid() = id);
 
+drop policy if exists "Users can insert their own profile" on public.profiles;
 create policy "Users can insert their own profile"
   on public.profiles for insert
   with check (auth.uid() = id);
 
+drop policy if exists "Users can update their own profile" on public.profiles;
 create policy "Users can update their own profile"
   on public.profiles for update
   using (auth.uid() = id);
@@ -48,7 +55,8 @@ set search_path = public
 as $$
 begin
   insert into public.profiles (id, email)
-  values (new.id, new.email);
+  values (new.id, new.email)
+  on conflict (id) do nothing;
   return new;
 end;
 $$;
@@ -70,6 +78,7 @@ create table if not exists public.watchlist (
 
 alter table public.watchlist enable row level security;
 
+drop policy if exists "Users can manage their own watchlist" on public.watchlist;
 create policy "Users can manage their own watchlist"
   on public.watchlist for all
   using (auth.uid() = user_id)
@@ -107,6 +116,7 @@ create index if not exists transactions_user_ticker_idx
 
 alter table public.transactions enable row level security;
 
+drop policy if exists "Users can manage their own transactions" on public.transactions;
 create policy "Users can manage their own transactions"
   on public.transactions for all
   using (auth.uid() = user_id)
@@ -128,6 +138,7 @@ create index if not exists thesis_reviews_transaction_idx
 
 alter table public.thesis_reviews enable row level security;
 
+drop policy if exists "Users can manage their own thesis reviews" on public.thesis_reviews;
 create policy "Users can manage their own thesis reviews"
   on public.thesis_reviews for all
   using (auth.uid() = user_id)
@@ -146,6 +157,7 @@ create table if not exists public.simulator_state (
 
 alter table public.simulator_state enable row level security;
 
+drop policy if exists "Users can manage their own simulator state" on public.simulator_state;
 create policy "Users can manage their own simulator state"
   on public.simulator_state for all
   using (auth.uid() = user_id)
@@ -167,6 +179,7 @@ create table if not exists public.goals (
 
 alter table public.goals enable row level security;
 
+drop policy if exists "Users can manage their own goals" on public.goals;
 create policy "Users can manage their own goals"
   on public.goals for all
   using (auth.uid() = user_id)
