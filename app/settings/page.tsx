@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { isOnboardingAnswers } from "@/lib/portfolio";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { OnboardingAnswers } from "@/types/investing";
 
 type Status = "idle" | "loaded" | "no-onboarding";
@@ -54,6 +55,7 @@ export default function SettingsPage() {
   const [watchCount, setWatchCount] = useState(0);
   const [confirmingClear, setConfirmingClear] = useState(false);
   const [flash, setFlash] = useState<string | null>(null);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
 
   useEffect(() => {
     const raw = localStorage.getItem("arcanum-onboarding");
@@ -75,6 +77,11 @@ export default function SettingsPage() {
     setSimPositions(countSimulatorPositions());
     setSimTxs(countSimulatorTransactions());
     setWatchCount(countWatchlist());
+
+    const supabase = createSupabaseBrowserClient();
+    supabase.auth.getUser().then(({ data }) => {
+      setUserEmail(data.user?.email ?? null);
+    });
   }, []);
 
   function handleClearAll() {
@@ -137,6 +144,75 @@ export default function SettingsPage() {
               {flash}
             </div>
           )}
+
+          {/* Account */}
+          <div
+            style={{
+              background: "var(--surface)",
+              border: "1px solid var(--stroke)",
+              padding: 28,
+              marginBottom: 18,
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                gap: 16,
+                marginBottom: userEmail ? 18 : 0,
+              }}
+            >
+              <div>
+                <p
+                  style={{
+                    fontFamily: "var(--font-jetbrains-mono)",
+                    fontSize: "0.66rem",
+                    letterSpacing: "0.18em",
+                    textTransform: "uppercase",
+                    color: "var(--accent)",
+                    marginBottom: 8,
+                  }}
+                >
+                  Account
+                </p>
+                <h2
+                  style={{
+                    fontFamily: "var(--font-fraunces)",
+                    fontWeight: 600,
+                    fontSize: "1.5rem",
+                    letterSpacing: "-0.01em",
+                  }}
+                >
+                  {userEmail ?? "Not signed in"}
+                </h2>
+              </div>
+              {userEmail ? (
+                <form action="/auth/sign-out" method="POST">
+                  <button className="btn btn-ghost" type="submit">
+                    Sign out
+                  </button>
+                </form>
+              ) : (
+                <Link className="btn btn-primary" href="/sign-in">
+                  Sign in
+                </Link>
+              )}
+            </div>
+            {!userEmail && (
+              <p
+                style={{
+                  color: "var(--muted)",
+                  fontSize: "0.94rem",
+                  lineHeight: 1.65,
+                  marginTop: 14,
+                }}
+              >
+                Right now your portfolio, journal, and onboarding answers live
+                only in this browser. Sign in to sync them across devices.
+              </p>
+            )}
+          </div>
 
           {/* Profile */}
           <div

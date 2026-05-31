@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { AuthIndicator } from "./auth-indicator";
 import { TickerSearch } from "./ticker-search";
 import { Wordmark } from "./wordmark";
 
@@ -49,6 +50,7 @@ export function Nav() {
 
           <div className="nav-right">
             <TickerSearch />
+            <AuthIndicator />
             <Link className="btn btn-primary nav-cta" href="/dashboard">
               Open Terminal
             </Link>
