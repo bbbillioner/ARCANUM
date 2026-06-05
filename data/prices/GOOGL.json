@@ -1,6 +1,6 @@
 {
   "ticker": "GOOGL",
-  "fetchedAt": "2026-06-04T20:00:00Z",
+  "fetchedAt": "2026-06-05T20:00:00Z",
   "currency": "USD",
   "exchange": "NMS",
   "bars": [
@@ -8002,7 +8002,7 @@
       "high": 199,
       "low": 192.62,
       "close": 196.66,
-      "adjClose": 195.75,
+      "adjClose": 195.76,
       "volume": 44934900
     },
     {
@@ -8803,7 +8803,7 @@
       "high": 163.15,
       "low": 158.6,
       "close": 160.61,
-      "adjClose": 160.06,
+      "adjClose": 160.05,
       "volume": 29745800
     },
     {
@@ -11292,12 +11292,21 @@
     },
     {
       "date": "2026-06-04",
-      "open": 358.85,
+      "open": 358.9,
       "high": 373.25,
       "low": 358.21,
       "close": 372.19,
       "adjClose": 372.19,
-      "volume": 42891063
+      "volume": 44055500
+    },
+    {
+      "date": "2026-06-05",
+      "open": 366.34,
+      "high": 372.08,
+      "low": 364.12,
+      "close": 368.53,
+      "adjClose": 368.53,
+      "volume": 36603927
     }
   ]
 }
