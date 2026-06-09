@@ -1,18 +1,9 @@
 {
   "ticker": "WMT",
-  "fetchedAt": "2026-06-08T20:00:00Z",
+  "fetchedAt": "2026-06-09T20:00:00Z",
   "currency": "USD",
   "exchange": "NMS",
   "bars": [
-    {
-      "date": "2021-06-09",
-      "open": 46.45,
-      "high": 46.67,
-      "low": 46.34,
-      "close": 46.36,
-      "adjClose": 43.49,
-      "volume": 17085300
-    },
     {
       "date": "2021-06-10",
       "open": 46.36,
@@ -7669,7 +7660,7 @@
       "high": 83.3,
       "low": 82.44,
       "close": 82.51,
-      "adjClose": 81.23,
+      "adjClose": 81.22,
       "volume": 8959400
     },
     {
@@ -8884,7 +8875,7 @@
       "high": 97.32,
       "low": 95.23,
       "close": 95.88,
-      "adjClose": 95.08,
+      "adjClose": 95.09,
       "volume": 19746700
     },
     {
@@ -11288,16 +11279,25 @@
       "low": 118.1,
       "close": 118.88,
       "adjClose": 118.88,
-      "volume": 36621000
+      "volume": 36638100
     },
     {
       "date": "2026-06-08",
-      "open": 118.22,
+      "open": 118.25,
       "high": 120.18,
       "low": 118.15,
       "close": 119.83,
       "adjClose": 119.83,
-      "volume": 19478693
+      "volume": 19514100
+    },
+    {
+      "date": "2026-06-09",
+      "open": 120.32,
+      "high": 120.5,
+      "low": 118,
+      "close": 118.88,
+      "adjClose": 118.88,
+      "volume": 23552257
     }
   ]
 }

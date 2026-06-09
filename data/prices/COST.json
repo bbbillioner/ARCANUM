@@ -1,25 +1,16 @@
 {
   "ticker": "COST",
-  "fetchedAt": "2026-06-08T20:00:00Z",
+  "fetchedAt": "2026-06-09T20:00:00Z",
   "currency": "USD",
   "exchange": "NMS",
   "bars": [
-    {
-      "date": "2021-06-09",
-      "open": 380.21,
-      "high": 381.78,
-      "low": 379.13,
-      "close": 379.96,
-      "adjClose": 359.98,
-      "volume": 1398900
-    },
     {
       "date": "2021-06-10",
       "open": 380.27,
       "high": 383.36,
       "low": 379.49,
       "close": 383.01,
-      "adjClose": 362.87,
+      "adjClose": 362.86,
       "volume": 1404000
     },
     {
@@ -136,7 +127,7 @@
       "high": 399.44,
       "low": 395.47,
       "close": 398.79,
-      "adjClose": 377.82,
+      "adjClose": 377.81,
       "volume": 1523600
     },
     {
@@ -2314,7 +2305,7 @@
       "high": 458.76,
       "low": 450.28,
       "close": 454.8,
-      "adjClose": 433.75,
+      "adjClose": 433.74,
       "volume": 2224600
     },
     {
@@ -4303,7 +4294,7 @@
       "high": 495.68,
       "low": 489.81,
       "close": 494.81,
-      "adjClose": 474.39,
+      "adjClose": 474.4,
       "volume": 1940800
     },
     {
@@ -5023,7 +5014,7 @@
       "high": 535.79,
       "low": 530.56,
       "close": 534.01,
-      "adjClose": 514.01,
+      "adjClose": 514.02,
       "volume": 1511500
     },
     {
@@ -6679,7 +6670,7 @@
       "high": 802.98,
       "low": 792.39,
       "close": 793,
-      "adjClose": 784.5,
+      "adjClose": 784.51,
       "volume": 1347100
     },
     {
@@ -7948,7 +7939,7 @@
       "high": 994.99,
       "low": 985.88,
       "close": 993.4,
-      "adjClose": 985.46,
+      "adjClose": 985.47,
       "volume": 1556800
     },
     {
@@ -8812,7 +8803,7 @@
       "high": 1006.38,
       "low": 985,
       "close": 999.04,
-      "adjClose": 992.15,
+      "adjClose": 992.16,
       "volume": 1829900
     },
     {
@@ -11288,16 +11279,25 @@
       "low": 971.6,
       "close": 971.87,
       "adjClose": 971.87,
-      "volume": 3083000
+      "volume": 3092000
     },
     {
       "date": "2026-06-08",
-      "open": 961.25,
+      "open": 963.46,
       "high": 978.98,
       "low": 961,
       "close": 974.75,
       "adjClose": 974.75,
-      "volume": 2083018
+      "volume": 2086100
+    },
+    {
+      "date": "2026-06-09",
+      "open": 974.5,
+      "high": 981.97,
+      "low": 964.94,
+      "close": 968.59,
+      "adjClose": 968.59,
+      "volume": 1846383
     }
   ]
 }
