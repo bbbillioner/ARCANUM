@@ -1,18 +1,9 @@
 {
   "ticker": "UNH",
-  "fetchedAt": "2026-06-09T20:00:00Z",
+  "fetchedAt": "2026-06-10T20:00:00Z",
   "currency": "USD",
   "exchange": "NYQ",
   "bars": [
-    {
-      "date": "2021-06-10",
-      "open": 401.91,
-      "high": 402.85,
-      "low": 398.47,
-      "close": 401.49,
-      "adjClose": 368.52,
-      "volume": 4033600
-    },
     {
       "date": "2021-06-11",
       "open": 403.35,
@@ -4564,7 +4555,7 @@
       "high": 460.63,
       "low": 445.68,
       "close": 459.86,
-      "adjClose": 433.52,
+      "adjClose": 433.51,
       "volume": 14672400
     },
     {
@@ -8290,7 +8281,7 @@
       "high": 532.39,
       "low": 525.39,
       "close": 527.03,
-      "adjClose": 510.4,
+      "adjClose": 510.39,
       "volume": 3349100
     },
     {
@@ -11297,7 +11288,16 @@
       "low": 407.44,
       "close": 413,
       "adjClose": 413,
-      "volume": 8578348
+      "volume": 8583300
+    },
+    {
+      "date": "2026-06-10",
+      "open": 413.5,
+      "high": 415.96,
+      "low": 404.55,
+      "close": 407.46,
+      "adjClose": 407.46,
+      "volume": 6475440
     }
   ]
 }
