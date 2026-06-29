@@ -1,27 +1,9 @@
 {
   "ticker": "WMT",
-  "fetchedAt": "2026-06-26T20:00:00Z",
+  "fetchedAt": "2026-06-29T20:00:00Z",
   "currency": "USD",
   "exchange": "NMS",
   "bars": [
-    {
-      "date": "2021-06-28",
-      "open": 46.01,
-      "high": 46.21,
-      "low": 45.53,
-      "close": 46.03,
-      "adjClose": 43.19,
-      "volume": 15549000
-    },
-    {
-      "date": "2021-06-29",
-      "open": 45.97,
-      "high": 46.16,
-      "low": 45.74,
-      "close": 45.77,
-      "adjClose": 42.94,
-      "volume": 35962500
-    },
     {
       "date": "2021-06-30",
       "open": 46.52,
@@ -703,7 +685,7 @@
       "high": 47.03,
       "low": 46.65,
       "close": 46.85,
-      "adjClose": 44.11,
+      "adjClose": 44.12,
       "volume": 20737200
     },
     {
@@ -7552,7 +7534,7 @@
       "high": 83.3,
       "low": 82.44,
       "close": 82.51,
-      "adjClose": 81.23,
+      "adjClose": 81.22,
       "volume": 8959400
     },
     {
@@ -11292,12 +11274,21 @@
     },
     {
       "date": "2026-06-26",
-      "open": 117.03,
+      "open": 117.29,
       "high": 117.88,
       "low": 115.09,
       "close": 115.69,
       "adjClose": 115.69,
-      "volume": 29208144
+      "volume": 36616400
+    },
+    {
+      "date": "2026-06-29",
+      "open": 116.32,
+      "high": 116.8,
+      "low": 114.2,
+      "close": 114.6,
+      "adjClose": 114.6,
+      "volume": 20219981
     }
   ]
 }
