@@ -1,18 +1,9 @@
 {
   "ticker": "MSFT",
-  "fetchedAt": "2026-07-02T20:00:00Z",
+  "fetchedAt": "2026-07-06T20:00:00Z",
   "currency": "USD",
   "exchange": "NMS",
   "bars": [
-    {
-      "date": "2021-07-06",
-      "open": 278.03,
-      "high": 279.37,
-      "low": 274.3,
-      "close": 277.66,
-      "adjClose": 266.47,
-      "volume": 31565600
-    },
     {
       "date": "2021-07-07",
       "open": 279.4,
@@ -8128,7 +8119,7 @@
       "high": 418.2,
       "low": 414,
       "close": 415.82,
-      "adjClose": 410.94,
+      "adjClose": 410.95,
       "volume": 16309800
     },
     {
@@ -11288,7 +11279,16 @@
       "low": 383.7,
       "close": 390.49,
       "adjClose": 390.49,
-      "volume": 42194400
+      "volume": 42128900
+    },
+    {
+      "date": "2026-07-06",
+      "open": 386.81,
+      "high": 389.15,
+      "low": 381.22,
+      "close": 386.74,
+      "adjClose": 386.74,
+      "volume": 32621401
     }
   ]
 }
