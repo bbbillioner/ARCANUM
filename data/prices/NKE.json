@@ -1,18 +1,9 @@
 {
   "ticker": "NKE",
-  "fetchedAt": "2026-07-06T20:00:00Z",
+  "fetchedAt": "2026-07-07T20:00:00Z",
   "currency": "USD",
   "exchange": "NYQ",
   "bars": [
-    {
-      "date": "2021-07-07",
-      "open": 160.16,
-      "high": 161.5,
-      "low": 158.28,
-      "close": 160.16,
-      "adjClose": 148.76,
-      "volume": 5408300
-    },
     {
       "date": "2021-07-08",
       "open": 158.17,
@@ -11288,7 +11279,16 @@
       "low": 41.84,
       "close": 43.34,
       "adjClose": 43.34,
-      "volume": 21093684
+      "volume": 21979100
+    },
+    {
+      "date": "2026-07-07",
+      "open": 43.72,
+      "high": 44.04,
+      "low": 42.88,
+      "close": 43.21,
+      "adjClose": 43.21,
+      "volume": 11626407
     }
   ]
 }
