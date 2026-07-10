@@ -1,6 +1,6 @@
 {
   "ticker": "LLY",
-  "fetchedAt": "2026-07-09T20:00:00Z",
+  "fetchedAt": "2026-07-10T20:00:00Z",
   "currency": "USD",
   "exchange": "NYQ",
   "bars": [
@@ -2440,7 +2440,7 @@
       "high": 305.32,
       "low": 300.31,
       "close": 301.32,
-      "adjClose": 291.49,
+      "adjClose": 291.48,
       "volume": 2814300
     },
     {
@@ -11284,11 +11284,20 @@
     {
       "date": "2026-07-09",
       "open": 1211.64,
-      "high": 1229.86,
+      "high": 1230,
       "low": 1200.37,
       "close": 1216.95,
       "adjClose": 1216.95,
-      "volume": 1508097
+      "volume": 2088100
+    },
+    {
+      "date": "2026-07-10",
+      "open": 1210.31,
+      "high": 1212.96,
+      "low": 1178.32,
+      "close": 1188.58,
+      "adjClose": 1188.58,
+      "volume": 1597562
     }
   ]
 }
