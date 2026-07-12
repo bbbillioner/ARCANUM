@@ -99,18 +99,28 @@ export default function TodayPage() {
   );
 
   useEffect(() => {
-    setNow(new Date());
-    const raw = localStorage.getItem("arcanum-onboarding");
-    if (raw) {
-      try {
-        const parsed: unknown = JSON.parse(raw);
-        if (isOnboardingAnswers(parsed)) setAnswers(parsed);
-      } catch {
-        /* noop */
+    let cancelled = false;
+    const timeoutId = window.setTimeout(() => {
+      if (cancelled) return;
+
+      setNow(new Date());
+      const raw = localStorage.getItem("arcanum-onboarding");
+      if (raw) {
+        try {
+          const parsed: unknown = JSON.parse(raw);
+          if (isOnboardingAnswers(parsed)) setAnswers(parsed);
+        } catch {
+          /* noop */
+        }
       }
-    }
-    setSimulator(getSimulator());
-    setWatchlist(getWatchlist());
+      setSimulator(getSimulator());
+      setWatchlist(getWatchlist());
+    }, 0);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeoutId);
+    };
   }, []);
 
   // News tickers: union of holdings + watchlist + template tickers (fallback)
@@ -131,24 +141,42 @@ export default function TodayPage() {
   useEffect(() => {
     let cancelled = false;
     if (newsTickers.length === 0) {
-      setNews([]);
-      setNewsState("empty");
-      return;
-    }
-    setNewsState("loading");
-    fetch(`/api/news?tickers=${encodeURIComponent(newsTickers.join(","))}`)
-      .then((r) => r.json())
-      .then((j: { news?: NewsItem[] }) => {
+      const timeoutId = window.setTimeout(() => {
         if (cancelled) return;
-        const top = (j.news ?? []).slice(0, 3);
+        setNews([]);
+        setNewsState("empty");
+      }, 0);
+
+      return () => {
+        cancelled = true;
+        window.clearTimeout(timeoutId);
+      };
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      if (!cancelled) setNewsState("loading");
+    }, 0);
+
+    async function loadNews() {
+      try {
+        const response = await fetch(
+          `/api/news?tickers=${encodeURIComponent(newsTickers.join(","))}`,
+        );
+        const json = (await response.json()) as { news?: NewsItem[] };
+        if (cancelled) return;
+        const top = (json.news ?? []).slice(0, 3);
         setNews(top);
         setNewsState(top.length > 0 ? "ready" : "empty");
-      })
-      .catch(() => {
+      } catch {
         if (!cancelled) setNewsState("empty");
-      });
+      }
+    }
+
+    loadNews();
+
     return () => {
       cancelled = true;
+      window.clearTimeout(timeoutId);
     };
   }, [newsTickers]);
 
@@ -181,6 +209,7 @@ export default function TodayPage() {
   }
 
   const market = marketStateNow(now);
+  const nowTime = now.getTime();
   const marketLabel = MARKET_LABEL[market];
   const lesson = pickDailyLesson(answers, dayOfYear(now));
 
@@ -211,7 +240,7 @@ export default function TodayPage() {
         (t: SimulatorTransaction) =>
           t.type === "buy" &&
           t.thesis &&
-          Date.now() - new Date(t.createdAt).getTime() >
+          nowTime - new Date(t.createdAt).getTime() >
             30 * 24 * 60 * 60 * 1000 &&
           (t.reviews?.length ?? 0) === 0,
       )

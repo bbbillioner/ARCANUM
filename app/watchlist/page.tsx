@@ -20,8 +20,17 @@ export default function WatchlistPage() {
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    setTickers(getWatchlist());
-    setHydrated(true);
+    let cancelled = false;
+    const timeoutId = window.setTimeout(() => {
+      if (cancelled) return;
+      setTickers(getWatchlist());
+      setHydrated(true);
+    }, 0);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeoutId);
+    };
   }, []);
 
   const knownTickers = useMemo(

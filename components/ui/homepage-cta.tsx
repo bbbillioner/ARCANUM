@@ -8,8 +8,17 @@ export function HomepageCta() {
   const [hasOnboarded, setHasOnboarded] = useState(false);
 
   useEffect(() => {
-    const stored = window.localStorage.getItem("arcanum-onboarding");
-    if (stored) setHasOnboarded(true);
+    let cancelled = false;
+    const timeoutId = window.setTimeout(() => {
+      if (cancelled) return;
+      const stored = window.localStorage.getItem("arcanum-onboarding");
+      if (stored) setHasOnboarded(true);
+    }, 0);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeoutId);
+    };
   }, []);
 
   if (hasOnboarded) {

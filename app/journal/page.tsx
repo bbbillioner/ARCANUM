@@ -55,8 +55,17 @@ export default function JournalPage() {
   } | null>(null);
 
   useEffect(() => {
-    setSimulator(getSimulator());
-    setHasLoaded(true);
+    let cancelled = false;
+    const timeoutId = window.setTimeout(() => {
+      if (cancelled) return;
+      setSimulator(getSimulator());
+      setHasLoaded(true);
+    }, 0);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeoutId);
+    };
   }, []);
 
   const buys = useMemo<SimulatorTransaction[]>(

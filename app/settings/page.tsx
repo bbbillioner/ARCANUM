@@ -58,30 +58,42 @@ export default function SettingsPage() {
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
   useEffect(() => {
-    const raw = localStorage.getItem("arcanum-onboarding");
-    if (!raw) {
-      setStatus("no-onboarding");
-    } else {
-      try {
-        const parsed: unknown = JSON.parse(raw);
-        if (isOnboardingAnswers(parsed)) {
-          setAnswers(parsed);
-          setStatus("loaded");
-        } else {
+    let cancelled = false;
+    const timeoutId = window.setTimeout(() => {
+      if (cancelled) return;
+
+      const raw = localStorage.getItem("arcanum-onboarding");
+      if (!raw) {
+        setStatus("no-onboarding");
+      } else {
+        try {
+          const parsed: unknown = JSON.parse(raw);
+          if (isOnboardingAnswers(parsed)) {
+            setAnswers(parsed);
+            setStatus("loaded");
+          } else {
+            setStatus("no-onboarding");
+          }
+        } catch {
           setStatus("no-onboarding");
         }
-      } catch {
-        setStatus("no-onboarding");
       }
-    }
-    setSimPositions(countSimulatorPositions());
-    setSimTxs(countSimulatorTransactions());
-    setWatchCount(countWatchlist());
+      setSimPositions(countSimulatorPositions());
+      setSimTxs(countSimulatorTransactions());
+      setWatchCount(countWatchlist());
 
-    const supabase = createSupabaseBrowserClient();
-    supabase.auth.getUser().then(({ data }) => {
-      setUserEmail(data.user?.email ?? null);
-    });
+      const supabase = createSupabaseBrowserClient();
+      supabase.auth.getUser().then(({ data }) => {
+        if (!cancelled) {
+          setUserEmail(data.user?.email ?? null);
+        }
+      });
+    }, 0);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeoutId);
+    };
   }, []);
 
   function handleClearAll() {

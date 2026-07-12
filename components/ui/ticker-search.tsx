@@ -46,13 +46,14 @@ export function TickerSearch() {
     return () => window.removeEventListener("keydown", onKey);
   }, [open, close]);
 
-  useEffect(() => {
-    setActiveIndex(0);
-  }, [query]);
-
   function handleSelect(profile: AnyProfile) {
     router.push(`/stocks/${profile.ticker}`);
     close();
+  }
+
+  function handleQueryChange(value: string) {
+    setQuery(value);
+    setActiveIndex(0);
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -131,7 +132,7 @@ export function TickerSearch() {
               <input
                 aria-label="Search by ticker or company name"
                 className="ticker-search-input"
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={(e) => handleQueryChange(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Search a ticker or company…"
                 ref={inputRef}

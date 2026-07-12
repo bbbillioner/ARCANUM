@@ -5,7 +5,7 @@ import { NextResponse, type NextRequest } from "next/server";
  * Middleware that refreshes the Supabase auth session on every request.
  * Required for cookie-based auth in the App Router.
  */
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(

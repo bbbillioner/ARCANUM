@@ -23,20 +23,30 @@ export function RecommendedForYou() {
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    const answers = loadOnboardingAnswers();
-    if (!answers) {
+    let cancelled = false;
+    const timeoutId = window.setTimeout(() => {
+      if (cancelled) return;
+
+      const answers = loadOnboardingAnswers();
+      if (!answers) {
+        setHydrated(true);
+        return;
+      }
+      const personal = derivePersonalization(answers);
+      setTickers(personal.topRecommendedTickers);
+      setInterests(answers.interests);
+      setMissingInterests(
+        personal.recommendationGroups
+          .filter((g) => !g.hasCoverage)
+          .map((g) => g.interest),
+      );
       setHydrated(true);
-      return;
-    }
-    const personal = derivePersonalization(answers);
-    setTickers(personal.topRecommendedTickers);
-    setInterests(answers.interests);
-    setMissingInterests(
-      personal.recommendationGroups
-        .filter((g) => !g.hasCoverage)
-        .map((g) => g.interest),
-    );
-    setHydrated(true);
+    }, 0);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeoutId);
+    };
   }, []);
 
   const { quotes } = useQuotes(tickers);

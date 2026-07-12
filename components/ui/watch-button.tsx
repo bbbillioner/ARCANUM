@@ -18,8 +18,17 @@ export function WatchButton({ ticker, className }: WatchButtonProps) {
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    setWatched(isWatched(ticker));
-    setHydrated(true);
+    let cancelled = false;
+    const timeoutId = window.setTimeout(() => {
+      if (cancelled) return;
+      setWatched(isWatched(ticker));
+      setHydrated(true);
+    }, 0);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeoutId);
+    };
   }, [ticker]);
 
   function handleToggle() {

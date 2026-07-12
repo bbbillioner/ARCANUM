@@ -18,20 +18,20 @@ export function NewsFeed({
 }: NewsFeedProps) {
   const [items, setItems] = useState<NewsItem[]>([]);
   const [state, setState] = useState<FetchState>("loading");
+  const tickersKey = tickers.join(",");
 
   useEffect(() => {
     let cancelled = false;
 
     async function load() {
-      if (tickers.length === 0) {
+      if (!tickersKey) {
         if (!cancelled) setState("empty");
         return;
       }
 
       try {
-        const query = tickers.join(",");
         const response = await fetch(
-          `/api/news?tickers=${encodeURIComponent(query)}`,
+          `/api/news?tickers=${encodeURIComponent(tickersKey)}`,
         );
 
         if (!response.ok) {
@@ -56,7 +56,7 @@ export function NewsFeed({
     return () => {
       cancelled = true;
     };
-  }, [tickers.join(",")]);
+  }, [tickersKey]);
 
   if (state === "loading") {
     return (

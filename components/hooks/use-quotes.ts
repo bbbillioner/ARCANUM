@@ -20,8 +20,16 @@ export function useQuotes(tickers: string[]): State {
     cancelled.current = false;
     const list = tickersKey ? tickersKey.split(",") : [];
     if (list.length === 0) {
-      setState({ quotes: {}, status: "ready" });
-      return;
+      const timeoutId = window.setTimeout(() => {
+        if (!cancelled.current) {
+          setState({ quotes: {}, status: "ready" });
+        }
+      }, 0);
+
+      return () => {
+        cancelled.current = true;
+        window.clearTimeout(timeoutId);
+      };
     }
 
     async function load() {
