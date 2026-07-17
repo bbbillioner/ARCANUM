@@ -1,6 +1,6 @@
 {
   "ticker": "META",
-  "fetchedAt": "2026-07-16T20:00:00Z",
+  "fetchedAt": "2026-07-17T20:00:00Z",
   "currency": "USD",
   "exchange": "NMS",
   "bars": [
@@ -379,7 +379,7 @@
       "high": 377.56,
       "low": 367.67,
       "close": 373.92,
-      "adjClose": 370.67,
+      "adjClose": 370.66,
       "volume": 17940300
     },
     {
@@ -2872,7 +2872,7 @@
       "high": 136.77,
       "low": 131.31,
       "close": 131.53,
-      "adjClose": 130.39,
+      "adjClose": 130.38,
       "volume": 26356300
     },
     {
@@ -3142,7 +3142,7 @@
       "high": 124.04,
       "low": 117.61,
       "close": 123.49,
-      "adjClose": 122.41,
+      "adjClose": 122.42,
       "volume": 39950500
     },
     {
@@ -6031,7 +6031,7 @@
       "high": 491.83,
       "low": 481.3,
       "close": 484.1,
-      "adjClose": 480.39,
+      "adjClose": 480.4,
       "volume": 29153600
     },
     {
@@ -8263,7 +8263,7 @@
       "high": 620.5,
       "low": 586.51,
       "close": 590.64,
-      "adjClose": 587.74,
+      "adjClose": 587.73,
       "volume": 16480300
     },
     {
@@ -11283,12 +11283,21 @@
     },
     {
       "date": "2026-07-16",
-      "open": 678.61,
+      "open": 677.28,
       "high": 681.9,
       "low": 660.16,
       "close": 664.54,
       "adjClose": 664.54,
-      "volume": 15736700
+      "volume": 15816000
+    },
+    {
+      "date": "2026-07-17",
+      "open": 647.7,
+      "high": 652.2,
+      "low": 626,
+      "close": 646.01,
+      "adjClose": 646.01,
+      "volume": 20966389
     }
   ]
 }
