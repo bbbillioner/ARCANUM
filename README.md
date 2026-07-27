@@ -122,6 +122,8 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 
 Never commit `.env.local` or share the service-role key. Run the database schema
 and configure authentication using [supabase/SETUP.md](supabase/SETUP.md).
+For exact variable sources, laptop migration steps, and rules for developers
+and AI assistants, see [docs/ENVIRONMENT.md](docs/ENVIRONMENT.md).
 
 Start the development server:
 
