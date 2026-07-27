@@ -1,4 +1,5 @@
 import { stockProfiles } from "@/data/stocks";
+import { requestCloudSync } from "@/lib/cloud-sync";
 import { getCurrentPrice } from "@/lib/prices";
 import type {
   SimulatorActionResult,
@@ -141,6 +142,7 @@ export function saveSimulator(state: SimulatorState): SimulatorState {
       SIMULATOR_STORAGE_KEY,
       JSON.stringify(updatedState),
     );
+    requestCloudSync();
   }
 
   return updatedState;
@@ -473,4 +475,3 @@ export function addThesisReview(
     state: updatedState,
   };
 }
-

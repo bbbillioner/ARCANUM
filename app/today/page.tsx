@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useQuotes } from "@/components/hooks/use-quotes";
 import { NewsCard } from "@/components/ui/news-card";
 import { learningCards } from "@/data/learning-cards";
+import { ARCANUM_CLOUD_DATA_LOADED_EVENT } from "@/lib/cloud-sync";
 import { derivePersonalization } from "@/lib/personalization";
 import { getCurrentPrice } from "@/lib/prices";
 import {
@@ -100,7 +101,7 @@ export default function TodayPage() {
 
   useEffect(() => {
     let cancelled = false;
-    const timeoutId = window.setTimeout(() => {
+    function loadLocalData() {
       if (cancelled) return;
 
       setNow(new Date());
@@ -115,11 +116,14 @@ export default function TodayPage() {
       }
       setSimulator(getSimulator());
       setWatchlist(getWatchlist());
-    }, 0);
+    }
+    const timeoutId = window.setTimeout(loadLocalData, 0);
+    window.addEventListener(ARCANUM_CLOUD_DATA_LOADED_EVENT, loadLocalData);
 
     return () => {
       cancelled = true;
       window.clearTimeout(timeoutId);
+      window.removeEventListener(ARCANUM_CLOUD_DATA_LOADED_EVENT, loadLocalData);
     };
   }, []);
 
@@ -267,7 +271,7 @@ export default function TodayPage() {
   } else if (!simulator || simulator.transactions.length === 0) {
     prompt = {
       label: "First paper trade",
-      body: "Open the simulator and place one practice buy with a real thesis. The simulator settles at live prices — no real money.",
+      body: "Open the simulator and place one practice buy with a real thesis. The simulator uses the latest available cached price — no real money.",
       href: "/simulator",
       cta: "Open simulator",
     };

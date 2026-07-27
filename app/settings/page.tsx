@@ -3,13 +3,24 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import {
+  ARCANUM_CLOUD_DATA_LOADED_EVENT,
+  getCloudSyncStatus,
+  requestCloudSync,
+  type CloudSyncStatus,
+} from "@/lib/cloud-sync";
 import { isOnboardingAnswers } from "@/lib/portfolio";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { OnboardingAnswers } from "@/types/investing";
 
 type Status = "idle" | "loaded" | "no-onboarding";
 
-const STORAGE_KEYS = ["arcanum-onboarding", "arcanum-simulator", "arcanum-watchlist"];
+const STORAGE_KEYS = [
+  "arcanum-onboarding",
+  "arcanum-onboarding-updated-at",
+  "arcanum-simulator",
+  "arcanum-watchlist",
+];
 
 function countSimulatorPositions(): number {
   if (typeof window === "undefined") return 0;
@@ -56,6 +67,9 @@ export default function SettingsPage() {
   const [confirmingClear, setConfirmingClear] = useState(false);
   const [flash, setFlash] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [syncStatus, setSyncStatus] = useState<CloudSyncStatus | null>(null);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -81,6 +95,7 @@ export default function SettingsPage() {
       setSimPositions(countSimulatorPositions());
       setSimTxs(countSimulatorTransactions());
       setWatchCount(countWatchlist());
+      setSyncStatus(getCloudSyncStatus());
 
       const supabase = createSupabaseBrowserClient();
       supabase.auth.getUser().then(({ data }) => {
@@ -94,6 +109,45 @@ export default function SettingsPage() {
       cancelled = true;
       window.clearTimeout(timeoutId);
     };
+  }, []);
+
+  useEffect(() => {
+    function handleSyncStatus(event: Event) {
+      const customEvent = event as CustomEvent<CloudSyncStatus>;
+      setSyncStatus(customEvent.detail);
+    }
+    window.addEventListener("arcanum:sync-status", handleSyncStatus);
+    return () => window.removeEventListener("arcanum:sync-status", handleSyncStatus);
+  }, []);
+
+  useEffect(() => {
+    function handleCloudDataLoaded() {
+      const raw = localStorage.getItem("arcanum-onboarding");
+      if (raw) {
+        try {
+          const parsed: unknown = JSON.parse(raw);
+          if (isOnboardingAnswers(parsed)) {
+            setAnswers(parsed);
+            setStatus("loaded");
+          }
+        } catch {
+          setAnswers(null);
+          setStatus("no-onboarding");
+        }
+      }
+      setSimPositions(countSimulatorPositions());
+      setSimTxs(countSimulatorTransactions());
+      setWatchCount(countWatchlist());
+    }
+    window.addEventListener(
+      ARCANUM_CLOUD_DATA_LOADED_EVENT,
+      handleCloudDataLoaded,
+    );
+    return () =>
+      window.removeEventListener(
+        ARCANUM_CLOUD_DATA_LOADED_EVENT,
+        handleCloudDataLoaded,
+      );
   }, []);
 
   function handleClearAll() {
@@ -112,6 +166,7 @@ export default function SettingsPage() {
     setWatchCount(0);
     setConfirmingClear(false);
     setFlash("Local data cleared. ARCANUM has forgotten you.");
+    requestCloudSync();
     window.setTimeout(() => setFlash(null), 3500);
   }
 
@@ -120,7 +175,58 @@ export default function SettingsPage() {
     setSimPositions(0);
     setSimTxs(0);
     setFlash("Simulator reset. Cash and history cleared.");
+    requestCloudSync();
     window.setTimeout(() => setFlash(null), 3500);
+  }
+
+  function handleExportData() {
+    const data = Object.fromEntries(
+      STORAGE_KEYS.map((key) => {
+        const raw = localStorage.getItem(key);
+        if (!raw) return [key, null];
+        try {
+          return [key, JSON.parse(raw) as unknown];
+        } catch {
+          return [key, raw];
+        }
+      }),
+    );
+    const blob = new Blob(
+      [JSON.stringify({ exportedAt: new Date().toISOString(), data }, null, 2)],
+      { type: "application/json" },
+    );
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `arcanum-data-${new Date().toISOString().slice(0, 10)}.json`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+    setFlash("Your ARCANUM data export is ready.");
+    window.setTimeout(() => setFlash(null), 3500);
+  }
+
+  async function handleDeleteAccount() {
+    if (!confirmingDelete) {
+      setConfirmingDelete(true);
+      window.setTimeout(() => setConfirmingDelete(false), 5000);
+      return;
+    }
+
+    setDeletingAccount(true);
+    const response = await fetch("/api/account", { method: "DELETE" });
+    if (!response.ok) {
+      const body = (await response.json().catch(() => null)) as
+        | { error?: string }
+        | null;
+      setFlash(body?.error ?? "Account deletion failed. Please try again.");
+      setDeletingAccount(false);
+      setConfirmingDelete(false);
+      return;
+    }
+
+    for (const key of STORAGE_KEYS) localStorage.removeItem(key);
+    localStorage.removeItem("arcanum-cloud-user");
+    window.location.assign("/");
   }
 
   return (
@@ -135,8 +241,9 @@ export default function SettingsPage() {
             Your <em>profile</em> on this device.
           </h1>
           <p className="lede">
-            ARCANUM stores everything locally — no account, no cloud. This page
-            shows what&apos;s in your browser and lets you reset it.
+            ARCANUM works locally without an account. When you sign in, your
+            investor profile, watchlist, simulator, and journal sync across
+            your devices.
           </p>
         </div>
       </section>
@@ -211,7 +318,39 @@ export default function SettingsPage() {
                 </Link>
               )}
             </div>
-            {!userEmail && (
+            {userEmail ? (
+              <div>
+                <p
+                  style={{
+                    color: "var(--muted)",
+                    fontSize: "0.94rem",
+                    lineHeight: 1.65,
+                  }}
+                >
+                  Cloud sync is{" "}
+                  {syncStatus?.state === "syncing"
+                    ? "working"
+                    : syncStatus?.state === "error"
+                      ? "temporarily unavailable"
+                      : "active"}
+                  .
+                  {syncStatus?.state === "synced" && (
+                    <> Last completed {new Date(syncStatus.updatedAt).toLocaleString()}.</>
+                  )}
+                </p>
+                {syncStatus?.state === "error" && (
+                  <p
+                    style={{
+                      color: "#ff9a66",
+                      fontSize: "0.86rem",
+                      marginTop: 8,
+                    }}
+                  >
+                    Your local data is safe. ARCANUM will retry automatically.
+                  </p>
+                )}
+              </div>
+            ) : (
               <p
                 style={{
                   color: "var(--muted)",
@@ -224,6 +363,15 @@ export default function SettingsPage() {
                 only in this browser. Sign in to sync them across devices.
               </p>
             )}
+            <div style={{ marginTop: 18 }}>
+              <button
+                className="btn btn-ghost"
+                onClick={handleExportData}
+                type="button"
+              >
+                Export my data
+              </button>
+            </div>
           </div>
 
           {/* Profile */}
@@ -480,8 +628,9 @@ export default function SettingsPage() {
                 lineHeight: 1.65,
               }}
             >
-              Clears your onboarding answers, simulator state, and watchlist.
-              The next visit is a fresh install. This cannot be undone.
+              Clears your onboarding answers, simulator state, journal, and
+              watchlist. When signed in, the synced copies are cleared too.
+              This cannot be undone.
             </p>
             <button
               className="btn"
@@ -495,8 +644,51 @@ export default function SettingsPage() {
                 fontWeight: 600,
               }}
             >
-              {confirmingClear ? "Click again to confirm" : "Clear all local data"}
+              {confirmingClear ? "Click again to confirm" : "Clear my ARCANUM data"}
             </button>
+
+            {userEmail && (
+              <div
+                style={{
+                  borderTop: "1px solid var(--stroke)",
+                  marginTop: 28,
+                  paddingTop: 24,
+                }}
+              >
+                <h3 style={{ fontSize: "1rem", marginBottom: 8 }}>
+                  Delete account permanently
+                </h3>
+                <p
+                  style={{
+                    color: "var(--muted)",
+                    fontSize: "0.9rem",
+                    lineHeight: 1.6,
+                    marginBottom: 16,
+                  }}
+                >
+                  Deletes your sign-in identity and all associated cloud data.
+                  Export anything you want to keep first.
+                </p>
+                <button
+                  className="btn"
+                  disabled={deletingAccount}
+                  onClick={handleDeleteAccount}
+                  type="button"
+                  style={{
+                    background: confirmingDelete ? "#ff6878" : "transparent",
+                    color: confirmingDelete ? "#000" : "#ff6878",
+                    border: `1px solid ${confirmingDelete ? "#ff6878" : "rgba(255,104,120,0.5)"}`,
+                    opacity: deletingAccount ? 0.6 : 1,
+                  }}
+                >
+                  {deletingAccount
+                    ? "Deleting account..."
+                    : confirmingDelete
+                      ? "Click again to delete account"
+                      : "Delete my account"}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </section>

@@ -7,6 +7,7 @@ import { useQuotes } from "@/components/hooks/use-quotes";
 import { ChartFull } from "@/components/ui/chart-full";
 import { ChartPanel } from "@/components/ui/chart-panel";
 import { stockProfiles } from "@/data/stocks";
+import { ARCANUM_CLOUD_DATA_LOADED_EVENT } from "@/lib/cloud-sync";
 import { derivePersonalization } from "@/lib/personalization";
 import { loadOnboardingAnswers } from "@/lib/portfolio";
 import {
@@ -68,23 +69,24 @@ export default function SimulatorPage() {
 
   useEffect(() => {
     let cancelled = false;
-    const timeoutId = window.setTimeout(() => {
-      if (!cancelled) {
-        setSimulator(getSimulator());
-        // Pre-select starting cash from the user's onboarding budget answer
-        const answers = loadOnboardingAnswers();
-        if (answers) {
-          const recommended = derivePersonalization(answers).defaultSimulatorCash;
-          if (startingCashOptions.includes(recommended)) {
-            setStartingCash(recommended);
-          }
+    function loadLocalData() {
+      if (cancelled) return;
+      setSimulator(getSimulator());
+      const answers = loadOnboardingAnswers();
+      if (answers) {
+        const recommended = derivePersonalization(answers).defaultSimulatorCash;
+        if (startingCashOptions.includes(recommended)) {
+          setStartingCash(recommended);
         }
-        setHasLoaded(true);
       }
-    }, 0);
+      setHasLoaded(true);
+    }
+    const timeoutId = window.setTimeout(loadLocalData, 0);
+    window.addEventListener(ARCANUM_CLOUD_DATA_LOADED_EVENT, loadLocalData);
     return () => {
       cancelled = true;
       window.clearTimeout(timeoutId);
+      window.removeEventListener(ARCANUM_CLOUD_DATA_LOADED_EVENT, loadLocalData);
     };
   }, []);
 

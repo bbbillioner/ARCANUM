@@ -1,105 +1,76 @@
-# Supabase setup — for you to do
+# Supabase production setup
 
-These are the two things only you can do (clicking buttons in dashboards I
-can't reach). Do them in order. ~10 minutes total.
+These steps require access to the Supabase and Vercel dashboards and cannot be
+completed from the repository alone.
 
----
+## 1. Run the database schema
 
-## 1 · Run the database schema
+1. Open the Supabase project dashboard.
+2. Open **SQL Editor** and create a new query.
+3. Paste the complete contents of `supabase/schema.sql`.
+4. Run the query.
+5. In **Table Editor**, verify these tables exist:
+   `profiles`, `watchlist`, `transactions`, `thesis_reviews`,
+   `simulator_state`, and `goals`.
+6. Verify Row Level Security is enabled on every table.
 
-The schema lives at [`schema.sql`](./schema.sql) in this folder. It creates
-the six tables ARCANUM needs (profiles, watchlist, transactions,
-thesis_reviews, simulator_state, goals) plus row-level security so users
-can only see their own data.
+The schema is designed to be safe to run again when bringing an existing
+project up to date.
 
-1. Open your Supabase project dashboard
-2. Left sidebar → **SQL Editor**
-3. Click **+ New query**
-4. Open `supabase/schema.sql` in this repo, **copy the whole file**
-5. Paste it into the SQL Editor
-6. Click **Run** (or press Ctrl/Cmd + Enter)
+## 2. Configure passwordless email authentication
 
-You should see "Success. No rows returned." If you see an error, send it to
-me — most likely a typo I need to fix.
+In **Authentication > URL Configuration**:
 
-**To verify:** Left sidebar → **Table Editor**. You should see all six
-tables listed. Each should have a small **🔒 lock icon** next to it
-indicating Row Level Security is enabled.
+- Local Site URL: `http://localhost:3000`
+- Local redirect URL: `http://localhost:3000/auth/callback`
+- Preview redirect URL: `https://*.vercel.app/auth/callback`
+- Production redirect URL: `https://YOUR-DOMAIN/auth/callback`
 
----
+Before public launch, set the Site URL to the canonical production domain while
+retaining localhost and preview URLs in the allowed redirect list.
 
-## 2 · Set the redirect URL for auth
+Send a real magic link and verify that it returns to `/auth/callback`, creates a
+session, and redirects to `/today`.
 
-Magic-link emails need to know where to send users back. By default they go
-to localhost, which won't work in production.
+## 3. Configure environment variables
 
-1. Supabase dashboard → **Authentication** (left sidebar)
-2. Click **URL Configuration** (or **Settings**)
-3. **Site URL**: set to `http://localhost:3000` for now (we change to your
-   real domain on launch day)
-4. **Redirect URLs**: add both of these on separate lines:
-   ```
-   http://localhost:3000/auth/callback
-   https://*.vercel.app/auth/callback
-   ```
-   (The wildcard lets your Vercel preview deploys also work.)
-5. **Save**
+Create local `.env.local` from `.env.example`. Add the same variables in Vercel
+under **Project Settings > Environment Variables**:
 
-When you deploy to a real domain (e.g. `arcanum.app`), add that to both
-fields. Until then, only localhost and Vercel preview URLs work.
+| Variable | Visibility | Purpose |
+| --- | --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | Public | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Public | Publishable browser key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Secret | Server-only account deletion |
+| `NEXT_PUBLIC_SITE_URL` | Public | Canonical app origin |
 
----
+Set `NEXT_PUBLIC_SITE_URL` separately when preview and production environments
+use different canonical origins. Redeploy after changing any `NEXT_PUBLIC_`
+value because Next.js embeds public values at build time.
 
-## 3 · Push the same env vars to Vercel
+## 4. Rotate exposed secrets
 
-Locally I created `.env.local` with the three Supabase keys. Vercel
-production needs them too.
+Rotate any service-role or secret key that has ever appeared in chat, a commit,
+a screenshot, or logs. Update both `.env.local` and Vercel after rotation. Never
+place the real service-role key in a `NEXT_PUBLIC_` variable.
 
-1. Open your project in the Vercel dashboard
-2. **Settings** → **Environment Variables**
-3. Add three variables (one at a time). For each, leave all environments
-   ticked (Production, Preview, Development):
+## 5. Production verification
 
-   | Name | Where to find the value |
-   |---|---|
-   | `NEXT_PUBLIC_SUPABASE_URL` | Supabase Project Settings → API → "Project URL" |
-   | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase Project Settings → API → Publishable key (`sb_publishable_…`) |
-   | `SUPABASE_SERVICE_ROLE_KEY` | Supabase Project Settings → API → Secret key (`sb_secret_…`) — reveal first |
+Use two browsers or devices to verify:
 
-   The exact values are already saved in your local `.env.local`. Copy
-   each one from there into Vercel, one at a time.
+1. Anonymous onboarding, watchlist, and simulator data persist after refresh.
+2. Signing in migrates existing local data to the account.
+3. The same account on a second device receives the synchronized data.
+4. A simulator trade and journal review appear on the other device after focus
+   or refresh.
+5. Clearing product data removes synchronized copies.
+6. Export downloads a JSON file.
+7. Permanent account deletion signs the user out and removes their Supabase
+   authentication user and related rows.
 
-4. Also add `NEXT_PUBLIC_SITE_URL` pointing at your Vercel deployment URL
-   (or your custom domain when you add one).
-5. **Save**. Vercel will redeploy automatically and the new env vars take
-   effect on the next deploy.
+## 6. Security verification
 
----
-
-## 4 · Rotate the secret key (security hygiene)
-
-You shared the `service_role` secret in our chat. The actual risk is near
-zero (the DB has no real user data yet), but the right habit is to rotate
-any secret that's ever been shared anywhere.
-
-1. Supabase dashboard → **Project Settings** → **API Keys**
-2. In the **Secret keys** section, click the **⋮** next to your current key
-3. Choose **Roll** (or click **+ New secret key** and delete the old one)
-4. **Copy the new value**
-5. Go back to Vercel → Environment Variables → edit
-   `SUPABASE_SERVICE_ROLE_KEY` → paste the new value → Save
-6. Also update your local `.env.local` with the new value
-7. Done. The old key is dead, the new one works in both places.
-
-Going forward, never paste a secret in chat. Generate → paste directly
-into `.env.local` and Vercel.
-
----
-
-## When you're done with 1, 2, and 3
-
-Tell me and I'll do the next round of work: wiring the auth-aware data
-hooks (so logged-in users get cloud sync for their portfolio, watchlist,
-journal, and onboarding answers; anonymous users keep using localStorage).
-
-You can do #4 (rotation) any time after — doesn't block anything.
+Create two test users. Confirm in the application and Supabase SQL tools that
+neither can read, update, or delete the other user's rows. Keep Row Level
+Security enabled and do not use the admin client for normal product reads or
+writes.

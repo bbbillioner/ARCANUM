@@ -30,7 +30,6 @@ const footerCols = [
       { href: "/help", label: "Help & FAQ" },
       { href: "/terms", label: "Terms" },
       { href: "/privacy", label: "Privacy" },
-      { href: "mailto:hello@arcanum.example", label: "Contact" },
     ],
   },
 ];

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+import { ARCANUM_CLOUD_DATA_LOADED_EVENT } from "@/lib/cloud-sync";
 import {
   addToWatchlist,
   isWatched,
@@ -19,15 +20,18 @@ export function WatchButton({ ticker, className }: WatchButtonProps) {
 
   useEffect(() => {
     let cancelled = false;
-    const timeoutId = window.setTimeout(() => {
+    function loadWatchState() {
       if (cancelled) return;
       setWatched(isWatched(ticker));
       setHydrated(true);
-    }, 0);
+    }
+    const timeoutId = window.setTimeout(loadWatchState, 0);
+    window.addEventListener(ARCANUM_CLOUD_DATA_LOADED_EVENT, loadWatchState);
 
     return () => {
       cancelled = true;
       window.clearTimeout(timeoutId);
+      window.removeEventListener(ARCANUM_CLOUD_DATA_LOADED_EVENT, loadWatchState);
     };
   }, [ticker]);
 

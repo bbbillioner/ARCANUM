@@ -1,3 +1,5 @@
+import { requestCloudSync } from "@/lib/cloud-sync";
+
 const STORAGE_KEY = "arcanum-watchlist";
 
 function read(): string[] {
@@ -19,6 +21,7 @@ function write(tickers: string[]): void {
   if (typeof window === "undefined") return;
   const unique = Array.from(new Set(tickers.map((t) => t.toUpperCase())));
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(unique));
+  requestCloudSync();
 }
 
 export function getWatchlist(): string[] {

@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { useQuotes } from "@/components/hooks/use-quotes";
 import { stockProfiles } from "@/data/stocks";
+import { ARCANUM_CLOUD_DATA_LOADED_EVENT } from "@/lib/cloud-sync";
 import { getCurrentPrice } from "@/lib/prices";
 import { getWatchlist, removeFromWatchlist } from "@/lib/watchlist";
 
@@ -21,15 +22,18 @@ export default function WatchlistPage() {
 
   useEffect(() => {
     let cancelled = false;
-    const timeoutId = window.setTimeout(() => {
+    function loadWatchlist() {
       if (cancelled) return;
       setTickers(getWatchlist());
       setHydrated(true);
-    }, 0);
+    }
+    const timeoutId = window.setTimeout(loadWatchlist, 0);
+    window.addEventListener(ARCANUM_CLOUD_DATA_LOADED_EVENT, loadWatchlist);
 
     return () => {
       cancelled = true;
       window.clearTimeout(timeoutId);
+      window.removeEventListener(ARCANUM_CLOUD_DATA_LOADED_EVENT, loadWatchlist);
     };
   }, []);
 
@@ -133,7 +137,7 @@ export default function WatchlistPage() {
                 }}
               >
                 Open any stock&apos;s research page and tap &quot;Add to
-                watchlist&quot;. Followed stocks land here with live prices.
+                watchlist&quot;. Followed stocks land here with cached market prices.
               </p>
               <Link className="btn btn-primary" href="/stocks">
                 Browse stocks <span className="arrow">→</span>

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
+import { ARCANUM_CLOUD_DATA_LOADED_EVENT } from "@/lib/cloud-sync";
 import {
   getHoldingFallback,
   isOnboardingAnswers,
@@ -33,26 +34,31 @@ export default function PortfolioSuggestionPage() {
 
   useEffect(() => {
     let cancelled = false;
-    const timeoutId = window.setTimeout(() => {
+    function loadProfile() {
+      if (cancelled) return;
       const storedAnswers = localStorage.getItem("arcanum-onboarding");
       if (!storedAnswers) {
-        if (!cancelled) setHasLoaded(true);
+        setAnswers(null);
+        setHasLoaded(true);
         return;
       }
       try {
         const parsedAnswers: unknown = JSON.parse(storedAnswers);
-        if (!cancelled && isOnboardingAnswers(parsedAnswers)) {
+        if (isOnboardingAnswers(parsedAnswers)) {
           setAnswers(parsedAnswers);
         }
       } catch {
-        if (!cancelled) setAnswers(null);
+        setAnswers(null);
       } finally {
-        if (!cancelled) setHasLoaded(true);
+        setHasLoaded(true);
       }
-    }, 0);
+    }
+    const timeoutId = window.setTimeout(loadProfile, 0);
+    window.addEventListener(ARCANUM_CLOUD_DATA_LOADED_EVENT, loadProfile);
     return () => {
       cancelled = true;
       window.clearTimeout(timeoutId);
+      window.removeEventListener(ARCANUM_CLOUD_DATA_LOADED_EVENT, loadProfile);
     };
   }, []);
 
@@ -95,7 +101,7 @@ export default function PortfolioSuggestionPage() {
             </p>
             <div style={{ marginTop: 28 }}>
               <Link className="btn btn-primary" href="/onboarding">
-                Open the 9-minute setup <span className="arrow">→</span>
+                Open the 8-question setup <span className="arrow">→</span>
               </Link>
             </div>
           </div>

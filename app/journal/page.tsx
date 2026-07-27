@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { useQuotes } from "@/components/hooks/use-quotes";
 import { getCurrentPrice } from "@/lib/prices";
+import { ARCANUM_CLOUD_DATA_LOADED_EVENT } from "@/lib/cloud-sync";
 import {
   addThesisReview,
   calculateSimulatorSummary,
@@ -56,15 +57,18 @@ export default function JournalPage() {
 
   useEffect(() => {
     let cancelled = false;
-    const timeoutId = window.setTimeout(() => {
+    function loadJournal() {
       if (cancelled) return;
       setSimulator(getSimulator());
       setHasLoaded(true);
-    }, 0);
+    }
+    const timeoutId = window.setTimeout(loadJournal, 0);
+    window.addEventListener(ARCANUM_CLOUD_DATA_LOADED_EVENT, loadJournal);
 
     return () => {
       cancelled = true;
       window.clearTimeout(timeoutId);
+      window.removeEventListener(ARCANUM_CLOUD_DATA_LOADED_EVENT, loadJournal);
     };
   }, []);
 
@@ -178,7 +182,7 @@ export default function JournalPage() {
                 {[
                   "Open the simulator and pick any stock or ETF.",
                   "Write one sentence on why you're buying — 10–240 characters.",
-                  "Trade executes at the live price. Your thesis is saved.",
+                  "Trade uses the latest available cached price. Your thesis is saved.",
                   "30 days later, the journal flags it for review. Add a follow-up note: was your reasoning right? What changed?",
                   "Over months, patterns emerge. You learn which kinds of theses you tend to get right — and which you don't.",
                 ].map((step, i) => (

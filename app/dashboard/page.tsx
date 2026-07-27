@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { useQuotes } from "@/components/hooks/use-quotes";
 import { NewsFeed } from "@/components/ui/news-feed";
+import { ARCANUM_CLOUD_DATA_LOADED_EVENT } from "@/lib/cloud-sync";
 import { derivePersonalization } from "@/lib/personalization";
 import {
   getHoldingFallback,
@@ -69,26 +70,31 @@ export default function DashboardPage() {
 
   useEffect(() => {
     let cancelled = false;
-    const timeoutId = window.setTimeout(() => {
+    function loadProfile() {
+      if (cancelled) return;
       const stored = localStorage.getItem("arcanum-onboarding");
       if (!stored) {
-        if (!cancelled) setHasLoaded(true);
+        setAnswers(null);
+        setHasLoaded(true);
         return;
       }
       try {
         const parsed: unknown = JSON.parse(stored);
-        if (!cancelled && isOnboardingAnswers(parsed)) {
+        if (isOnboardingAnswers(parsed)) {
           setAnswers(parsed);
         }
       } catch {
-        if (!cancelled) setAnswers(null);
+        setAnswers(null);
       } finally {
-        if (!cancelled) setHasLoaded(true);
+        setHasLoaded(true);
       }
-    }, 0);
+    }
+    const timeoutId = window.setTimeout(loadProfile, 0);
+    window.addEventListener(ARCANUM_CLOUD_DATA_LOADED_EVENT, loadProfile);
     return () => {
       cancelled = true;
       window.clearTimeout(timeoutId);
+      window.removeEventListener(ARCANUM_CLOUD_DATA_LOADED_EVENT, loadProfile);
     };
   }, []);
 

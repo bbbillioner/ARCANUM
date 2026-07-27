@@ -33,7 +33,7 @@ export default function TermsPage() {
               marginTop: 22,
             }}
           >
-            Last updated · 2026-05-30
+            Last updated · 2026-07-13
           </p>
         </div>
       </section>
@@ -78,12 +78,11 @@ export default function TermsPage() {
 
             <h2>4 · Accuracy of information</h2>
             <p>
-              ARCANUM displays price and news data from Yahoo Finance.
-              Historical prices are stored as periodic snapshots; live quotes
-              are fetched in near-real-time but may be delayed by 15–20
-              minutes, which is standard for free public quote feeds. Yahoo
-              data is not guaranteed, and ARCANUM is not responsible for
-              errors, delays, or interruptions in third-party data.
+              ARCANUM displays price and news data obtained from Yahoo Finance.
+              Historical prices are stored as periodic snapshots and current
+              quotes may be delayed, incomplete, stale, or unavailable. This
+              data is not exchange-grade and is not guaranteed. Always verify
+              important information with official market and issuer sources.
             </p>
 
             <h2>5 · Your own decisions</h2>
@@ -127,13 +126,12 @@ export default function TermsPage() {
               at the top of this page.
             </p>
 
-            <h2>9 · Contact</h2>
+            <h2>9 · Accounts and deletion</h2>
             <p>
-              Questions about these terms:{" "}
-              <a className="legal-link" href="mailto:hello@arcanum.example">
-                hello@arcanum.example
-              </a>
-              .
+              You are responsible for access to the email account used for
+              passwordless sign-in. You may export local product data or delete
+              your ARCANUM account from Settings. Account deletion is permanent
+              and removes associated cloud data.
             </p>
           </article>
         </div>

@@ -16,17 +16,17 @@ const faqs = [
   {
     question: "Where do the prices come from?",
     answer:
-      "All prices and news headlines come from Yahoo Finance. Historical charts are snapshots refreshed nightly. The 'live' price you see in the top-right of each stock is fetched with a 5-minute cache. Yahoo's free feed is typically delayed 15–20 minutes from the actual market.",
+      "Prices and news headlines currently come from Yahoo Finance. Historical charts use repository snapshots, while current quotes use a 5-minute cache and fall back to the latest stored close. Data can be delayed, stale, incomplete, or unavailable and should not be used for real trade execution.",
   },
   {
-    question: "Why do I only see five stocks?",
+    question: "Why is the stock universe limited?",
     answer:
-      "We deliberately ship a small, curated set during early access so every stock has a hand-written research page. The next release expands the universe and adds search for any ticker.",
+      "ARCANUM deliberately uses a curated early-access universe. A small set has full hand-written research, while additional stocks and ETFs have concise profiles, charts, quotes, and comparison support. Coverage will expand after the core learning workflow is validated.",
   },
   {
     question: "Will my portfolio follow me to another device?",
     answer:
-      "Not yet. Your onboarding answers and simulator portfolio live in your browser's local storage. If you switch devices or clear browser data, ARCANUM forgets you. Account sync is on the roadmap.",
+      "Yes, if you sign in. Anonymous data stays in your browser. Passwordless sign-in synchronizes your investor profile, watchlist, simulator, transactions, theses, and journal reviews through your account. A first sign-in also migrates existing local data when appropriate.",
   },
   {
     question: "What does the diamond marker mean?",
@@ -36,7 +36,7 @@ const faqs = [
   {
     question: "What's the difference between the dashboard and the simulator?",
     answer:
-      "The dashboard is the read-only command center for the starter portfolio ARCANUM picked for you — your allocation, holdings, news, and a learning anchor. The simulator is a separate practice environment with fake cash where you can buy and sell at live prices and watch cost basis and gains evolve.",
+      "The dashboard is the read-only command center for the starter portfolio ARCANUM picked for you: allocation, holdings, news, and a learning anchor. The simulator is a separate practice environment with fake cash where you can buy and sell at the latest available cached price and watch cost basis and gains evolve.",
   },
   {
     question: "Hover the underlined words?",
@@ -46,17 +46,17 @@ const faqs = [
   {
     question: "What if news doesn't load?",
     answer:
-      "ARCANUM relies on Yahoo's public endpoints. If they're temporarily blocked or throttled, the news panel shows an empty state and the live price falls back to the most recent close (you'll see a hollow circle ○ instead of the solid ● live indicator).",
+      "ARCANUM currently relies on Yahoo Finance endpoints. If they are blocked, slow, or unavailable, news shows an empty state and quotes fall back to the most recent stored close. Retry later and verify important information with an official source.",
   },
   {
     question: "Is this safe to use? Is my data shared?",
     answer:
-      "We don't ask for personal info and there's no account to create. Everything you enter is stored in your browser. See the privacy page for the full breakdown.",
+      "You can use ARCANUM anonymously, in which case product data remains in your browser. If you sign in, Supabase stores your email and synchronized product data. Vercel provides hosting, analytics, and performance measurement. See Privacy for the complete breakdown and Settings for export or deletion controls.",
   },
   {
-    question: "I found a bug or have feedback.",
+    question: "How can I protect my account?",
     answer:
-      "Email hello@arcanum.example with what you saw and what you expected. Including a screenshot helps a lot.",
+      "ARCANUM uses passwordless email links, so protect the email account you use to sign in. Never share a sign-in link. You can sign out, export product data, clear synchronized data, or permanently delete the account from Settings.",
   },
 ];
 
@@ -82,12 +82,9 @@ export default function HelpPage() {
             How ARCANUM <em>works.</em>
           </h1>
           <p className="lede">
-            A short FAQ for early-access users. If your question isn&apos;t
-            answered here, email{" "}
-            <a className="legal-link" href="mailto:hello@arcanum.example">
-              hello@arcanum.example
-            </a>
-            .
+            A short FAQ for early-access users, including account sync, market
+            data behavior, privacy controls, and the difference between the
+            dashboard and simulator.
           </p>
         </div>
       </section>

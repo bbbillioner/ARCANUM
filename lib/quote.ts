@@ -52,6 +52,7 @@ async function fetchSingleQuote(ticker: string): Promise<Quote | null> {
     const response = await fetch(url, {
       headers: { "User-Agent": USER_AGENT, Accept: "application/json" },
       next: { revalidate: REVALIDATE_SECONDS },
+      signal: AbortSignal.timeout(6_000),
     });
     if (!response.ok) return historicalFallback(ticker);
 

@@ -33,7 +33,7 @@ export default function PrivacyPage() {
               marginTop: 22,
             }}
           >
-            Last updated · 2026-05-30
+            Last updated · 2026-07-13
           </p>
         </div>
       </section>
@@ -44,89 +44,85 @@ export default function PrivacyPage() {
       >
         <div className="wrap" style={{ maxWidth: 760 }}>
           <article className="legal-prose">
-            <h2>1 · What we store on your device</h2>
+            <h2>1 · Data stored on your device</h2>
             <p>
-              ARCANUM uses your browser&apos;s <code>localStorage</code> to
-              remember three things:
+              ARCANUM uses your browser&apos;s <code>localStorage</code> for your
+              onboarding answers, watchlist, fake-money simulator, transaction
+              theses, journal reviews, and synchronization status. This lets
+              the anonymous product work without an account and survive page
+              reloads.
             </p>
+            <p>
+              You can export or clear this data from Settings. Clearing browser
+              storage may also remove the local copy.
+            </p>
+
+            <h2>2 · Account and synchronized data</h2>
+            <p>
+              If you choose passwordless sign-in, ARCANUM and its authentication
+              provider receive your email address and maintain an authentication
+              session. Your investor profile, watchlist, simulator transactions,
+              fake-cash balance, theses, and journal reviews are synchronized to
+              your account so they can appear on another device.
+            </p>
+            <p>
+              Supabase stores this account data. Database Row Level Security is
+              configured so an authenticated user can access only their own rows.
+              You can permanently delete your account and associated cloud data
+              from Settings.
+            </p>
+
+            <h2>3 · Hosting and analytics</h2>
+            <p>
+              Vercel hosts ARCANUM and may process standard request information
+              such as IP address, browser details, requested URLs, and timestamps
+              for delivery, security, and debugging. ARCANUM also uses Vercel
+              Analytics and Speed Insights to understand aggregate usage and
+              performance. ARCANUM does not include advertising or social-media
+              tracking pixels.
+            </p>
+
+            <h2>4 · Market data and external links</h2>
+            <p>
+              ARCANUM&apos;s server requests quote and news information from Yahoo
+              Finance and caches responses. News links open publisher websites,
+              whose own privacy policies apply after you leave ARCANUM.
+            </p>
+
+            <h2>5 · Cookies</h2>
+            <p>
+              Signed-in users receive essential Supabase authentication cookies
+              used to maintain and refresh the session. These are functional
+              cookies, not advertising cookies. Hosting and analytics providers
+              may use limited technical storage according to their own policies.
+            </p>
+
+            <h2>6 · Retention and your controls</h2>
             <ul>
-              <li>
-                Your <strong>onboarding answers</strong> (budget, goal, time
-                horizon, risk comfort, experience, interests, portfolio style,
-                approach) — so the dashboard can build a starter portfolio
-                around you.
-              </li>
-              <li>
-                Your <strong>simulator state</strong> (cash balance, fake
-                holdings, transaction history) — so your practice ledger
-                survives reloads.
-              </li>
-              <li>
-                Optional UI preferences (e.g. theme, watchlist additions) once
-                those features ship.
-              </li>
+              <li>Export the current local copy of your ARCANUM data in Settings.</li>
+              <li>Clear product data while keeping your account.</li>
+              <li>Delete your account and associated cloud rows permanently.</li>
+              <li>Use ARCANUM anonymously without providing an email address.</li>
             </ul>
+
+            <h2>7 · Financial information</h2>
             <p>
-              All of this lives in your browser. We do not see it, we cannot
-              recover it, and it does not leave your device. Clearing your
-              browser data resets ARCANUM.
+              ARCANUM is not connected to a broker and does not collect brokerage
+              credentials, bank information, payment-card details, or real-money
+              transaction instructions. Simulator balances and trades are fake.
             </p>
 
-            <h2>2 · What we receive on our servers</h2>
+            <h2>8 · Children</h2>
             <p>
-              When you visit ARCANUM, our hosting provider (Vercel) records
-              standard server logs — IP address, user-agent, the URLs you
-              request. These are used for security and operational debugging
-              and are not used to build a profile of you.
-            </p>
-            <p>
-              We do not ask for your name, email, or any financial credentials.
-              We have no account system to sign up for at this time.
+              ARCANUM is intended for users aged 18 and older. We do not knowingly
+              collect account data from children.
             </p>
 
-            <h2>3 · Third-party services we call</h2>
-            <p>When you load certain pages, ARCANUM fetches data from:</p>
-            <ul>
-              <li>
-                <strong>Yahoo Finance</strong> — historical price data, live
-                quotes, and news headlines for the tickers we track. These
-                requests go server-side from our caches; Yahoo does not see
-                your IP.
-              </li>
-            </ul>
+            <h2>9 · Changes</h2>
             <p>
-              We do not embed analytics, advertising, or social pixels in this
-              version. If that changes, we will update this page and tell users
-              in the product.
-            </p>
-
-            <h2>4 · Cookies</h2>
-            <p>
-              ARCANUM does not set tracking cookies. The Next.js framework may
-              set a minimal session cookie for routing purposes. There is no
-              advertising cookie and no cross-site tracking.
-            </p>
-
-            <h2>5 · Children</h2>
-            <p>
-              ARCANUM is intended for users aged 18 and older. We do not
-              knowingly collect data from minors.
-            </p>
-
-            <h2>6 · Changes to this policy</h2>
-            <p>
-              ARCANUM is in active development. When we add account features,
-              this page will be updated to describe how stored account data is
-              handled. We will note the change date at the top of this page.
-            </p>
-
-            <h2>7 · Contact</h2>
-            <p>
-              Privacy questions: write to{" "}
-              <a className="legal-link" href="mailto:hello@arcanum.example">
-                hello@arcanum.example
-              </a>
-              .
+              ARCANUM is in early access. This notice will be updated when data
+              practices or providers materially change, and the revision date
+              will appear above.
             </p>
           </article>
         </div>

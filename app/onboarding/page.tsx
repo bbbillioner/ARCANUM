@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { onboardingQuestions } from "@/data/onboarding";
+import { requestCloudSync } from "@/lib/cloud-sync";
 import type {
   OnboardingAnswers,
   OnboardingQuestionId,
@@ -73,7 +74,10 @@ export default function OnboardingPage() {
       setCurrentStep((step) => step + 1);
       return;
     }
+    const updatedAt = new Date().toISOString();
     localStorage.setItem("arcanum-onboarding", JSON.stringify(answers));
+    localStorage.setItem("arcanum-onboarding-updated-at", updatedAt);
+    requestCloudSync();
     router.push("/portfolio-suggestion");
   }
 

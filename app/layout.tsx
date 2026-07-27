@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
+import { CloudSync } from "@/components/cloud-sync";
 import { Footer } from "@/components/ui/footer";
 import { Nav } from "@/components/ui/nav";
 
@@ -26,7 +27,7 @@ const fraunces = Fraunces({
   axes: ["opsz", "SOFT"],
 });
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://arcanum.example";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 const SITE_NAME = "ARCANUM";
 const SITE_DESCRIPTION =
   "A beginner investor command center. Live prices, calm research, and a paper-trading lab — built for the first share, not the thousandth.";
@@ -100,6 +101,7 @@ export default function RootLayout({
       className={`${inter.variable} ${jetbrainsMono.variable} ${fraunces.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-background font-sans text-foreground">
+        <CloudSync />
         <Nav />
         <div className="flex-1">{children}</div>
         <Footer />

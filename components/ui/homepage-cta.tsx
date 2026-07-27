@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+import { ARCANUM_CLOUD_DATA_LOADED_EVENT } from "@/lib/cloud-sync";
 import { ButtonLink } from "./button";
 
 export function HomepageCta() {
@@ -9,15 +10,24 @@ export function HomepageCta() {
 
   useEffect(() => {
     let cancelled = false;
-    const timeoutId = window.setTimeout(() => {
+    function loadOnboardingState() {
       if (cancelled) return;
       const stored = window.localStorage.getItem("arcanum-onboarding");
-      if (stored) setHasOnboarded(true);
-    }, 0);
+      setHasOnboarded(Boolean(stored));
+    }
+    const timeoutId = window.setTimeout(loadOnboardingState, 0);
+    window.addEventListener(
+      ARCANUM_CLOUD_DATA_LOADED_EVENT,
+      loadOnboardingState,
+    );
 
     return () => {
       cancelled = true;
       window.clearTimeout(timeoutId);
+      window.removeEventListener(
+        ARCANUM_CLOUD_DATA_LOADED_EVENT,
+        loadOnboardingState,
+      );
     };
   }, []);
 

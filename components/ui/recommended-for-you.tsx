@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { useQuotes } from "@/components/hooks/use-quotes";
+import { ARCANUM_CLOUD_DATA_LOADED_EVENT } from "@/lib/cloud-sync";
 import { derivePersonalization } from "@/lib/personalization";
 import { getCurrentPrice } from "@/lib/prices";
 import { loadOnboardingAnswers } from "@/lib/portfolio";
@@ -24,11 +25,14 @@ export function RecommendedForYou() {
 
   useEffect(() => {
     let cancelled = false;
-    const timeoutId = window.setTimeout(() => {
+    function loadRecommendations() {
       if (cancelled) return;
 
       const answers = loadOnboardingAnswers();
       if (!answers) {
+        setTickers([]);
+        setInterests([]);
+        setMissingInterests([]);
         setHydrated(true);
         return;
       }
@@ -41,11 +45,20 @@ export function RecommendedForYou() {
           .map((g) => g.interest),
       );
       setHydrated(true);
-    }, 0);
+    }
+    const timeoutId = window.setTimeout(loadRecommendations, 0);
+    window.addEventListener(
+      ARCANUM_CLOUD_DATA_LOADED_EVENT,
+      loadRecommendations,
+    );
 
     return () => {
       cancelled = true;
       window.clearTimeout(timeoutId);
+      window.removeEventListener(
+        ARCANUM_CLOUD_DATA_LOADED_EVENT,
+        loadRecommendations,
+      );
     };
   }, []);
 
@@ -122,8 +135,8 @@ export function RecommendedForYou() {
           <span style={{ color: "var(--accent)" }}>
             {interests.join(", ")}
           </span>
-          . Here are the tickers in our universe that match — live prices, in
-          your preferred order.
+          . Here are the tickers in our universe that match, with cached market
+          prices in your preferred order.
         </p>
       </div>
 
@@ -137,18 +150,8 @@ export function RecommendedForYou() {
         >
           <p style={{ color: "var(--muted)", fontSize: "0.94rem", lineHeight: 1.65 }}>
             Your interests ({interests.join(", ")}) don&apos;t map to anything in
-            our current 30-ticker universe. We&apos;re expanding coverage —
-            email{" "}
-            <a
-              href="mailto:hello@arcanum.example"
-              style={{
-                color: "var(--accent)",
-                borderBottom: "1px solid rgba(0,229,168,0.4)",
-              }}
-            >
-              hello@arcanum.example
-            </a>{" "}
-            with what you want.
+            our current curated universe. Coverage is still expanding, so use
+            the broader research list to explore the assets available today.
           </p>
         </div>
       ) : (

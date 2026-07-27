@@ -361,7 +361,7 @@ export default async function StocksPage() {
           <p>
             The simulator lets you allocate fake cash across any of these assets
             and watch cost basis, market value, and gain or loss update against
-            live prices.
+            cached market prices.
           </p>
           <Link className="btn btn-primary" href="/simulator">
             Open simulator <span className="arrow">→</span>
