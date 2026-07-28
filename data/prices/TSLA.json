@@ -1,18 +1,9 @@
 {
   "ticker": "TSLA",
-  "fetchedAt": "2026-07-27T20:00:00Z",
+  "fetchedAt": "2026-07-28T20:00:00Z",
   "currency": "USD",
   "exchange": "NMS",
   "bars": [
-    {
-      "date": "2021-07-28",
-      "open": 215.67,
-      "high": 218.32,
-      "low": 213.13,
-      "close": 215.66,
-      "adjClose": 215.66,
-      "volume": 48019800
-    },
     {
       "date": "2021-07-29",
       "open": 216.6,
@@ -11279,16 +11270,25 @@
       "low": 306.51,
       "close": 313.03,
       "adjClose": 313.03,
-      "volume": 62575300
+      "volume": 62760000
     },
     {
       "date": "2026-07-27",
-      "open": 313.23,
+      "open": 313.24,
       "high": 317,
       "low": 304.28,
       "close": 309.22,
       "adjClose": 309.22,
-      "volume": 43680359
+      "volume": 44919400
+    },
+    {
+      "date": "2026-07-28",
+      "open": 305.92,
+      "high": 311.15,
+      "low": 300.69,
+      "close": 307.44,
+      "adjClose": 307.44,
+      "volume": 38773921
     }
   ]
 }
