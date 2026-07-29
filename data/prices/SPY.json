@@ -1,18 +1,9 @@
 {
   "ticker": "SPY",
-  "fetchedAt": "2026-07-28T20:00:00Z",
+  "fetchedAt": "2026-07-29T20:00:00Z",
   "currency": "USD",
   "exchange": "PCX",
   "bars": [
-    {
-      "date": "2021-07-29",
-      "open": 439.82,
-      "high": 441.8,
-      "low": 439.81,
-      "close": 440.65,
-      "adjClose": 411.85,
-      "volume": 47435300
-    },
     {
       "date": "2021-07-30",
       "open": 437.91,
@@ -3673,7 +3664,7 @@
       "high": 390.39,
       "low": 380.65,
       "close": 385.36,
-      "adjClose": 368.47,
+      "adjClose": 368.48,
       "volume": 157790000
     },
     {
@@ -11288,7 +11279,16 @@
       "low": 735.98,
       "close": 740.86,
       "adjClose": 740.86,
-      "volume": 40901869
+      "volume": 47322200
+    },
+    {
+      "date": "2026-07-29",
+      "open": 739.97,
+      "high": 742.67,
+      "low": 729.1,
+      "close": 729.46,
+      "adjClose": 729.46,
+      "volume": 69069318
     }
   ]
 }
