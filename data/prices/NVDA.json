@@ -1,18 +1,9 @@
 {
   "ticker": "NVDA",
-  "fetchedAt": "2026-07-29T20:00:00Z",
+  "fetchedAt": "2026-07-30T20:00:00Z",
   "currency": "USD",
   "exchange": "NMS",
   "bars": [
-    {
-      "date": "2021-07-30",
-      "open": 19.42,
-      "high": 19.63,
-      "low": 19.26,
-      "close": 19.5,
-      "adjClose": 19.43,
-      "volume": 183497000
-    },
     {
       "date": "2021-08-02",
       "open": 19.7,
@@ -11288,7 +11279,16 @@
       "low": 190.01,
       "close": 190.01,
       "adjClose": 190.01,
-      "volume": 136609393
+      "volume": 147680800
+    },
+    {
+      "date": "2026-07-30",
+      "open": 193.45,
+      "high": 197.25,
+      "low": 191.52,
+      "close": 195.04,
+      "adjClose": 195.04,
+      "volume": 123110210
     }
   ]
 }
