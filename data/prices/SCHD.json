@@ -1,18 +1,9 @@
 {
   "ticker": "SCHD",
-  "fetchedAt": "2026-08-04T20:00:00Z",
+  "fetchedAt": "2026-08-05T20:00:00Z",
   "currency": "USD",
   "exchange": "PCX",
   "bars": [
-    {
-      "date": "2021-08-05",
-      "open": 25.38,
-      "high": 25.45,
-      "low": 25.37,
-      "close": 25.44,
-      "adjClose": 21.28,
-      "volume": 3865500
-    },
     {
       "date": "2021-08-06",
       "open": 25.48,
@@ -11288,7 +11279,16 @@
       "low": 33.26,
       "close": 33.85,
       "adjClose": 33.85,
-      "volume": 26854900
+      "volume": 26996700
+    },
+    {
+      "date": "2026-08-05",
+      "open": 33.94,
+      "high": 33.96,
+      "low": 33.51,
+      "close": 33.64,
+      "adjClose": 33.64,
+      "volume": 23293414
     }
   ]
 }
