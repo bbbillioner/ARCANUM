@@ -1,6 +1,6 @@
 {
   "ticker": "DIS",
-  "fetchedAt": "2026-08-06T20:00:00Z",
+  "fetchedAt": "2026-08-07T20:00:00Z",
   "currency": "USD",
   "exchange": "NYQ",
   "bars": [
@@ -11284,11 +11284,20 @@
     {
       "date": "2026-08-06",
       "open": 102.54,
-      "high": 104.72,
-      "low": 102.51,
+      "high": 104.73,
+      "low": 102.52,
       "close": 104.68,
       "adjClose": 104.68,
-      "volume": 13701981
+      "volume": 14047200
+    },
+    {
+      "date": "2026-08-07",
+      "open": 104.42,
+      "high": 105.25,
+      "low": 103.71,
+      "close": 104.91,
+      "adjClose": 104.91,
+      "volume": 9152773
     }
   ]
 }
