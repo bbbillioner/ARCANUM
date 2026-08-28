@@ -1,18 +1,9 @@
 {
   "ticker": "COST",
-  "fetchedAt": "2026-08-26T20:00:00Z",
+  "fetchedAt": "2026-08-27T20:00:00Z",
   "currency": "USD",
   "exchange": "NMS",
   "bars": [
-    {
-      "date": "2021-08-27",
-      "open": 449.31,
-      "high": 451.62,
-      "low": 446.8,
-      "close": 450.34,
-      "adjClose": 426.77,
-      "volume": 1310200
-    },
     {
       "date": "2021-08-30",
       "open": 451.04,
@@ -136,7 +127,7 @@
       "high": 462.82,
       "low": 457.02,
       "close": 459.51,
-      "adjClose": 435.46,
+      "adjClose": 435.47,
       "volume": 3411400
     },
     {
@@ -3880,7 +3871,7 @@
       "high": 505,
       "low": 498.86,
       "close": 502.04,
-      "adjClose": 481.56,
+      "adjClose": 481.57,
       "volume": 1135700
     },
     {
@@ -6760,7 +6751,7 @@
       "high": 884,
       "low": 873.18,
       "close": 877.56,
-      "adjClose": 868.01,
+      "adjClose": 868.02,
       "volume": 1440900
     },
     {
@@ -6940,7 +6931,7 @@
       "high": 907.81,
       "low": 895.7,
       "close": 906.98,
-      "adjClose": 897.12,
+      "adjClose": 897.11,
       "volume": 4658200
     },
     {
@@ -11288,7 +11279,16 @@
       "low": 954.54,
       "close": 956.12,
       "adjClose": 956.12,
-      "volume": 1217556
+      "volume": 1221600
+    },
+    {
+      "date": "2026-08-27",
+      "open": 948.27,
+      "high": 948.85,
+      "low": 933.25,
+      "close": 934.66,
+      "adjClose": 934.66,
+      "volume": 2239600
     }
   ]
 }
