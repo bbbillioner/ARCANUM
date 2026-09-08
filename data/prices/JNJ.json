@@ -1,27 +1,9 @@
 {
   "ticker": "JNJ",
-  "fetchedAt": "2026-09-04T20:00:00Z",
+  "fetchedAt": "2026-09-08T20:00:00Z",
   "currency": "USD",
   "exchange": "NYQ",
   "bars": [
-    {
-      "date": "2021-09-07",
-      "open": 174.35,
-      "high": 175.03,
-      "low": 171.67,
-      "close": 172.32,
-      "adjClose": 149.86,
-      "volume": 6859900
-    },
-    {
-      "date": "2021-09-08",
-      "open": 171.62,
-      "high": 172.98,
-      "low": 171.08,
-      "close": 171.9,
-      "adjClose": 149.5,
-      "volume": 4661700
-    },
     {
       "date": "2021-09-09",
       "open": 171.19,
@@ -118,7 +100,7 @@
       "high": 165.77,
       "low": 164.15,
       "close": 164.86,
-      "adjClose": 143.37,
+      "adjClose": 143.38,
       "volume": 4697900
     },
     {
@@ -2314,7 +2296,7 @@
       "high": 164.44,
       "low": 160.81,
       "close": 161.33,
-      "adjClose": 144,
+      "adjClose": 144.01,
       "volume": 6726400
     },
     {
@@ -11298,6 +11280,15 @@
       "close": 275.23,
       "adjClose": 275.23,
       "volume": 4320100
+    },
+    {
+      "date": "2026-09-08",
+      "open": 271.28,
+      "high": 271.99,
+      "low": 266.88,
+      "close": 269.12,
+      "adjClose": 269.12,
+      "volume": 7768078
     }
   ]
 }
