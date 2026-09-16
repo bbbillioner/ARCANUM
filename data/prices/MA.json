@@ -1,18 +1,9 @@
 {
   "ticker": "MA",
-  "fetchedAt": "2026-09-11T20:00:00Z",
+  "fetchedAt": "2026-09-14T20:00:00Z",
   "currency": "USD",
   "exchange": "NYQ",
   "bars": [
-    {
-      "date": "2021-09-15",
-      "open": 347,
-      "high": 347.53,
-      "low": 342.76,
-      "close": 344.75,
-      "adjClose": 334.7,
-      "volume": 3833500
-    },
     {
       "date": "2021-09-16",
       "open": 345.41,
@@ -1135,7 +1126,7 @@
       "high": 338.38,
       "low": 331.21,
       "close": 335,
-      "adjClose": 326.07,
+      "adjClose": 326.08,
       "volume": 3738900
     },
     {
@@ -2989,7 +2980,7 @@
       "high": 375,
       "low": 369.56,
       "close": 370.97,
-      "adjClose": 363.32,
+      "adjClose": 363.31,
       "volume": 3913500
     },
     {
@@ -4546,7 +4537,7 @@
       "high": 417.89,
       "low": 413.04,
       "close": 417.13,
-      "adjClose": 409.75,
+      "adjClose": 409.76,
       "volume": 1808000
     },
     {
@@ -5914,7 +5905,7 @@
       "high": 464,
       "low": 456.72,
       "close": 462.11,
-      "adjClose": 455.95,
+      "adjClose": 455.94,
       "volume": 2006500
     },
     {
@@ -7264,7 +7255,7 @@
       "high": 533.62,
       "low": 526.58,
       "close": 532.38,
-      "adjClose": 526.75,
+      "adjClose": 526.76,
       "volume": 2086300
     },
     {
@@ -11280,6 +11271,15 @@
       "close": 569.19,
       "adjClose": 569.19,
       "volume": 2049300
+    },
+    {
+      "date": "2026-09-14",
+      "open": 575.98,
+      "high": 578.9,
+      "low": 565.96,
+      "close": 574.42,
+      "adjClose": 574.42,
+      "volume": 2506300
     }
   ]
 }
