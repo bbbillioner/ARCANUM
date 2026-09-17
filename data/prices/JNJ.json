@@ -1,18 +1,9 @@
 {
   "ticker": "JNJ",
-  "fetchedAt": "2026-09-14T20:00:00Z",
+  "fetchedAt": "2026-09-15T20:00:00Z",
   "currency": "USD",
   "exchange": "NYQ",
   "bars": [
-    {
-      "date": "2021-09-16",
-      "open": 165.65,
-      "high": 166.46,
-      "low": 164.19,
-      "close": 165.22,
-      "adjClose": 143.69,
-      "volume": 5665400
-    },
     {
       "date": "2021-09-17",
       "open": 164.3,
@@ -11280,6 +11271,15 @@
       "close": 266.32,
       "adjClose": 266.32,
       "volume": 4740800
+    },
+    {
+      "date": "2026-09-15",
+      "open": 265.81,
+      "high": 267.2,
+      "low": 260.68,
+      "close": 267.2,
+      "adjClose": 267.2,
+      "volume": 5283500
     }
   ]
 }
