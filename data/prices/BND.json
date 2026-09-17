@@ -1,18 +1,9 @@
 {
   "ticker": "BND",
-  "fetchedAt": "2026-09-15T20:00:00Z",
+  "fetchedAt": "2026-09-17T20:00:00Z",
   "currency": "USD",
   "exchange": "NGM",
   "bars": [
-    {
-      "date": "2021-09-17",
-      "open": 86.25,
-      "high": 86.28,
-      "low": 86.18,
-      "close": 86.26,
-      "adjClose": 73.07,
-      "volume": 6217800
-    },
     {
       "date": "2021-09-20",
       "open": 86.39,
@@ -5653,7 +5644,7 @@
       "high": 72.04,
       "low": 71.9,
       "close": 71.93,
-      "adjClose": 65.34,
+      "adjClose": 65.33,
       "volume": 5284200
     },
     {
@@ -11280,6 +11271,24 @@
       "close": 71.15,
       "adjClose": 71.15,
       "volume": 12776700
+    },
+    {
+      "date": "2026-09-16",
+      "open": 71.24,
+      "high": 71.41,
+      "low": 71.09,
+      "close": 71.11,
+      "adjClose": 71.11,
+      "volume": 7993000
+    },
+    {
+      "date": "2026-09-17",
+      "open": 71.4,
+      "high": 71.48,
+      "low": 71.34,
+      "close": 71.47,
+      "adjClose": 71.47,
+      "volume": 7150667
     }
   ]
 }
