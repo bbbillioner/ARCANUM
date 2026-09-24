@@ -5,15 +5,6 @@
   "exchange": "PCX",
   "bars": [
     {
-      "date": "2021-09-23",
-      "open": 52.29,
-      "high": 52.54,
-      "low": 52.25,
-      "close": 52.43,
-      "adjClose": 44.95,
-      "volume": 6789300
-    },
-    {
       "date": "2021-09-24",
       "open": 51.9,
       "high": 52.05,
