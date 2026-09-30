@@ -5,15 +5,6 @@
   "exchange": "NYQ",
   "bars": [
     {
-      "date": "2021-09-29",
-      "open": 52.64,
-      "high": 53.16,
-      "low": 52.56,
-      "close": 52.96,
-      "adjClose": 45.75,
-      "volume": 13941500
-    },
-    {
       "date": "2021-09-30",
       "open": 53.17,
       "high": 53.33,
@@ -766,7 +757,7 @@
       "high": 60.89,
       "low": 58.94,
       "close": 60.84,
-      "adjClose": 52.96,
+      "adjClose": 52.97,
       "volume": 19101500
     },
     {
