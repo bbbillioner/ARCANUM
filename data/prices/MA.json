@@ -1,18 +1,9 @@
 {
   "ticker": "MA",
-  "fetchedAt": "2026-09-29T20:00:00Z",
+  "fetchedAt": "2026-09-30T20:00:00Z",
   "currency": "USD",
   "exchange": "NYQ",
   "bars": [
-    {
-      "date": "2021-10-01",
-      "open": 349.83,
-      "high": 363.18,
-      "low": 347.16,
-      "close": 360.18,
-      "adjClose": 349.68,
-      "volume": 5227300
-    },
     {
       "date": "2021-10-04",
       "open": 359.93,
@@ -856,7 +847,7 @@
       "high": 383.07,
       "low": 373.4,
       "close": 381.54,
-      "adjClose": 371.37,
+      "adjClose": 371.38,
       "volume": 5800400
     },
     {
@@ -2881,7 +2872,7 @@
       "high": 375,
       "low": 369.56,
       "close": 370.97,
-      "adjClose": 363.31,
+      "adjClose": 363.32,
       "volume": 3913500
     },
     {
@@ -11280,6 +11271,15 @@
       "close": 563.58,
       "adjClose": 563.58,
       "volume": 2901400
+    },
+    {
+      "date": "2026-09-30",
+      "open": 562.26,
+      "high": 563,
+      "low": 551.43,
+      "close": 551.47,
+      "adjClose": 551.47,
+      "volume": 5034600
     }
   ]
 }

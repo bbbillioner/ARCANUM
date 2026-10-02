@@ -1,18 +1,9 @@
 {
   "ticker": "AMZN",
-  "fetchedAt": "2026-09-29T20:00:00Z",
+  "fetchedAt": "2026-09-30T20:00:00Z",
   "currency": "USD",
   "exchange": "NMS",
   "bars": [
-    {
-      "date": "2021-10-01",
-      "open": 164.45,
-      "high": 165.46,
-      "low": 162.8,
-      "close": 164.16,
-      "adjClose": 164.16,
-      "volume": 56712000
-    },
     {
       "date": "2021-10-04",
       "open": 163.97,
@@ -11280,6 +11271,15 @@
       "close": 246.67,
       "adjClose": 246.67,
       "volume": 33730400
+    },
+    {
+      "date": "2026-09-30",
+      "open": 246.79,
+      "high": 252.44,
+      "low": 246.08,
+      "close": 249.15,
+      "adjClose": 249.15,
+      "volume": 41913100
     }
   ]
 }
