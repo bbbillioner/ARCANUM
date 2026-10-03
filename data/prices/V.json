@@ -1,6 +1,6 @@
 {
   "ticker": "V",
-  "fetchedAt": "2026-09-30T20:00:00Z",
+  "fetchedAt": "2026-10-01T20:00:00Z",
   "currency": "USD",
   "exchange": "NYQ",
   "bars": [
@@ -11280,6 +11280,15 @@
       "close": 359.33,
       "adjClose": 359.33,
       "volume": 7414100
+    },
+    {
+      "date": "2026-10-01",
+      "open": 358.35,
+      "high": 363.24,
+      "low": 357.36,
+      "close": 359.85,
+      "adjClose": 359.85,
+      "volume": 5270600
     }
   ]
 }
