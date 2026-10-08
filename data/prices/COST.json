@@ -1,18 +1,9 @@
 {
   "ticker": "COST",
-  "fetchedAt": "2026-10-06T20:00:00Z",
+  "fetchedAt": "2026-10-07T20:00:00Z",
   "currency": "USD",
   "exchange": "NMS",
   "bars": [
-    {
-      "date": "2021-10-07",
-      "open": 456.47,
-      "high": 459.59,
-      "low": 452.07,
-      "close": 452.87,
-      "adjClose": 429.17,
-      "volume": 1966200
-    },
     {
       "date": "2021-10-08",
       "open": 455.44,
@@ -802,7 +793,7 @@
       "high": 521.35,
       "low": 507.38,
       "close": 509.67,
-      "adjClose": 484.52,
+      "adjClose": 484.51,
       "volume": 2349700
     },
     {
@@ -3259,7 +3250,7 @@
       "high": 488.14,
       "low": 482.76,
       "close": 487.26,
-      "adjClose": 466.41,
+      "adjClose": 466.42,
       "volume": 1979600
     },
     {
@@ -6373,7 +6364,7 @@
       "high": 824.17,
       "low": 809.68,
       "close": 816.89,
-      "adjClose": 808,
+      "adjClose": 808.01,
       "volume": 1861400
     },
     {
@@ -6400,7 +6391,7 @@
       "high": 833.09,
       "low": 805.06,
       "close": 816.88,
-      "adjClose": 807.99,
+      "adjClose": 808,
       "volume": 2476300
     },
     {
@@ -6688,7 +6679,7 @@
       "high": 907.81,
       "low": 895.7,
       "close": 906.98,
-      "adjClose": 897.11,
+      "adjClose": 897.12,
       "volume": 4658200
     },
     {
@@ -7003,7 +6994,7 @@
       "high": 962,
       "low": 913.75,
       "close": 943.8,
-      "adjClose": 934.77,
+      "adjClose": 934.78,
       "volume": 3277100
     },
     {
@@ -7966,7 +7957,7 @@
       "high": 978.65,
       "low": 959.24,
       "close": 967.75,
-      "adjClose": 959.56,
+      "adjClose": 959.55,
       "volume": 2531700
     },
     {
@@ -9514,7 +9505,7 @@
       "high": 855.5,
       "low": 847.31,
       "close": 850,
-      "adjClose": 846.26,
+      "adjClose": 846.27,
       "volume": 2373300
     },
     {
@@ -11289,6 +11280,15 @@
       "close": 935.68,
       "adjClose": 935.68,
       "volume": 1899800
+    },
+    {
+      "date": "2026-10-07",
+      "open": 940.84,
+      "high": 948.77,
+      "low": 937.6,
+      "close": 942.25,
+      "adjClose": 942.25,
+      "volume": 1771000
     }
   ]
 }
