@@ -5,15 +5,6 @@
   "exchange": "NGM",
   "bars": [
     {
-      "date": "2021-10-13",
-      "open": 85.2,
-      "high": 85.36,
-      "low": 85.2,
-      "close": 85.34,
-      "adjClose": 72.15,
-      "volume": 5018100
-    },
-    {
       "date": "2021-10-14",
       "open": 85.39,
       "high": 85.5,
