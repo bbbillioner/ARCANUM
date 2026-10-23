@@ -1,18 +1,9 @@
 {
   "ticker": "QQQ",
-  "fetchedAt": "2026-10-20T20:00:00Z",
+  "fetchedAt": "2026-10-21T20:00:00Z",
   "currency": "USD",
   "exchange": "NGM",
   "bars": [
-    {
-      "date": "2021-10-22",
-      "open": 375.98,
-      "high": 376.97,
-      "low": 372.39,
-      "close": 374.1,
-      "adjClose": 363.08,
-      "volume": 36275800
-    },
     {
       "date": "2021-10-25",
       "open": 375.56,
@@ -1522,7 +1513,7 @@
       "high": 295.04,
       "low": 287.5,
       "close": 294.61,
-      "adjClose": 287.21,
+      "adjClose": 287.2,
       "volume": 58422300
     },
     {
@@ -7075,7 +7066,7 @@
       "high": 526.72,
       "low": 522.35,
       "close": 526.48,
-      "adjClose": 521.21,
+      "adjClose": 521.2,
       "volume": 23762600
     },
     {
@@ -11280,6 +11271,15 @@
       "close": 717.63,
       "adjClose": 717.63,
       "volume": 30518500
+    },
+    {
+      "date": "2026-10-21",
+      "open": 722.22,
+      "high": 727.95,
+      "low": 719.71,
+      "close": 725.2,
+      "adjClose": 725.2,
+      "volume": 32476200
     }
   ]
 }
