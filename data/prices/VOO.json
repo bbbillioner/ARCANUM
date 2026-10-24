@@ -1,6 +1,6 @@
 {
   "ticker": "VOO",
-  "fetchedAt": "2026-10-21T20:00:00Z",
+  "fetchedAt": "2026-10-22T20:00:00Z",
   "currency": "USD",
   "exchange": "PCX",
   "bars": [
@@ -433,7 +433,7 @@
       "high": 438.38,
       "low": 436.39,
       "close": 436.57,
-      "adjClose": 408.48,
+      "adjClose": 408.49,
       "volume": 5185600
     },
     {
@@ -3520,7 +3520,7 @@
       "high": 379.84,
       "low": 376.91,
       "close": 379.46,
-      "adjClose": 362.48,
+      "adjClose": 362.49,
       "volume": 3882600
     },
     {
@@ -3826,7 +3826,7 @@
       "high": 407.84,
       "low": 406.01,
       "close": 407.15,
-      "adjClose": 390.46,
+      "adjClose": 390.47,
       "volume": 4230100
     },
     {
@@ -11280,6 +11280,15 @@
       "close": 710.72,
       "adjClose": 710.72,
       "volume": 6210300
+    },
+    {
+      "date": "2026-10-22",
+      "open": 704.41,
+      "high": 705.66,
+      "low": 699.68,
+      "close": 702.3,
+      "adjClose": 702.3,
+      "volume": 6041400
     }
   ]
 }

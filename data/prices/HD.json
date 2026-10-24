@@ -1,6 +1,6 @@
 {
   "ticker": "HD",
-  "fetchedAt": "2026-10-21T20:00:00Z",
+  "fetchedAt": "2026-10-22T20:00:00Z",
   "currency": "USD",
   "exchange": "NYQ",
   "bars": [
@@ -11280,6 +11280,15 @@
       "close": 314.14,
       "adjClose": 314.14,
       "volume": 2909200
+    },
+    {
+      "date": "2026-10-22",
+      "open": 313.86,
+      "high": 327.92,
+      "low": 313.56,
+      "close": 327.73,
+      "adjClose": 327.73,
+      "volume": 5466900
     }
   ]
 }

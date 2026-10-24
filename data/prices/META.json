@@ -1,6 +1,6 @@
 {
   "ticker": "META",
-  "fetchedAt": "2026-10-21T20:00:00Z",
+  "fetchedAt": "2026-10-22T20:00:00Z",
   "currency": "USD",
   "exchange": "NMS",
   "bars": [
@@ -2134,7 +2134,7 @@
       "high": 139.62,
       "low": 136.1,
       "close": 138.61,
-      "adjClose": 137.3,
+      "adjClose": 137.29,
       "volume": 27723100
     },
     {
@@ -4393,7 +4393,7 @@
       "high": 306.77,
       "low": 299.64,
       "close": 300.94,
-      "adjClose": 298.08,
+      "adjClose": 298.09,
       "volume": 17362300
     },
     {
@@ -6346,7 +6346,7 @@
       "high": 534,
       "low": 523.13,
       "close": 526.76,
-      "adjClose": 522.84,
+      "adjClose": 522.83,
       "volume": 11444200
     },
     {
@@ -11280,6 +11280,15 @@
       "close": 697.52,
       "adjClose": 697.52,
       "volume": 29203900
+    },
+    {
+      "date": "2026-10-22",
+      "open": 676.35,
+      "high": 681.07,
+      "low": 639.69,
+      "close": 648.85,
+      "adjClose": 648.85,
+      "volume": 40571000
     }
   ]
 }
