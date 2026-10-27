@@ -1,17 +1,25 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { getSupabaseConfig } from "@/lib/supabase/config";
+
 /**
- * Middleware that refreshes the Supabase auth session on every request.
+ * Proxy that refreshes the Supabase auth session on every request.
  * Required for cookie-based auth in the App Router.
+ *
+ * Accounts are optional. Without Supabase settings there is no session to
+ * refresh, so requests pass straight through. This proxy protects no routes
+ * (Row Level Security and the route handlers enforce access), so a Supabase
+ * failure is logged and the request continues instead of failing the page.
  */
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
+  const config = getSupabaseConfig();
+  if (!config) return response;
+
+  try {
+    const supabase = createServerClient(config.url, config.anonKey, {
       cookies: {
         getAll() {
           return request.cookies.getAll();
@@ -26,11 +34,13 @@ export async function proxy(request: NextRequest) {
           );
         },
       },
-    },
-  );
+    });
 
-  // Touches the session to refresh it if needed.
-  await supabase.auth.getUser();
+    // Touches the session to refresh it if needed.
+    await supabase.auth.getUser();
+  } catch (error) {
+    console.error("ARCANUM proxy: Supabase session refresh failed", error);
+  }
 
   return response;
 }

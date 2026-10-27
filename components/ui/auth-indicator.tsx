@@ -4,15 +4,23 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
 
 type State = "loading" | "signed-out" | "signed-in";
 
+/** Nav account pill. Renders nothing when accounts are not configured. */
 export function AuthIndicator() {
+  if (!isSupabaseConfigured()) return null;
+  return <AccountPill />;
+}
+
+function AccountPill() {
   const [state, setState] = useState<State>("loading");
   const [email, setEmail] = useState<string | null>(null);
 
   useEffect(() => {
     const supabase = createSupabaseBrowserClient();
+    if (!supabase) return;
     let cancelled = false;
 
     supabase.auth.getUser().then(({ data }) => {

@@ -16,8 +16,10 @@ export async function GET(request: Request) {
       ? requestedNext
       : "/today";
 
-  if (code) {
-    const supabase = await createSupabaseServerClient();
+  // Without Supabase there is no session to exchange; fall through to the
+  // sign-in page, which explains that accounts are unavailable.
+  const supabase = code ? await createSupabaseServerClient() : null;
+  if (code && supabase) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
       return NextResponse.redirect(new URL(next, url.origin));

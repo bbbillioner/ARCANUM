@@ -27,7 +27,21 @@ const fraunces = Fraunces({
   axes: ["opsz", "SOFT"],
 });
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+// `new URL()` below runs at module load, so an unset or malformed value must
+// fall back rather than throw and take every page down.
+function resolveSiteUrl(): string {
+  const fallback = "http://localhost:3000";
+  const raw = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  if (!raw) return fallback;
+  try {
+    const { protocol } = new URL(raw);
+    return protocol === "http:" || protocol === "https:" ? raw : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+const SITE_URL = resolveSiteUrl();
 const SITE_NAME = "ARCANUM";
 const SITE_DESCRIPTION =
   "A beginner investor command center. Live prices, calm research, and a paper-trading lab — built for the first share, not the thousandth.";

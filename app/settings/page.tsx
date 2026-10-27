@@ -11,6 +11,7 @@ import {
 } from "@/lib/cloud-sync";
 import { isOnboardingAnswers } from "@/lib/portfolio";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
 import type { OnboardingAnswers } from "@/types/investing";
 
 type Status = "idle" | "loaded" | "no-onboarding";
@@ -70,6 +71,7 @@ export default function SettingsPage() {
   const [syncStatus, setSyncStatus] = useState<CloudSyncStatus | null>(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
+  const accountsEnabled = isSupabaseConfigured();
 
   useEffect(() => {
     let cancelled = false;
@@ -98,7 +100,7 @@ export default function SettingsPage() {
       setSyncStatus(getCloudSyncStatus());
 
       const supabase = createSupabaseBrowserClient();
-      supabase.auth.getUser().then(({ data }) => {
+      supabase?.auth.getUser().then(({ data }) => {
         if (!cancelled) {
           setUserEmail(data.user?.email ?? null);
         }
@@ -213,7 +215,15 @@ export default function SettingsPage() {
     }
 
     setDeletingAccount(true);
-    const response = await fetch("/api/account", { method: "DELETE" });
+    let response: Response;
+    try {
+      response = await fetch("/api/account", { method: "DELETE" });
+    } catch {
+      setFlash("Account deletion failed. Check your connection and try again.");
+      setDeletingAccount(false);
+      setConfirmingDelete(false);
+      return;
+    }
     if (!response.ok) {
       const body = (await response.json().catch(() => null)) as
         | { error?: string }
@@ -241,9 +251,9 @@ export default function SettingsPage() {
             Your <em>profile</em> on this device.
           </h1>
           <p className="lede">
-            ARCANUM works locally without an account. When you sign in, your
-            investor profile, watchlist, simulator, and journal sync across
-            your devices.
+            ARCANUM works locally without an account.
+            {accountsEnabled &&
+              " When you sign in, your investor profile, watchlist, simulator, and journal sync across your devices."}
           </p>
         </div>
       </section>
@@ -303,7 +313,9 @@ export default function SettingsPage() {
                     letterSpacing: "-0.01em",
                   }}
                 >
-                  {userEmail ?? "Not signed in"}
+                  {accountsEnabled
+                    ? (userEmail ?? "Not signed in")
+                    : "This device only"}
                 </h2>
               </div>
               {userEmail ? (
@@ -313,9 +325,11 @@ export default function SettingsPage() {
                   </button>
                 </form>
               ) : (
-                <Link className="btn btn-primary" href="/sign-in">
-                  Sign in
-                </Link>
+                accountsEnabled && (
+                  <Link className="btn btn-primary" href="/sign-in">
+                    Sign in
+                  </Link>
+                )
               )}
             </div>
             {userEmail ? (
@@ -359,8 +373,9 @@ export default function SettingsPage() {
                   marginTop: 14,
                 }}
               >
-                Right now your portfolio, journal, and onboarding answers live
-                only in this browser. Sign in to sync them across devices.
+                {accountsEnabled
+                  ? "Right now your portfolio, journal, and onboarding answers live only in this browser. Sign in to sync them across devices."
+                  : "Accounts aren't switched on yet, so your portfolio, journal, and onboarding answers live only in this browser. Export a copy if you want a backup."}
               </p>
             )}
             <div style={{ marginTop: 18 }}>

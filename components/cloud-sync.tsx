@@ -11,7 +11,10 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export function CloudSync() {
   useEffect(() => {
-    const supabase = createSupabaseBrowserClient();
+    // Without Supabase there is nothing to sync; data stays in this browser.
+    const client = createSupabaseBrowserClient();
+    if (!client) return;
+    const supabase = client;
     let cancelled = false;
     let activeUserId: string | null = null;
     let timeoutId: number | null = null;

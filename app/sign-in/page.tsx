@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, type FormEvent } from "react";
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
@@ -11,6 +12,7 @@ export default function SignInPage() {
     "idle",
   );
   const [errorText, setErrorText] = useState<string | null>(null);
+  const accountsEnabled = isSupabaseConfigured();
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -23,20 +25,32 @@ export default function SignInPage() {
       return;
     }
 
+    const supabase = createSupabaseBrowserClient();
+    if (!supabase) {
+      setStatus("error");
+      setErrorText("Accounts are not available right now.");
+      return;
+    }
+
     setStatus("sending");
     setErrorText(null);
 
-    const supabase = createSupabaseBrowserClient();
     const siteUrl =
       process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin;
-    const { error } = await supabase.auth.signInWithOtp({
-      email: cleaned,
-      options: { emailRedirectTo: `${siteUrl}/auth/callback` },
-    });
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email: cleaned,
+        options: { emailRedirectTo: `${siteUrl}/auth/callback` },
+      });
 
-    if (error) {
+      if (error) {
+        setStatus("error");
+        setErrorText(error.message);
+        return;
+      }
+    } catch {
       setStatus("error");
-      setErrorText(error.message);
+      setErrorText("We couldn't reach the sign-in service. Please try again.");
       return;
     }
     setStatus("sent");
@@ -67,10 +81,21 @@ export default function SignInPage() {
               margin: "20px 0 16px",
             }}
           >
-            Open your <em style={{ color: "var(--accent)", fontStyle: "italic" }}>
-              ARCANUM
-            </em>{" "}
-            account.
+            {accountsEnabled ? (
+              <>
+                Open your <em style={{ color: "var(--accent)", fontStyle: "italic" }}>
+                  ARCANUM
+                </em>{" "}
+                account.
+              </>
+            ) : (
+              <>
+                No account <em style={{ color: "var(--accent)", fontStyle: "italic" }}>
+                  needed
+                </em>
+                .
+              </>
+            )}
           </h1>
           <p
             style={{
@@ -81,12 +106,16 @@ export default function SignInPage() {
               maxWidth: "44ch",
             }}
           >
-            We&apos;ll email you a one-tap sign-in link. No password to set, no
-            password to forget. New here? The same link signs you up and signs
-            you in.
+            {accountsEnabled
+              ? "We'll email you a one-tap sign-in link. No password to set, no password to forget. New here? The same link signs you up and signs you in."
+              : "Accounts aren't switched on yet. Everything in ARCANUM works without one: your investor profile, simulator, journal, and watchlist are saved in this browser."}
           </p>
 
-          {status === "sent" ? (
+          {!accountsEnabled ? (
+            <Link className="btn btn-primary" href="/">
+              Continue to ARCANUM →
+            </Link>
+          ) : status === "sent" ? (
             <div
               style={{
                 borderLeft: "2px solid var(--accent)",
@@ -197,28 +226,30 @@ export default function SignInPage() {
             </form>
           )}
 
-          <p
-            style={{
-              marginTop: 36,
-              fontSize: "0.86rem",
-              color: "var(--muted)",
-              lineHeight: 1.6,
-            }}
-          >
-            Don&apos;t want an account? You can keep using ARCANUM without
-            signing in — your data stays in your browser. Sign in only when you
-            want it to sync across devices.{" "}
-            <Link
-              href="/"
+          {accountsEnabled && (
+            <p
               style={{
-                color: "var(--accent)",
-                borderBottom: "1px solid rgba(0,229,168,0.4)",
+                marginTop: 36,
+                fontSize: "0.86rem",
+                color: "var(--muted)",
+                lineHeight: 1.6,
               }}
             >
-              Skip for now
-            </Link>
-            .
-          </p>
+              Don&apos;t want an account? You can keep using ARCANUM without
+              signing in — your data stays in your browser. Sign in only when you
+              want it to sync across devices.{" "}
+              <Link
+                href="/"
+                style={{
+                  color: "var(--accent)",
+                  borderBottom: "1px solid rgba(0,229,168,0.4)",
+                }}
+              >
+                Skip for now
+              </Link>
+              .
+            </p>
+          )}
         </div>
       </section>
 

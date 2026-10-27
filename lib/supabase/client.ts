@@ -1,8 +1,11 @@
 import { createBrowserClient } from "@supabase/ssr";
 
+import { getSupabaseConfig } from "@/lib/supabase/config";
+
+/** Browser Supabase client, or null when accounts are not configured. */
 export function createSupabaseBrowserClient() {
-  return createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  );
+  const config = getSupabaseConfig();
+  if (!config) return null;
+
+  return createBrowserClient(config.url, config.anonKey);
 }

@@ -1,12 +1,18 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
+import { getSupabaseConfig } from "@/lib/supabase/config";
+
+/** Server Supabase client, or null when accounts are not configured. */
 export async function createSupabaseServerClient() {
+  const config = getSupabaseConfig();
+  if (!config) return null;
+
   const cookieStore = await cookies();
 
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    config.url,
+    config.anonKey,
     {
       cookies: {
         getAll() {
@@ -29,6 +35,7 @@ export async function createSupabaseServerClient() {
 
 export async function getCurrentUser() {
   const supabase = await createSupabaseServerClient();
+  if (!supabase) return null;
   const {
     data: { user },
   } = await supabase.auth.getUser();
