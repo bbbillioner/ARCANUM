@@ -16,6 +16,7 @@ import {
 import {
   calculateSimulatorSummary,
   getSimulator,
+  pricesFromQuotes,
 } from "@/lib/simulator";
 import { getWatchlist } from "@/lib/watchlist";
 import type {
@@ -50,18 +51,49 @@ function formatCurrency(value: number): string {
   }).format(value);
 }
 
-// US market state — naive but useful. Eastern time, weekdays 9:30–16:00.
+// US market state in New York time (handles daylight saving). Regular
+// session 9:30–16:00 ET on weekdays, closed on NYSE full-day holidays. Early
+// closes (e.g. the day after Thanksgiving) are not modelled.
 type MarketState = "pre" | "open" | "after" | "closed";
+
+const NYSE_HOLIDAYS = new Set([
+  "2026-01-01", "2026-01-19", "2026-02-16", "2026-04-03", "2026-05-25",
+  "2026-06-19", "2026-07-03", "2026-09-07", "2026-11-26", "2026-12-25",
+  "2027-01-01", "2027-01-18", "2027-02-15", "2027-03-26", "2027-05-31",
+  "2027-06-18", "2027-07-05", "2027-09-06", "2027-11-25", "2027-12-24",
+]);
+
+function newYorkParts(date: Date) {
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/New_York",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      weekday: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23",
+    })
+      .formatToParts(date)
+      .map((part) => [part.type, part.value]),
+  );
+  return {
+    isoDate: `${parts.year}-${parts.month}-${parts.day}`,
+    weekday: parts.weekday,
+    hours: Number(parts.hour) + Number(parts.minute) / 60,
+  };
+}
+
 function marketStateNow(date: Date): MarketState {
-  // Convert to ET-ish via UTC offset assumption (-4 EDT). Crude but fine for a label.
-  const utcHours = date.getUTCHours() + date.getUTCMinutes() / 60;
-  const etHours = (utcHours - 4 + 24) % 24;
-  const dow = (date.getUTCDay() + (utcHours - 4 < 0 ? 6 : 0)) % 7;
-  if (dow === 0 || dow === 6) return "closed";
-  if (etHours < 4) return "closed";
-  if (etHours < 9.5) return "pre";
-  if (etHours < 16) return "open";
-  if (etHours < 20) return "after";
+  const { isoDate, weekday, hours } = newYorkParts(date);
+  if (weekday === "Sat" || weekday === "Sun" || NYSE_HOLIDAYS.has(isoDate)) {
+    return "closed";
+  }
+  if (hours < 4) return "closed";
+  if (hours < 9.5) return "pre";
+  if (hours < 16) return "open";
+  if (hours < 20) return "after";
   return "closed";
 }
 
@@ -95,9 +127,9 @@ export default function TodayPage() {
   const [simulator, setSimulator] = useState<SimulatorState | null>(null);
   const [watchlist, setWatchlist] = useState<string[]>([]);
   const [news, setNews] = useState<NewsItem[]>([]);
-  const [newsState, setNewsState] = useState<"loading" | "ready" | "empty">(
-    "loading",
-  );
+  const [newsState, setNewsState] = useState<
+    "loading" | "ready" | "empty" | "error"
+  >("loading");
 
   useEffect(() => {
     let cancelled = false;
@@ -139,7 +171,8 @@ export default function TodayPage() {
         if (h.ticker !== "CASH") set.add(h.ticker);
       });
     }
-    return Array.from(set);
+    // Holdings first, then watchlist, then template; /api/news accepts 10.
+    return Array.from(set).slice(0, 10);
   }, [simulator, watchlist, answers]);
 
   useEffect(() => {
@@ -166,13 +199,17 @@ export default function TodayPage() {
         const response = await fetch(
           `/api/news?tickers=${encodeURIComponent(newsTickers.join(","))}`,
         );
+        if (!response.ok) {
+          if (!cancelled) setNewsState("error");
+          return;
+        }
         const json = (await response.json()) as { news?: NewsItem[] };
         if (cancelled) return;
         const top = (json.news ?? []).slice(0, 3);
         setNews(top);
         setNewsState(top.length > 0 ? "ready" : "empty");
       } catch {
-        if (!cancelled) setNewsState("empty");
+        if (!cancelled) setNewsState("error");
       }
     }
 
@@ -222,7 +259,7 @@ export default function TodayPage() {
   let todayChange = 0;
   let biggestMover: { ticker: string; pct: number } | null = null;
   if (simulator) {
-    const summary = calculateSimulatorSummary(simulator);
+    const summary = calculateSimulatorSummary(simulator, pricesFromQuotes(quotes));
     portfolioValue = summary.totalPortfolioValue;
     simulator.holdings.forEach((h) => {
       if (h.ticker === "CASH") return;
@@ -271,7 +308,7 @@ export default function TodayPage() {
   } else if (!simulator || simulator.transactions.length === 0) {
     prompt = {
       label: "First paper trade",
-      body: "Open the simulator and place one practice buy with a real thesis. The simulator uses the latest available cached price — no real money.",
+      body: "Open the simulator and place one practice buy with a real thesis. Trades settle at the latest available quote — no real money.",
       href: "/simulator",
       cta: "Open simulator",
     };
@@ -503,6 +540,22 @@ export default function TodayPage() {
               >
                 Nothing fresh on what you hold or watch right now. Quiet days
                 happen — and they&apos;re usually a good time to read a concept.
+              </p>
+            </div>
+          )}
+          {newsState === "error" && (
+            <div
+              style={{
+                background: "var(--surface)",
+                border: "1px solid var(--stroke)",
+                padding: "20px 24px",
+              }}
+            >
+              <p
+                style={{ color: "var(--muted)", fontSize: "0.94rem", lineHeight: 1.6 }}
+              >
+                Headlines couldn&apos;t be loaded right now. The news source may
+                be unavailable — try again in a few minutes.
               </p>
             </div>
           )}
