@@ -57,12 +57,15 @@ function formatVolume(value: number): string {
   return value.toString();
 }
 
+// Bar dates are calendar dates (YYYY-MM-DD). Format in UTC so a viewer west
+// of UTC doesn't see the previous day.
 function formatDate(date: string): string {
   return new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
-  }).format(new Date(date));
+    timeZone: "UTC",
+  }).format(new Date(`${date}T00:00:00Z`));
 }
 
 function buildHover(bar: PriceBar, prevClose: number): Hover {

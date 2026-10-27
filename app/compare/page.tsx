@@ -3,9 +3,13 @@ import Link from "next/link";
 import { CompareChart } from "@/components/ui/compare-chart";
 import { ComparePicker } from "@/components/ui/compare-picker";
 import {
+  formatBarDate,
   getCurrentPrice,
-  getPriceBars,
-  getTimeframeChangePercent,
+  getDailyChangePercent,
+  getLastBarDate,
+  getOldestLastBarDate,
+  getTimeframeTotalReturnPercent,
+  getTotalReturnComparison,
 } from "@/lib/prices";
 import { fetchQuotes } from "@/lib/quote";
 import { allProfiles, getAnyProfile, type AnyProfile } from "@/lib/stocks";
@@ -38,12 +42,19 @@ function CompareColumn({
   profile: AnyProfile;
   quote: Quote | undefined;
 }) {
+  const isLive = quote?.source === "live";
   const price = quote?.price ?? getCurrentPrice(profile.ticker);
-  const today = quote?.changePercent ?? 0;
-  const change1M = getTimeframeChangePercent(profile.ticker, "1M");
-  const change6M = getTimeframeChangePercent(profile.ticker, "6M");
-  const change1Y = getTimeframeChangePercent(profile.ticker, "1Y");
-  const change5Y = getTimeframeChangePercent(profile.ticker, "5Y");
+  // Daily price change. Without a live quote it is the last snapshot
+  // session's change, so it is dated instead of called "today".
+  const dayChange =
+    quote?.changePercent ?? getDailyChangePercent(profile.ticker);
+  const lastBarDate = getLastBarDate(profile.ticker);
+  const dayLabel =
+    isLive || !lastBarDate ? "today" : `on ${formatBarDate(lastBarDate)}`;
+  const change1M = getTimeframeTotalReturnPercent(profile.ticker, "1M");
+  const change6M = getTimeframeTotalReturnPercent(profile.ticker, "6M");
+  const change1Y = getTimeframeTotalReturnPercent(profile.ticker, "1Y");
+  const change5Y = getTimeframeTotalReturnPercent(profile.ticker, "5Y");
   const riskLabel = {
     low: "Low",
     moderate: "Moderate",
@@ -113,7 +124,7 @@ function CompareColumn({
             color: "var(--muted)",
           }}
         >
-          Price
+          {isLive ? "Live price" : "Last close"}
         </p>
         <p
           style={{
@@ -131,61 +142,75 @@ function CompareColumn({
           style={{
             fontFamily: "var(--font-jetbrains-mono)",
             fontSize: "0.86rem",
-            color: pctColor(today),
+            color: pctColor(dayChange),
             marginTop: 4,
           }}
         >
-          {formatPercent(today)} today
+          {formatPercent(dayChange)} {dayLabel}
         </p>
       </div>
 
-      <dl
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(2, 1fr)",
-          gap: 12,
-          margin: 0,
-        }}
-      >
-        {[
-          { label: "1M", value: change1M },
-          { label: "6M", value: change6M },
-          { label: "1Y", value: change1Y },
-          { label: "5Y", value: change5Y },
-        ].map((tf) => (
-          <div
-            key={tf.label}
-            style={{
-              border: "1px solid var(--stroke)",
-              padding: "10px 12px",
-            }}
-          >
-            <dt
+      <div>
+        <p
+          style={{
+            fontFamily: "var(--font-jetbrains-mono)",
+            fontSize: "0.6rem",
+            letterSpacing: "0.18em",
+            textTransform: "uppercase",
+            color: "var(--muted)",
+            marginBottom: 8,
+          }}
+        >
+          Total return · dividends reinvested
+        </p>
+        <dl
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(2, 1fr)",
+            gap: 12,
+            margin: 0,
+          }}
+        >
+          {[
+            { label: "1M", value: change1M },
+            { label: "6M", value: change6M },
+            { label: "1Y", value: change1Y },
+            { label: "5Y", value: change5Y },
+          ].map((tf) => (
+            <div
+              key={tf.label}
               style={{
-                fontFamily: "var(--font-jetbrains-mono)",
-                fontSize: "0.6rem",
-                letterSpacing: "0.18em",
-                textTransform: "uppercase",
-                color: "var(--muted)",
+                border: "1px solid var(--stroke)",
+                padding: "10px 12px",
               }}
             >
-              {tf.label}
-            </dt>
-            <dd
-              style={{
-                fontFamily: "var(--font-jetbrains-mono)",
-                fontWeight: 600,
-                fontSize: "0.95rem",
-                color: pctColor(tf.value),
-                marginTop: 4,
-                margin: 0,
-              }}
-            >
-              {formatPercent(tf.value)}
-            </dd>
-          </div>
-        ))}
-      </dl>
+              <dt
+                style={{
+                  fontFamily: "var(--font-jetbrains-mono)",
+                  fontSize: "0.6rem",
+                  letterSpacing: "0.18em",
+                  textTransform: "uppercase",
+                  color: "var(--muted)",
+                }}
+              >
+                {tf.label}
+              </dt>
+              <dd
+                style={{
+                  fontFamily: "var(--font-jetbrains-mono)",
+                  fontWeight: 600,
+                  fontSize: "0.95rem",
+                  color: pctColor(tf.value),
+                  marginTop: 4,
+                  margin: 0,
+                }}
+              >
+                {formatPercent(tf.value)}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </div>
 
       <div
         style={{
@@ -262,8 +287,9 @@ export default async function ComparePage({ searchParams }: CompareSearchParams)
     allProfiles[1];
 
   const quotes = await fetchQuotes([a.ticker, b.ticker]);
-  const aBars = getPriceBars(a.ticker);
-  const bBars = getPriceBars(b.ticker);
+  // Weekly total-return indexes only: the overlay doesn't need full daily OHLC.
+  const overlay = getTotalReturnComparison(a.ticker, b.ticker);
+  const historyThrough = getOldestLastBarDate([a.ticker, b.ticker]);
 
   return (
     <main>
@@ -278,8 +304,9 @@ export default async function ComparePage({ searchParams }: CompareSearchParams)
           </h1>
           <p className="lede">
             Beginners learn ETFs and stocks by comparing them. Pick any two
-            from the dropdowns — the normalised chart shows percent growth
-            from the same starting point, so dollar prices don&apos;t mislead.
+            from the dropdowns — the normalised chart shows total-return
+            growth (dividends reinvested) from the same starting point, so
+            dollar prices don&apos;t mislead.
           </p>
           <div style={{ marginTop: 26, maxWidth: 720 }}>
             <ComparePicker initialA={a.ticker} initialB={b.ticker} />
@@ -301,6 +328,20 @@ export default async function ComparePage({ searchParams }: CompareSearchParams)
             <CompareColumn profile={a} quote={quotes[a.ticker]} />
             <CompareColumn profile={b} quote={quotes[b.ticker]} />
           </div>
+          <p
+            style={{
+              fontSize: "0.82rem",
+              color: "var(--muted)",
+              lineHeight: 1.6,
+              marginTop: 14,
+            }}
+          >
+            Total return includes reinvested dividends
+            {historyThrough
+              ? `, measured from daily closes through ${formatBarDate(historyThrough)}`
+              : ""}
+            . Past performance doesn&apos;t predict future results.
+          </p>
         </div>
       </section>
 
@@ -310,15 +351,16 @@ export default async function ComparePage({ searchParams }: CompareSearchParams)
           <div className="sec-head">
             <span className="eyebrow">
               <span className="gem" />
-              Five-year normalised
+              Five-year total return
             </span>
             <h2>
               Same start, <em>true comparison.</em>
             </h2>
             <p>
               Both lines start at <span style={{ color: "var(--accent)" }}>100</span>{" "}
-              on the leftmost date. From there, each line shows the percent
-              growth of $100 invested at that moment. Higher = grown more.
+              on the leftmost date. From there, each line shows what $100
+              invested at that moment grew to, with dividends reinvested.
+              Higher = grown more. Plotted from weekly closes.
             </p>
           </div>
 
@@ -371,9 +413,9 @@ export default async function ComparePage({ searchParams }: CompareSearchParams)
               </span>
             </div>
             <CompareChart
-              aBars={aBars}
+              aPoints={overlay.a}
               aTicker={a.ticker}
-              bBars={bBars}
+              bPoints={overlay.b}
               bTicker={b.ticker}
             />
           </div>
@@ -403,7 +445,7 @@ export default async function ComparePage({ searchParams }: CompareSearchParams)
               {
                 label: "What it shows",
                 body:
-                  "Relative percent growth over the same window. A line ending at 180 means $100 invested at the start would be $180 now.",
+                  "Relative total-return growth over the same window. A line ending at 180 means $100 invested at the start, with dividends reinvested, would have been worth $180 at the latest close.",
               },
               {
                 label: "What it hides",
@@ -413,7 +455,7 @@ export default async function ComparePage({ searchParams }: CompareSearchParams)
               {
                 label: "What it ignores",
                 body:
-                  "Dividends, fees, and taxes. These charts use unadjusted close prices, so a dividend-heavy ETF actually returned more than this overlay suggests.",
+                  "Taxes and trading costs. The lines assume every dividend was reinvested right away and never taxed, so a real account usually ends up a little lower. Past performance doesn't predict future results.",
               },
             ].map((item) => (
               <div key={item.label} className="card-line">

@@ -1,31 +1,45 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
+import { useOptimistic, useTransition } from "react";
 
 import { allProfiles } from "@/lib/stocks";
 
 type ComparePickerProps = {
+  /** The pair the server actually rendered (after fallbacks). */
   initialA: string;
   initialB: string;
 };
 
+type Selection = { a: string; b: string };
+
 export function ComparePicker({ initialA, initialB }: ComparePickerProps) {
   const router = useRouter();
   const params = useSearchParams();
+  const [, startTransition] = useTransition();
+  // Controlled selects: show the new pick immediately, then settle on the
+  // server-resolved pair when the navigation finishes (e.g. after Swap).
+  const [selection, setSelection] = useOptimistic<Selection>({
+    a: initialA,
+    b: initialB,
+  });
+
+  function navigate(next: Selection) {
+    const query = new URLSearchParams(params.toString());
+    query.set("a", next.a);
+    query.set("b", next.b);
+    startTransition(() => {
+      setSelection(next);
+      router.push(`/compare?${query.toString()}`);
+    });
+  }
 
   function update(side: "a" | "b", value: string) {
-    const next = new URLSearchParams(params.toString());
-    next.set(side, value);
-    router.push(`/compare?${next.toString()}`);
+    navigate({ ...selection, [side]: value });
   }
 
   function swap() {
-    const a = params.get("a") ?? initialA;
-    const b = params.get("b") ?? initialB;
-    const next = new URLSearchParams();
-    next.set("a", b);
-    next.set("b", a);
-    router.push(`/compare?${next.toString()}`);
+    navigate({ a: selection.b, b: selection.a });
   }
 
   return (
@@ -41,7 +55,7 @@ export function ComparePicker({ initialA, initialB }: ComparePickerProps) {
       <select
         aria-label="First ticker"
         className="cmp-select"
-        defaultValue={initialA}
+        value={selection.a}
         onChange={(e) => update("a", e.target.value)}
       >
         {allProfiles.map((p) => (
@@ -63,7 +77,7 @@ export function ComparePicker({ initialA, initialB }: ComparePickerProps) {
       <select
         aria-label="Second ticker"
         className="cmp-select"
-        defaultValue={initialB}
+        value={selection.b}
         onChange={(e) => update("b", e.target.value)}
       >
         {allProfiles.map((p) => (

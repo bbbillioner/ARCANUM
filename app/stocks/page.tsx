@@ -4,12 +4,14 @@ import Link from "next/link";
 import { ChartPanel } from "@/components/ui/chart-panel";
 import { RecommendedForYou } from "@/components/ui/recommended-for-you";
 import {
-  formatFetchedAt,
+  formatBarDate,
   getCurrentPrice,
-  getFetchedAt,
+  getLastBarDate,
+  getOldestLastBarDate,
   getPriceBars,
-  getTimeframeChangePercent,
+  getTimeframeTotalReturnPercent,
   sliceByTimeframe,
+  toSparkline,
 } from "@/lib/prices";
 import { fetchQuotes } from "@/lib/quote";
 import { allProfiles, type AnyProfile } from "@/lib/stocks";
@@ -20,6 +22,10 @@ export const metadata: Metadata = {
   description:
     "Browse the stocks and ETFs ARCANUM tracks. Live prices, five-year history, and beginner-friendly research on every ticker.",
 };
+
+// Points per card sparkline. A 1-year line in a ~110px-tall card reads the
+// same at this density, and it keeps 30 cards' data out of the page payload.
+const SPARKLINE_POINTS = 64;
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat("en-US", {
@@ -37,12 +43,21 @@ function StockRow({
 }) {
   const livePrice = quote?.price ?? getCurrentPrice(profile.ticker);
   const intradayChange = quote?.changePercent ?? 0;
-  const change1Y = getTimeframeChangePercent(profile.ticker, "1Y");
-  const change6M = getTimeframeChangePercent(profile.ticker, "6M");
-  const change1M = getTimeframeChangePercent(profile.ticker, "1M");
-  const panelBars = sliceByTimeframe(getPriceBars(profile.ticker), "1Y");
-  const positive = change1Y >= 0;
+  const change1Y = getTimeframeTotalReturnPercent(profile.ticker, "1Y");
+  const change6M = getTimeframeTotalReturnPercent(profile.ticker, "6M");
+  const change1M = getTimeframeTotalReturnPercent(profile.ticker, "1M");
+  // The sparkline plots price, so its colour follows the price direction.
+  const sparkline = toSparkline(
+    sliceByTimeframe(getPriceBars(profile.ticker), "1Y"),
+    SPARKLINE_POINTS,
+  );
+  const positive =
+    sparkline.length < 2 ||
+    sparkline[sparkline.length - 1].close >= sparkline[0].close;
   const isLive = quote?.source === "live";
+  const lastBarDate = getLastBarDate(profile.ticker);
+  const dayLabel =
+    isLive || !lastBarDate ? "today" : `on ${formatBarDate(lastBarDate)}`;
 
   return (
     <Link className="stock-row" href={`/stocks/${profile.ticker}`}>
@@ -59,7 +74,7 @@ function StockRow({
               className={`sr-today ${intradayChange >= 0 ? "up" : "down"}`}
             >
               {isLive ? "●" : "○"} {intradayChange >= 0 ? "+" : ""}
-              {intradayChange.toFixed(2)}% today
+              {intradayChange.toFixed(2)}% {dayLabel}
             </span>
           )}
         </div>
@@ -68,23 +83,26 @@ function StockRow({
       <div className="sr-sector">{profile.sector}</div>
 
       <div className="sr-chart">
-        <ChartPanel bars={panelBars} height={110} positive={positive} />
+        <ChartPanel bars={sparkline} height={110} positive={positive} />
       </div>
 
-      <div className="sr-changes">
-        {[
-          { label: "1M", value: change1M },
-          { label: "6M", value: change6M },
-          { label: "1Y", value: change1Y },
-        ].map((tf) => (
-          <div className="sr-tf" key={tf.label}>
-            <p className="sr-tf-label">{tf.label}</p>
-            <p className={`sr-tf-value ${tf.value >= 0 ? "up" : "down"}`}>
-              {tf.value >= 0 ? "+" : ""}
-              {tf.value.toFixed(2)}%
-            </p>
-          </div>
-        ))}
+      <div>
+        <p className="sr-tf-note">Total return</p>
+        <div className="sr-changes">
+          {[
+            { label: "1M", value: change1M },
+            { label: "6M", value: change6M },
+            { label: "1Y", value: change1Y },
+          ].map((tf) => (
+            <div className="sr-tf" key={tf.label}>
+              <p className="sr-tf-label">{tf.label}</p>
+              <p className={`sr-tf-value ${tf.value >= 0 ? "up" : "down"}`}>
+                {tf.value >= 0 ? "+" : ""}
+                {tf.value.toFixed(2)}%
+              </p>
+            </div>
+          ))}
+        </div>
       </div>
 
       <p className="sr-summary">{profile.beginnerSummary}</p>
@@ -92,8 +110,12 @@ function StockRow({
       <p className="sr-cta">
         Open research <span className="arrow">→</span>
       </p>
+    </Link>
+  );
+}
 
-      <style>{`
+// Rendered once per page (not once per card) to keep the HTML small.
+const stockRowStyles = `
         .stock-row {
           display: flex;
           flex-direction: column;
@@ -166,6 +188,14 @@ function StockRow({
           text-transform: uppercase;
           color: var(--muted);
         }
+        .sr-tf-note {
+          font-family: var(--font-jetbrains-mono);
+          font-size: 0.6rem;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+          color: var(--muted);
+          margin-bottom: 8px;
+        }
         .sr-changes {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
@@ -218,16 +248,19 @@ function StockRow({
           display: inline-block;
           transition: transform 0.25s ease;
         }
-      `}</style>
-    </Link>
-  );
-}
+      `;
 
 export default async function StocksPage() {
   const etfs = allProfiles.filter((p) => p.assetType === "ETF");
   const stocks = allProfiles.filter((p) => p.assetType === "Stock");
-  const firstTicker = allProfiles[0]?.ticker;
-  const fetchedAt = firstTicker ? getFetchedAt(firstTicker) : null;
+  // The simulator trades only the deep-profile set (data/stocks.ts), the same
+  // list app/simulator/page.tsx offers.
+  const simulatorTickers = allProfiles
+    .filter((p) => p.deep)
+    .map((p) => p.ticker);
+  const historyThrough = getOldestLastBarDate(
+    allProfiles.map((p) => p.ticker),
+  );
 
   const quotes = await fetchQuotes(allProfiles.map((p) => p.ticker));
   const liveCount = Object.values(quotes).filter(
@@ -265,7 +298,9 @@ export default async function StocksPage() {
             <span style={{ color: "var(--accent)" }}>
               ● {liveCount} / {allProfiles.length} live
             </span>
-            {fetchedAt && <span>· History as of {formatFetchedAt(fetchedAt)}</span>}
+            {historyThrough && (
+              <span>· History as of {formatBarDate(historyThrough)}</span>
+            )}
             <Link
               href="/compare"
               style={{
@@ -277,6 +312,17 @@ export default async function StocksPage() {
               Compare two →
             </Link>
           </div>
+          <p
+            style={{
+              fontSize: "0.82rem",
+              color: "var(--muted)",
+              lineHeight: 1.6,
+              marginTop: 12,
+            }}
+          >
+            Card returns are total returns: they include reinvested dividends.
+            Past performance doesn&apos;t predict future results.
+          </p>
         </div>
       </section>
 
@@ -356,18 +402,21 @@ export default async function StocksPage() {
             Next move
           </span>
           <h2>
-            Practice these in a <em>portfolio.</em>
+            Practice in a <em>portfolio.</em>
           </h2>
           <p>
-            The simulator lets you allocate fake cash across any of these assets
-            and watch cost basis, market value, and gain or loss update against
-            cached market prices.
+            The simulator lets you allocate fake cash across the{" "}
+            {simulatorTickers.length} core assets ARCANUM researches in depth (
+            {simulatorTickers.join(", ")}) and watch cost basis, market value,
+            and gain or loss update as prices move.
           </p>
           <Link className="btn btn-primary" href="/simulator">
             Open simulator <span className="arrow">→</span>
           </Link>
         </div>
       </section>
+
+      <style>{stockRowStyles}</style>
     </main>
   );
 }

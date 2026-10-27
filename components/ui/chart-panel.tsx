@@ -11,10 +11,11 @@ import {
 } from "lightweight-charts";
 import { useEffect, useRef } from "react";
 
-import type { PriceBar } from "@/types/prices";
+import type { ClosePoint } from "@/types/prices";
 
 type ChartPanelProps = {
-  bars: PriceBar[];
+  /** Price closes to plot. Full PriceBars work too; only date and close are read. */
+  bars: ClosePoint[];
   positive?: boolean;
   height?: number;
 };

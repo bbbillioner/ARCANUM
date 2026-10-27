@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 
 import { ChartFull } from "@/components/ui/chart-full";
 import { NewsCard } from "@/components/ui/news-card";
 import { WatchButton } from "@/components/ui/watch-button";
 import { fetchTickerNews } from "@/lib/news";
 import {
-  formatFetchedAt,
+  formatBarDate,
   getCurrentPrice,
-  getFetchedAt,
+  getLastBarDate,
   getPriceBars,
-  getTimeframeChangePercent,
+  getTimeframeTotalReturnPercent,
 } from "@/lib/prices";
 import { fetchQuote } from "@/lib/quote";
 import { allProfiles, getAnyProfile } from "@/lib/stocks";
@@ -24,6 +25,17 @@ function formatCurrency(value: number) {
     style: "currency",
     currency: "USD",
   }).format(value);
+}
+
+function formatQuoteTime(epochMs: number) {
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    timeZone: "America/New_York",
+    timeZoneName: "short",
+  }).format(new Date(epochMs));
 }
 
 export function generateStaticParams() {
@@ -52,44 +64,30 @@ export default async function StockResearchPage({ params }: StockPageProps) {
   const { ticker } = await params;
   const normalizedTicker = ticker.toUpperCase();
   const profile = getAnyProfile(normalizedTicker);
-  const deep = profile?.deep ?? null;
 
-  if (!profile) {
-    return (
-      <main>
-        <section className="page-hero">
-          <div className="wrap" style={{ maxWidth: 640 }}>
-            <span className="eyebrow">
-              <span className="gem" />
-              Not found
-            </span>
-            <h1>
-              No research <em>profile.</em>
-            </h1>
-            <p className="lede">
-              ARCANUM does not have a static profile for {normalizedTicker} yet.
-            </p>
-            <div style={{ marginTop: 28 }}>
-              <Link className="btn btn-primary" href="/stocks">
-                Back to all stocks <span className="arrow">→</span>
-              </Link>
-            </div>
-          </div>
-        </section>
-      </main>
-    );
-  }
+  // Unknown ticker: a real 404 (app/not-found.tsx), thrown before anything
+  // streams so the status code is 404, not 200.
+  if (!profile) notFound();
 
+  const deep = profile.deep;
   const [news, quote] = await Promise.all([
     fetchTickerNews(normalizedTicker, 6),
     fetchQuote(normalizedTicker),
   ]);
   const livePrice = quote?.price ?? getCurrentPrice(profile.ticker);
   const intradayChange = quote?.changePercent ?? 0;
-  const change1Y = getTimeframeChangePercent(profile.ticker, "1Y");
-  const fetchedAt = getFetchedAt(profile.ticker);
+  const change1Y = getTimeframeTotalReturnPercent(profile.ticker, "1Y");
+  const lastBarDate = getLastBarDate(profile.ticker);
   const positive = change1Y >= 0;
   const isLive = quote?.source === "live";
+  // Without a live quote the change is the last snapshot session's, so date it.
+  const dayLabel =
+    isLive || !lastBarDate ? "today" : `on ${formatBarDate(lastBarDate)}`;
+  const quoteCaption = isLive
+    ? `Live quote via Yahoo Finance, as of ${formatQuoteTime(quote.updatedAt)} (delayed up to 5 min)`
+    : lastBarDate
+      ? `Latest daily close, ${formatBarDate(lastBarDate)} (live quote unavailable)`
+      : "Live quote unavailable";
 
   return (
     <main>
@@ -179,7 +177,7 @@ export default async function StockResearchPage({ params }: StockPageProps) {
                 >
                   {intradayChange >= 0 ? "+" : ""}
                   {intradayChange.toFixed(2)}%{" "}
-                  <span style={{ color: "var(--muted)" }}>today</span>
+                  <span style={{ color: "var(--muted)" }}>{dayLabel}</span>
                 </p>
               )}
               <p
@@ -193,7 +191,7 @@ export default async function StockResearchPage({ params }: StockPageProps) {
               >
                 {positive ? "+" : ""}
                 {change1Y.toFixed(2)}%{" "}
-                <span style={{ color: "var(--muted)" }}>1Y</span>
+                <span style={{ color: "var(--muted)" }}>1Y total return</span>
               </p>
             </div>
           </div>
@@ -215,8 +213,21 @@ export default async function StockResearchPage({ params }: StockPageProps) {
               textAlign: "right",
             }}
           >
-            {isLive ? "Live quote" : "Quote"} via Yahoo Finance ·{" "}
-            {fetchedAt ? `History as of ${formatFetchedAt(fetchedAt)}` : ""}
+            {quoteCaption}
+            {lastBarDate ? ` · History as of ${formatBarDate(lastBarDate)}` : ""}
+          </p>
+          <p
+            style={{
+              fontSize: "0.78rem",
+              color: "var(--muted)",
+              lineHeight: 1.6,
+              marginTop: 6,
+              textAlign: "right",
+            }}
+          >
+            The chart shows price. The 1Y figure above is total return, which
+            includes reinvested dividends. Past performance doesn&apos;t predict
+            future results.
           </p>
         </div>
       </section>

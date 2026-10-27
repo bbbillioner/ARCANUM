@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { useQuotes } from "@/components/hooks/use-quotes";
 import { ARCANUM_CLOUD_DATA_LOADED_EVENT } from "@/lib/cloud-sync";
 import { derivePersonalization } from "@/lib/personalization";
-import { getCurrentPrice } from "@/lib/prices";
+import { formatBarDate, getCurrentPrice, getLastBarDate } from "@/lib/prices";
 import { loadOnboardingAnswers } from "@/lib/portfolio";
 import { allProfiles } from "@/lib/stocks";
 
@@ -135,8 +135,8 @@ export function RecommendedForYou() {
           <span style={{ color: "var(--accent)" }}>
             {interests.join(", ")}
           </span>
-          . Here are the tickers in our universe that match, with cached market
-          prices in your preferred order.
+          . Here are the tickers in our universe that match, with the latest
+          available prices, in your preferred order.
         </p>
       </div>
 
@@ -171,6 +171,16 @@ export function RecommendedForYou() {
             const price = quote?.price ?? getCurrentPrice(ticker);
             const change = quote?.changePercent ?? 0;
             const positive = change >= 0;
+            const lastBarDate = getLastBarDate(ticker);
+            const closeDate = lastBarDate ? formatBarDate(lastBarDate) : null;
+            // Only a live quote's change is "today". A snapshot fallback is
+            // dated, and with no quote yet there is no change to show.
+            const changeLabel =
+              quote?.source === "live"
+                ? "today"
+                : closeDate
+                  ? `on ${closeDate}`
+                  : "last close";
             return (
               <Link
                 className="reco-card"
@@ -230,17 +240,30 @@ export function RecommendedForYou() {
                   >
                     {formatCurrency(price)}
                   </p>
-                  <p
-                    style={{
-                      fontFamily: "var(--font-jetbrains-mono)",
-                      fontSize: "0.72rem",
-                      color: positive ? "var(--accent)" : "#ff6878",
-                      marginTop: 2,
-                    }}
-                  >
-                    {positive ? "+" : ""}
-                    {change.toFixed(2)}% today
-                  </p>
+                  {quote ? (
+                    <p
+                      style={{
+                        fontFamily: "var(--font-jetbrains-mono)",
+                        fontSize: "0.72rem",
+                        color: positive ? "var(--accent)" : "#ff6878",
+                        marginTop: 2,
+                      }}
+                    >
+                      {positive ? "+" : ""}
+                      {change.toFixed(2)}% {changeLabel}
+                    </p>
+                  ) : (
+                    <p
+                      style={{
+                        fontFamily: "var(--font-jetbrains-mono)",
+                        fontSize: "0.72rem",
+                        color: "var(--muted)",
+                        marginTop: 2,
+                      }}
+                    >
+                      {closeDate ? `Last close, ${closeDate}` : "Last close"}
+                    </p>
+                  )}
                 </div>
               </Link>
             );

@@ -11,13 +11,14 @@ import {
 } from "lightweight-charts";
 import { useEffect, useRef } from "react";
 
-import type { PriceBar } from "@/types/prices";
+import type { IndexPoint } from "@/types/prices";
 
 type CompareChartProps = {
   aTicker: string;
-  aBars: PriceBar[];
+  /** Growth-of-100 index (total return), already normalised on the server. */
+  aPoints: IndexPoint[];
   bTicker: string;
-  bBars: PriceBar[];
+  bPoints: IndexPoint[];
   height?: number;
 };
 
@@ -25,22 +26,15 @@ function toUtcTimestamp(date: string): UTCTimestamp {
   return (Date.parse(date) / 1000) as UTCTimestamp;
 }
 
-// Normalise a bar series to start at 100. Returns aligned points for chart.
-function normaliseToIndex(bars: PriceBar[]): Array<{ time: UTCTimestamp; value: number }> {
-  if (bars.length === 0) return [];
-  const base = bars[0].close;
-  if (base <= 0) return [];
-  return bars.map((b) => ({
-    time: toUtcTimestamp(b.date),
-    value: (b.close / base) * 100,
-  }));
+function toSeriesData(points: IndexPoint[]) {
+  return points.map((p) => ({ time: toUtcTimestamp(p.date), value: p.value }));
 }
 
 export function CompareChart({
   aTicker,
-  aBars,
+  aPoints,
   bTicker,
-  bBars,
+  bPoints,
   height = 360,
 }: CompareChartProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -97,7 +91,7 @@ export function CompareChart({
       lastValueVisible: true,
       title: aTicker,
     });
-    aSeries.setData(normaliseToIndex(aBars));
+    aSeries.setData(toSeriesData(aPoints));
     aRef.current = aSeries;
 
     const bSeries = chart.addSeries(LineSeries, {
@@ -107,7 +101,7 @@ export function CompareChart({
       lastValueVisible: true,
       title: bTicker,
     });
-    bSeries.setData(normaliseToIndex(bBars));
+    bSeries.setData(toSeriesData(bPoints));
     bRef.current = bSeries;
 
     chart.timeScale().fitContent();
@@ -118,7 +112,7 @@ export function CompareChart({
       aRef.current = null;
       bRef.current = null;
     };
-  }, [aTicker, aBars, bTicker, bBars]);
+  }, [aTicker, aPoints, bTicker, bPoints]);
 
   return (
     <div
