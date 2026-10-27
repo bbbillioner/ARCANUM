@@ -83,7 +83,7 @@ export const liteStockProfiles: LiteStockProfile[] = [
     sector: "E-commerce & cloud",
     beginnerRiskLevel: "moderate",
     beginnerSummary:
-      "Online retail at massive scale plus AWS, the largest cloud-computing platform. Two very different businesses under one ticker.",
+      "Online retail at massive scale plus AWS, one of the largest cloud-computing platforms. Two very different businesses under one ticker.",
   },
   {
     ticker: "META",
@@ -112,7 +112,7 @@ export const liteStockProfiles: LiteStockProfile[] = [
     sector: "Mass-market retail",
     beginnerRiskLevel: "low",
     beginnerSummary:
-      "The largest retailer in the world. Defensive business that tends to hold up in weaker economies.",
+      "One of the largest retailers in the world. Defensive business that tends to hold up in weaker economies.",
   },
   {
     ticker: "HD",
@@ -159,7 +159,7 @@ export const liteStockProfiles: LiteStockProfile[] = [
     sector: "Money-center banks",
     beginnerRiskLevel: "moderate",
     beginnerSummary:
-      "The largest U.S. bank. Often used as a bellwether for the broader financial sector.",
+      "One of the largest U.S. banks. Often used as a bellwether for the broader financial sector.",
   },
   {
     ticker: "V",
@@ -197,7 +197,7 @@ export const liteStockProfiles: LiteStockProfile[] = [
     sector: "Health insurance & services",
     beginnerRiskLevel: "moderate",
     beginnerSummary:
-      "Largest U.S. health insurer plus a growing services business (Optum). Sensitive to regulation and medical-cost trends.",
+      "One of the largest U.S. health insurers, plus a growing services business (Optum). Sensitive to regulation and medical-cost trends.",
   },
   {
     ticker: "LLY",
@@ -206,7 +206,7 @@ export const liteStockProfiles: LiteStockProfile[] = [
     sector: "Pharmaceuticals",
     beginnerRiskLevel: "elevated",
     beginnerSummary:
-      "Drug maker with leading GLP-1 weight-loss franchise. High growth, high expectations baked into the price.",
+      "Drug maker with a major GLP-1 weight-loss franchise. High growth, high expectations baked into the price.",
   },
 
   // Other
@@ -217,7 +217,7 @@ export const liteStockProfiles: LiteStockProfile[] = [
     sector: "Diversified conglomerate",
     beginnerRiskLevel: "low",
     beginnerSummary:
-      "Warren Buffett's holding company — insurance, energy, railroads, plus a giant stock portfolio (Apple, Coke, etc.).",
+      "The conglomerate Warren Buffett built — insurance, energy, railroads, plus a large portfolio of public stocks.",
   },
   {
     ticker: "BA",
@@ -235,7 +235,7 @@ export const liteStockProfiles: LiteStockProfile[] = [
     sector: "Integrated energy",
     beginnerRiskLevel: "moderate",
     beginnerSummary:
-      "Largest U.S. integrated oil major. Earnings rise and fall with oil and gas prices; pays a meaningful dividend.",
+      "One of the largest U.S. integrated oil companies. Earnings rise and fall with oil and gas prices; pays a meaningful dividend.",
   },
   {
     ticker: "NKE",

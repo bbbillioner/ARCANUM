@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { learningCards } from "@/data/learning-cards";
 import { stockProfiles } from "@/data/stocks";
 import {
   getCurrentPrice,
@@ -26,13 +27,13 @@ const methodCards = [
     number: "01",
     label: "Decode",
     title: "Read the market in plain English",
-    body: "Hover any ticker, term, or candle and ARCANUM explains it like a patient friend — no acronyms left unexplained, no chart left mysterious.",
+    body: "Every research page explains what a company or fund does, what could go wrong, and what its chart shows — in plain English, with a concept library for the jargon.",
   },
   {
     number: "02",
     label: "Guide",
-    title: "Guardrails for the first decade",
-    body: "Gentle prompts flag concentration, panic-selling, and fee traps before you commit — the seatbelt you'll outgrow but want on day one.",
+    title: "Think before you click buy",
+    body: "Every practice buy asks why you're buying and what could go wrong. Thirty days later, the journal asks how it played out — the habit that outlasts any tip.",
   },
   {
     number: "03",
@@ -84,15 +85,15 @@ export default async function Home() {
   );
   const sparkPath = buildSparkPath(sparklineBars);
 
-  // Illustrative total balance: $10K equally split across tickers
-  const totalBalance = 10000 * (
-    portfolioRows.reduce((sum, r) => sum + (1 + r.change / 100), 0) /
-      Math.max(portfolioRows.length, 1)
-  );
+  // Illustrative balance: $10K split equally across the tickers at the
+  // previous close, moved by today's changes.
+  const startingBalance = 10000;
   const portfolioChange =
     portfolioRows.reduce((sum, r) => sum + r.change, 0) /
     Math.max(portfolioRows.length, 1);
-  const todayDelta = (totalBalance * portfolioChange) / 100;
+  const todayDelta = (startingBalance * portfolioChange) / 100;
+  const totalBalance = startingBalance + todayDelta;
+  const allLive = heroTickers.every((t) => quotes[t]?.source === "live");
 
   return (
     <main>
@@ -128,7 +129,7 @@ export default async function Home() {
                 <span className="dot">·</span>
                 <span>Paper-trade first</span>
                 <span className="dot">·</span>
-                <span>220+ in the first cohort</span>
+                <span>No sign-up needed</span>
               </div>
             </div>
 
@@ -136,10 +137,16 @@ export default async function Home() {
             <div className="terminal reveal d4">
               <div className="term-bar">
                 <span className="label">Portfolio · Sample</span>
-                <span className="live">
-                  <span className="pulse" />
-                  LIVE QUOTES
-                </span>
+                {allLive ? (
+                  <span className="live">
+                    <span className="pulse" />
+                    LIVE QUOTES
+                  </span>
+                ) : (
+                  <span className="live" style={{ color: "var(--muted)" }}>
+                    LAST CLOSE
+                  </span>
+                )}
               </div>
               <div className="term-body">
                 <div className="pf-label">Illustrative balance</div>
@@ -179,6 +186,9 @@ export default async function Home() {
                     )}
                   </svg>
                 </div>
+                <div className="pf-label" style={{ marginTop: 6 }}>
+                  VOO · past month
+                </div>
 
                 <div className="holdings">
                   {portfolioRows.map((row) => (
@@ -187,6 +197,7 @@ export default async function Home() {
                       <span className="hname">{row.name}</span>
                       <span
                         className={`hchg ${row.change >= 0 ? "up" : "flat"}`}
+                        style={row.change < 0 ? { color: "#ff6878" } : undefined}
                       >
                         {formatChangePercent(row.change)}
                       </span>
@@ -208,8 +219,8 @@ export default async function Home() {
               <div className="cap">Questions to your starter portfolio</div>
             </div>
             <div className="stat">
-              <div className="num">32</div>
-              <div className="cap">Concepts explained inline</div>
+              <div className="num">{learningCards.length}</div>
+              <div className="cap">Core concepts in plain English</div>
             </div>
             <div className="stat">
               <div className="num">$0</div>
@@ -263,8 +274,8 @@ export default async function Home() {
               A desk that fits in one <em>glance.</em>
             </h2>
             <p>
-              Watch, learn, and practice without ever switching context. This is
-              the whole product — not a teaser.
+              Watch, learn, and practice without switching context. A preview
+              of the three things you&apos;ll do most.
             </p>
           </div>
           <div className="showcase">
@@ -291,18 +302,15 @@ export default async function Home() {
                 Today&apos;s lesson
               </div>
               <div className="lesson">
-                <span className="tag">Fundamentals · 3 min</span>
+                <span className="tag">Learn · Fundamentals</span>
                 <h4>What an ETF actually is</h4>
                 <p>
                   One ticker, hundreds of companies. Why your first buy is
                   probably a fund — not a single stock.
                 </p>
-                <div className="progress">
-                  <span />
-                </div>
               </div>
               <div className="lesson">
-                <span className="tag">Up next · 4 min</span>
+                <span className="tag">Learn · Risk</span>
                 <h4>Concentration risk in plain words</h4>
                 <p>
                   When too much of your portfolio leans on one story. How to
@@ -334,8 +342,8 @@ export default async function Home() {
               <div className="field">
                 <div className="fl">Settles at</div>
                 <div className="fv">
-                  <span className="big">Live close</span>
-                  <span style={{ color: "var(--muted)" }}>Yahoo Finance</span>
+                  <span className="big">Latest quote</span>
+                  <span style={{ color: "var(--muted)" }}>live or last close</span>
                 </div>
               </div>
               <Link className="btn btn-primary submit" href="/simulator">
@@ -373,14 +381,13 @@ export default async function Home() {
             <p>
               No card. No paywall. The full terminal, lessons, news, and
               practice ledger are free while ARCANUM is in early access.
-              Whatever comes after will reward the early cohort.
             </p>
           </div>
           <div className="price-grid">
             <div className="plan featured">
               <div className="pname">Early access</div>
               <div className="pp free">
-                $0<span> / forever for the first cohort</span>
+                $0<span> · during early access</span>
               </div>
               <ul>
                 <li>
@@ -391,11 +398,12 @@ export default async function Home() {
                   hold
                 </li>
                 <li>
-                  <span className="ck">+</span>32 concepts tooltipped inline
+                  <span className="ck">+</span>Plain-English research &amp; concept
+                  library
                 </li>
                 <li>
-                  <span className="ck">+</span>Unlimited paper trading at live
-                  prices
+                  <span className="ck">+</span>Unlimited paper trading with a
+                  thesis journal
                 </li>
                 <li>
                   <span className="ck">+</span>5-year price history on every
@@ -416,11 +424,11 @@ export default async function Home() {
                   <span className="ck">·</span>Real brokerage connection
                 </li>
                 <li>
-                  <span className="ck">·</span>Recurring auto-invest schedules
+                  <span className="ck">·</span>Your practice portfolio vs. the
+                  S&amp;P 500
                 </li>
                 <li>
-                  <span className="ck">·</span>&quot;Why I bought this&quot;
-                  thesis journal
+                  <span className="ck">·</span>Manual entry of real trades
                 </li>
                 <li>
                   <span className="ck">·</span>Concentration &amp; drift alerts
