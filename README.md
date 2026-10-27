@@ -103,7 +103,8 @@ Requirements:
 
 - Node.js 20 or newer
 - npm
-- A Supabase project for authentication and cloud sync
+- A Supabase project for authentication and cloud sync (optional: without
+  it ARCANUM runs anonymously from browser storage and hides sign-in)
 
 Install dependencies:
 

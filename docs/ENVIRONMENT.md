@@ -22,6 +22,13 @@ Required variables:
 - `NEXT_PUBLIC_SITE_URL`: `http://localhost:3000` locally; the canonical HTTPS
   URL in production.
 
+The three Supabase variables are required only to enable accounts and cloud
+sync. If they are missing, or the URL is malformed, ARCANUM runs anonymously:
+data stays in the browser, sign-in and sync are hidden, and
+`DELETE /api/account` returns 503 (see `lib/supabase/config.ts`).
+`NEXT_PUBLIC_SITE_URL` falls back to `http://localhost:3000` when missing or
+malformed, so always set it in production.
+
 For deployment, configure the same variables in Vercel rather than uploading a
 local environment file.
 
