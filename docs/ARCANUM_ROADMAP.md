@@ -6,6 +6,15 @@ should answer one of its "four questions" (VISION §4).
 
 Mark items `[x]` when done and note the commit.
 
+> **2026-10-27:** P0-1/2/3 done and verified in production and CI. Done and
+> deployed: P1-1, P1-2, P1-3, P1-4 (simulator tests; prices/tickers tests
+> still to add), P1-5, P1-6 (confirm the next nightly `lastBarDate`), P1-7,
+> P1-8, P1-9, P1-10, P1-13, P1-14, P1-15, P1-16, P1-17, P1-18, P1-19 code
+> parts, P2-1 for `/stocks` and `/compare` HTML, P2-4. P1-11 softened to
+> "$0 during early access" (owner to confirm). P1-12 superlatives reworded;
+> `reviewedAt` not added. New top item: split `lib/prices.ts` so client pages
+> stop loading all 30 price files (4.2 MB chunk).
+
 **Effort scale:** S < half a day · M ≈ 1 day · L = several days.
 
 ---

@@ -63,7 +63,10 @@ npm run build && npm run start
 node scripts/fetch-prices.mjs   # rewrites data/prices/*.json from Yahoo
 ```
 
-There is no automated test suite yet. Verify changes by building and
+npm test                 # Vitest unit tests (lib/*.test.ts); also runs in CI
+
+Money math lives in `lib/simulator-math.ts` (pure, unit-tested). Add tests for
+any new financial calculation. Also verify UI changes by building and
 exercising the affected routes in a browser.
 
 ## Environment

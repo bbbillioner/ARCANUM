@@ -16,6 +16,29 @@ Evidence tags used throughout:
 
 ## 1. Current project state
 
+### Update 2026-10-27: production restored and P0/P1 fixes deployed
+
+- **Production is up** (fixed 2026-10-27, commit `5ca046a`): Supabase is
+  optional, so missing Vercel env vars no longer 500 the site. Live Yahoo
+  quotes and news work from Vercel. CI passes (first green run ever).
+- **Fixed and verified locally:** simulator accounting (one price source for
+  fills and valuation, sell math, realized/unrealized P&L, sell-all, reset
+  confirmations, trade price source recorded) with 19 Vitest unit tests in
+  `lib/simulator-math.test.ts`; total-return figures from `adjClose`;
+  snapshot one-day lag (`scripts/fetch-prices.mjs` merges a 5d window, real
+  `fetchedAt`, `lastBarDate`); starter-template horizon logic and template
+  data; false homepage/help/terms claims; LIVE badges; OG image; site URL
+  (was `localhost:3000` in production metadata); watchlist; Today news cap and
+  NYSE-hours logic; real 404 for unknown tickers; `/terms` styling; nav at
+  375/1024 px; auth callback redirect guard; `/stocks` HTML 1.3 MB → 215 KB.
+- **Still open:** see `docs/ARCANUM_ROADMAP.md`. Biggest: a 4.2 MB (≈870 KB
+  gzip) client chunk with all price JSON loads on /stocks, /stocks/[ticker],
+  /simulator, /journal, /today, /watchlist (split `lib/prices.ts` into
+  data-free helpers + server data); risk & return panel (P1-20); real-device
+  mobile pass; Supabase accounts (off until a project is configured).
+
+The sections below are the original 2026-10-23 audit, kept for history.
+
 ### Update 2026-10-25: P0 repair made locally (uncommitted, not deployed)
 
 - **Supabase is now optional.** `lib/supabase/config.ts` decides whether
