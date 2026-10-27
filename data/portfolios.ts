@@ -33,9 +33,9 @@ export const portfolioTemplates: PortfolioTemplate[] = [
     ],
     sectorExposure: [
       { sector: "Broad market", percentage: 55 },
-      { sector: "Technology", percentage: 15 },
+      { sector: "Cash", percentage: 25 },
+      { sector: "Technology", percentage: 10 },
       { sector: "Consumer staples", percentage: 10 },
-      { sector: "Cash", percentage: 20 },
     ],
     holdings: [
       {
@@ -176,10 +176,9 @@ export const portfolioTemplates: PortfolioTemplate[] = [
       },
     ],
     sectorExposure: [
-      { sector: "Technology and semiconductors", percentage: 45 },
+      { sector: "Technology and communication", percentage: 50 },
       { sector: "Broad market", percentage: 30 },
-      { sector: "Consumer staples", percentage: 10 },
-      { sector: "Communication and growth", percentage: 10 },
+      { sector: "Semiconductors", percentage: 15 },
       { sector: "Cash", percentage: 5 },
     ],
     holdings: [

@@ -78,25 +78,74 @@ export function getTemplateById(id: string): PortfolioTemplate {
   return template;
 }
 
-export function selectPortfolioTemplate(
-  answers: OnboardingAnswers,
-): PortfolioTemplate {
-  if (
+/** Under five years: shorter than the growth templates are designed for. */
+function hasShortHorizon(answers: OnboardingAnswers) {
+  return answers.timeHorizon !== "5+ years";
+}
+
+/** Under three years: money that usually shouldn't depend on stocks. */
+export function hasVeryShortHorizon(answers: OnboardingAnswers) {
+  return (
+    answers.timeHorizon === "Less than 1 year" ||
+    answers.timeHorizon === "1-3 years"
+  );
+}
+
+function wantsLowRisk(answers: OnboardingAnswers) {
+  return (
     answers.riskComfort === "Low" ||
     answers.portfolioStyle === "Safe and diversified"
-  ) {
-    return getTemplateById("conservative-beginner");
-  }
+  );
+}
 
-  if (
+function wantsHighGrowth(answers: OnboardingAnswers) {
+  return (
     answers.riskComfort === "High" ||
     answers.portfolioStyle === "High-growth companies" ||
     answers.portfolioStyle === "Thematic portfolio"
-  ) {
+  );
+}
+
+/**
+ * Time horizon decides first: each template states the holding period it is
+ * designed for, and a template is never chosen for a shorter horizon than
+ * that. Risk comfort and style decide among what's left.
+ */
+export function selectPortfolioTemplate(
+  answers: OnboardingAnswers,
+): PortfolioTemplate {
+  if (hasShortHorizon(answers) || wantsLowRisk(answers)) {
+    return getTemplateById("conservative-beginner");
+  }
+
+  if (wantsHighGrowth(answers)) {
     return getTemplateById("aggressive-growth");
   }
 
   return getTemplateById("balanced-growth");
+}
+
+/** Plain-language reason for the template choice, citing the deciding answers. */
+export function explainTemplateChoice(
+  answers: OnboardingAnswers,
+  template: PortfolioTemplate,
+): string {
+  const horizon = answers.timeHorizon.toLowerCase();
+  let reason: string;
+
+  if (hasVeryShortHorizon(answers)) {
+    reason = `You plan to hold for ${horizon}. Stocks can fall sharply and take years to recover, so ARCANUM starts with its steadiest template, ${template.name}. Money you'll need within about three years is usually kept out of the stock market entirely: treat this template as practice, not a plan for that money.`;
+  } else if (hasShortHorizon(answers)) {
+    reason = `You plan to hold for ${horizon}, shorter than the growth templates are designed for, so ARCANUM starts with ${template.name}.`;
+  } else if (wantsLowRisk(answers)) {
+    reason = `You plan to hold for ${horizon} and prefer lower risk, so ARCANUM starts with ${template.name}.`;
+  } else if (wantsHighGrowth(answers)) {
+    reason = `You plan to hold for ${horizon} and are comfortable with bigger swings in exchange for growth, so ARCANUM starts with ${template.name}.`;
+  } else {
+    reason = `You plan to hold for ${horizon} with ${answers.riskComfort.toLowerCase()} risk comfort, so ARCANUM starts with the middle-ground ${template.name}.`;
+  }
+
+  return `${reason} ${template.explanation}`;
 }
 
 export function buildAllocationSegments(

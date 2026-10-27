@@ -10,6 +10,7 @@ import { derivePersonalization } from "@/lib/personalization";
 import {
   getHoldingFallback,
   isOnboardingAnswers,
+  explainTemplateChoice,
   selectPortfolioTemplate,
   stockProfileByTicker,
 } from "@/lib/portfolio";
@@ -187,19 +188,7 @@ export default function DashboardPage() {
               </span>
               <h1>{selectedPortfolio.name}</h1>
               <p className="lede">
-                Built from your{" "}
-                <strong style={{ color: "var(--foreground)" }}>
-                  {answers.riskComfort.toLowerCase()}
-                </strong>{" "}
-                risk comfort,{" "}
-                <strong style={{ color: "var(--foreground)" }}>
-                  {answers.timeHorizon.toLowerCase()}
-                </strong>{" "}
-                time horizon, and{" "}
-                <strong style={{ color: "var(--foreground)" }}>
-                  {answers.investmentApproach.toLowerCase()}
-                </strong>{" "}
-                approach. {selectedPortfolio.explanation}
+                {explainTemplateChoice(answers, selectedPortfolio)}
               </p>
             </div>
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
@@ -226,8 +215,8 @@ export default function DashboardPage() {
               A read on your portfolio&apos;s <em>structure.</em>
             </h2>
             <p>
-              Hover any metric to see what it means. These are educational
-              signals derived from the selected template.
+              Educational signals about the starter template&apos;s
+              structure — a sample allocation, not your real money.
             </p>
           </div>
           <div
@@ -247,7 +236,7 @@ export default function DashboardPage() {
             <div className="metric-line">
               <div className="label">Time horizon</div>
               <div className="value">{selectedPortfolio.timeHorizon}</div>
-              <div className="detail">Suggested holding period</div>
+              <div className="detail">Holding period it&apos;s designed for</div>
             </div>
             <div className="metric-line">
               <div className="label">Main exposure</div>

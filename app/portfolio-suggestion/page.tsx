@@ -7,26 +7,14 @@ import { ARCANUM_CLOUD_DATA_LOADED_EVENT } from "@/lib/cloud-sync";
 import {
   getHoldingFallback,
   isOnboardingAnswers,
+  explainTemplateChoice,
   selectPortfolioTemplate,
   stockProfileByTicker,
 } from "@/lib/portfolio";
 import type {
   OnboardingAnswers,
-  PortfolioTemplate,
   StockProfile,
 } from "@/types/investing";
-
-function getPersonalizedExplanation(
-  answers: OnboardingAnswers,
-  template: PortfolioTemplate,
-) {
-  const interests =
-    answers.interests.length > 0
-      ? answers.interests.join(", ")
-      : "broad market learning";
-
-  return `Based on your ${answers.riskComfort.toLowerCase()} risk comfort, ${answers.timeHorizon.toLowerCase()} time horizon, and interest in ${interests}, ARCANUM is starting with ${template.name}. ${template.explanation}`;
-}
 
 export default function PortfolioSuggestionPage() {
   const [answers, setAnswers] = useState<OnboardingAnswers | null>(null);
@@ -138,7 +126,7 @@ export default function PortfolioSuggestionPage() {
               </div>
             </div>
             <div className="metric-line">
-              <div className="label">Time horizon</div>
+              <div className="label">Designed for</div>
               <div className="value">{selectedPortfolio.timeHorizon}</div>
             </div>
             <div className="metric-line">
@@ -427,7 +415,17 @@ export default function PortfolioSuggestionPage() {
             <div className="card-line">
               <h3>Why this fits you</h3>
               <p style={{ lineHeight: 1.75, marginBottom: 22 }}>
-                {getPersonalizedExplanation(answers, selectedPortfolio)}
+                {explainTemplateChoice(answers, selectedPortfolio)}
+              </p>
+              <p
+                style={{
+                  color: "var(--muted)",
+                  fontSize: "0.82rem",
+                  lineHeight: 1.6,
+                  marginBottom: 22,
+                }}
+              >
+                {selectedPortfolio.disclaimer}
               </p>
               <div
                 style={{
