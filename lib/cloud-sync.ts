@@ -2,11 +2,10 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { getCurrentPrice } from "@/lib/prices";
+import { rebuildHoldings, revalueState } from "@/lib/simulator-math";
 import { getAnyProfile } from "@/lib/stocks";
 import type {
   OnboardingAnswers,
-  SimulatorHolding,
   SimulatorState,
   SimulatorTransaction,
   ThesisReview,
@@ -339,66 +338,6 @@ function numberValue(value: number | string) {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
-function round(value: number, places: number) {
-  const factor = 10 ** places;
-  return Math.round(value * factor) / factor;
-}
-
-function buildHoldings(
-  transactions: SimulatorTransaction[],
-  cashBalance: number,
-): SimulatorHolding[] {
-  const positions = new Map<string, { shares: number; averageCost: number }>();
-  const chronological = [...transactions].sort(
-    (a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt),
-  );
-
-  for (const transaction of chronological) {
-    const current = positions.get(transaction.ticker) ?? {
-      shares: 0,
-      averageCost: transaction.price,
-    };
-    if (transaction.type === "buy") {
-      const shares = current.shares + transaction.shares;
-      const cost = current.averageCost * current.shares + transaction.amount;
-      positions.set(transaction.ticker, {
-        shares,
-        averageCost: shares > 0 ? cost / shares : transaction.price,
-      });
-    } else {
-      const shares = Math.max(0, current.shares - transaction.shares);
-      if (shares < 0.000001) positions.delete(transaction.ticker);
-      else positions.set(transaction.ticker, { ...current, shares });
-    }
-  }
-
-  const holdings = Array.from(positions.entries()).map(([ticker, position]) => {
-    const currentPrice = getCurrentPrice(ticker) || position.averageCost;
-    const investedAmount = position.averageCost * position.shares;
-    const marketValue = currentPrice * position.shares;
-    const unrealizedGainLoss = marketValue - investedAmount;
-    return {
-      ticker,
-      name: getAnyProfile(ticker)?.name ?? ticker,
-      shares: round(position.shares, 6),
-      averageCost: round(position.averageCost, 2),
-      currentPrice: round(currentPrice, 2),
-      investedAmount: round(investedAmount, 2),
-      marketValue: round(marketValue, 2),
-      unrealizedGainLoss: round(unrealizedGainLoss, 2),
-      unrealizedGainLossPercent:
-        investedAmount > 0 ? round((unrealizedGainLoss / investedAmount) * 100, 2) : 0,
-      allocationPercent: 0,
-    };
-  });
-  const totalValue = cashBalance + holdings.reduce((sum, item) => sum + item.marketValue, 0);
-  return holdings.map((holding) => ({
-    ...holding,
-    allocationPercent:
-      totalValue > 0 ? round((holding.marketValue / totalValue) * 100, 2) : 0,
-  }));
-}
-
 function isUuid(value: string) {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
     value,
@@ -463,15 +402,17 @@ async function pullCloudSimulator(
     preMortem: transaction.pre_mortem ?? undefined,
     reviews: reviewsByTransaction.get(transaction.id) ?? [],
   }));
-  const cashBalance = numberValue(stateRow.cash_balance);
-  return {
+  return revalueState({
     startingCash: numberValue(stateRow.starting_cash),
-    cashBalance,
-    holdings: buildHoldings(transactions, cashBalance),
+    cashBalance: numberValue(stateRow.cash_balance),
+    holdings: rebuildHoldings(
+      transactions,
+      (ticker) => getAnyProfile(ticker)?.name ?? ticker,
+    ),
     transactions,
     createdAt: stateRow.created_at,
     updatedAt: stateRow.updated_at,
-  };
+  });
 }
 
 async function pushSimulator(

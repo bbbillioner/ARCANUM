@@ -125,6 +125,9 @@ export type AllocationSegment = {
 
 export type SimulatorTransactionType = "buy" | "sell";
 
+/** Where a trade's price came from: a live quote or the latest daily close. */
+export type PriceSource = "live" | "historical";
+
 export type SimulatorHolding = {
   ticker: string;
   name: string;
@@ -151,6 +154,12 @@ export type SimulatorTransaction = {
   price: number;
   amount: number;
   createdAt: string;
+  /** Source of `price`. Absent on trades recorded before 2026-10. */
+  priceSource?: PriceSource;
+  /** When `price` was observed (ISO). Absent on older trades. */
+  priceAsOf?: string;
+  /** Sells only: proceeds minus the average cost of the shares sold. */
+  realizedGainLoss?: number;
   thesis?: string;
   preMortem?: string;
   reviews?: ThesisReview[];
@@ -169,8 +178,11 @@ export type SimulatorSummary = {
   totalPortfolioValue: number;
   cashBalance: number;
   investedValue: number;
+  /** Total value minus starting cash: realized + unrealized. */
   totalGainLoss: number;
   totalGainLossPercent: number;
+  unrealizedGainLoss: number;
+  realizedGainLoss: number;
   cashAllocationPercent: number;
   investedAllocationPercent: number;
 };

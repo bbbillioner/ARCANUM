@@ -10,6 +10,7 @@ import {
   addThesisReview,
   calculateSimulatorSummary,
   getSimulator,
+  pricesFromQuotes,
 } from "@/lib/simulator";
 import type {
   SimulatorState,
@@ -91,7 +92,11 @@ export default function JournalPage() {
     [buys],
   );
 
-  const summary = simulator ? calculateSimulatorSummary(simulator) : null;
+  // Same quotes as the "since buy" figures below, so the header and the
+  // entries always agree.
+  const summary = simulator
+    ? calculateSimulatorSummary(simulator, pricesFromQuotes(quotes))
+    : null;
 
   function handleSubmitReview(txId: string) {
     const result = addThesisReview(txId, reviewDraft);
@@ -182,7 +187,7 @@ export default function JournalPage() {
                 {[
                   "Open the simulator and pick any stock or ETF.",
                   "Write one sentence on why you're buying — 10–240 characters.",
-                  "Trade uses the latest available cached price. Your thesis is saved.",
+                  "The trade settles at the latest available quote, and your thesis is saved.",
                   "30 days later, the journal flags it for review. Add a follow-up note: was your reasoning right? What changed?",
                   "Over months, patterns emerge. You learn which kinds of theses you tend to get right — and which you don't.",
                 ].map((step, i) => (
@@ -273,12 +278,12 @@ export default function JournalPage() {
                 className="value"
                 style={{
                   color:
-                    summary && summary.totalGainLoss >= 0
+                    summary && summary.unrealizedGainLoss >= 0
                       ? "var(--accent)"
                       : "#ff6878",
                 }}
               >
-                {summary ? formatCurrency(summary.totalGainLoss) : "—"}
+                {summary ? formatCurrency(summary.unrealizedGainLoss) : "—"}
               </div>
             </div>
           </div>
@@ -386,6 +391,9 @@ export default function JournalPage() {
                       >
                         {formatCurrency(tx.amount)} · {tx.shares.toFixed(4)} sh
                         @ {formatCurrency(buyPrice)}
+                        {tx.priceSource === "live" && " · live quote"}
+                        {tx.priceSource === "historical" &&
+                          ` · close of ${tx.priceAsOf}`}
                       </p>
                     </div>
                     <div style={{ textAlign: "right" }}>

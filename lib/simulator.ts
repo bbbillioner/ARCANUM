@@ -1,31 +1,30 @@
 import { stockProfiles } from "@/data/stocks";
 import { requestCloudSync } from "@/lib/cloud-sync";
-import { getCurrentPrice } from "@/lib/prices";
+import { getLatestBar } from "@/lib/prices";
+import {
+  applyBuy,
+  applySell,
+  revalueState,
+  roundCurrency,
+  summarizeState,
+  type PriceMap,
+  type TradeQuote,
+  type TradeResult,
+} from "@/lib/simulator-math";
 import type {
   SimulatorActionResult,
-  SimulatorHolding,
   SimulatorState,
   SimulatorSummary,
   StockProfile,
 } from "@/types/investing";
+import type { QuoteMap } from "@/types/quote";
+
+export type { PriceMap, TradeQuote } from "@/lib/simulator-math";
 
 const SIMULATOR_STORAGE_KEY = "arcanum-simulator";
-const MIN_HOLDING_VALUE = 0.01;
 
 function hasBrowserStorage() {
   return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
-}
-
-function roundCurrency(value: number) {
-  return Math.round(value * 100) / 100;
-}
-
-function roundShares(value: number) {
-  return Math.round(value * 1_000_000) / 1_000_000;
-}
-
-function roundPercent(value: number) {
-  return Math.round(value * 100) / 100;
 }
 
 function createTransactionId() {
@@ -42,60 +41,34 @@ function getStockProfile(ticker: string): StockProfile | undefined {
   );
 }
 
-function normalizeAmount(amount: number) {
-  if (!Number.isFinite(amount)) {
-    return 0;
+/** Latest prices from a quote map, for valuing holdings. */
+export function pricesFromQuotes(quotes: QuoteMap): PriceMap {
+  const prices: PriceMap = {};
+  for (const [ticker, quote] of Object.entries(quotes)) {
+    if (quote.price > 0) prices[ticker.toUpperCase()] = quote.price;
   }
-
-  return roundCurrency(Math.max(amount, 0));
+  return prices;
 }
 
-function recalculateState(state: SimulatorState): SimulatorState {
-  const holdings = state.holdings
-    .map((holding) => {
-      const profile = getStockProfile(holding.ticker);
-      const livePrice = profile ? getCurrentPrice(profile.ticker) : 0;
-      const currentPrice = livePrice > 0 ? livePrice : holding.currentPrice;
-      const shares = roundShares(holding.shares);
-      const investedAmount = roundCurrency(holding.averageCost * shares);
-      const marketValue = roundCurrency(shares * currentPrice);
-      const unrealizedGainLoss = roundCurrency(marketValue - investedAmount);
-      const unrealizedGainLossPercent =
-        investedAmount > 0
-          ? roundPercent((unrealizedGainLoss / investedAmount) * 100)
-          : 0;
+/**
+ * The price a trade settles at: the live quote when one is loaded, otherwise
+ * the latest daily close from the snapshot. Valuation uses the same quotes,
+ * so a trade never shows an instant gain or loss.
+ */
+export function tradeQuoteFor(ticker: string, quotes: QuoteMap): TradeQuote | null {
+  const quote = quotes[ticker.toUpperCase()];
+  if (quote && quote.price > 0) {
+    return {
+      price: quote.price,
+      source: quote.source,
+      asOf: new Date(quote.updatedAt).toISOString(),
+    };
+  }
 
-      return {
-        ...holding,
-        name: profile?.name ?? holding.name,
-        shares,
-        currentPrice,
-        investedAmount,
-        marketValue,
-        unrealizedGainLoss,
-        unrealizedGainLossPercent,
-        allocationPercent: 0,
-      };
-    })
-    .filter((holding) => holding.marketValue >= MIN_HOLDING_VALUE);
-
-  const investedValue = holdings.reduce(
-    (total, holding) => total + holding.marketValue,
-    0,
-  );
-  const totalPortfolioValue = roundCurrency(state.cashBalance + investedValue);
-
-  return {
-    ...state,
-    cashBalance: roundCurrency(state.cashBalance),
-    holdings: holdings.map((holding) => ({
-      ...holding,
-      allocationPercent:
-        totalPortfolioValue > 0
-          ? roundPercent((holding.marketValue / totalPortfolioValue) * 100)
-          : 0,
-    })),
-  };
+  const bar = getLatestBar(ticker);
+  return bar && bar.close > 0
+    ? { price: bar.close, source: "historical", asOf: bar.date }
+    : null;
 }
 
 export function createSimulator(startingCash: number): SimulatorState {
@@ -112,7 +85,7 @@ export function createSimulator(startingCash: number): SimulatorState {
   };
 }
 
-export function getSimulator(): SimulatorState | null {
+export function getSimulator(prices: PriceMap = {}): SimulatorState | null {
   if (!hasBrowserStorage()) {
     return null;
   }
@@ -125,14 +98,14 @@ export function getSimulator(): SimulatorState | null {
 
   try {
     const parsedState = JSON.parse(storedState) as SimulatorState;
-    return recalculateState(parsedState);
+    return revalueState(parsedState, prices);
   } catch {
     return null;
   }
 }
 
 export function saveSimulator(state: SimulatorState): SimulatorState {
-  const updatedState = recalculateState({
+  const updatedState = revalueState({
     ...state,
     updatedAt: new Date().toISOString(),
   });
@@ -154,64 +127,31 @@ export function resetSimulator(startingCash: number): SimulatorState {
 
 export function calculateSimulatorSummary(
   state: SimulatorState,
+  prices: PriceMap = {},
 ): SimulatorSummary {
-  const recalculatedState = recalculateState(state);
-  const investedValue = roundCurrency(
-    recalculatedState.holdings.reduce(
-      (total, holding) => total + holding.marketValue,
-      0,
-    ),
-  );
-  const totalPortfolioValue = roundCurrency(
-    recalculatedState.cashBalance + investedValue,
-  );
-  const totalGainLoss = roundCurrency(
-    recalculatedState.holdings.reduce(
-      (total, holding) => total + holding.unrealizedGainLoss,
-      0,
-    ),
-  );
-  const totalGainLossPercent =
-    recalculatedState.startingCash > 0
-      ? roundPercent((totalGainLoss / recalculatedState.startingCash) * 100)
-      : 0;
+  return summarizeState(state, prices);
+}
 
-  return {
-    totalPortfolioValue,
-    cashBalance: recalculatedState.cashBalance,
-    investedValue,
-    totalGainLoss,
-    totalGainLossPercent,
-    cashAllocationPercent:
-      totalPortfolioValue > 0
-        ? roundPercent((recalculatedState.cashBalance / totalPortfolioValue) * 100)
-        : 0,
-    investedAllocationPercent:
-      totalPortfolioValue > 0
-        ? roundPercent((investedValue / totalPortfolioValue) * 100)
-        : 0,
-  };
+function persist(result: TradeResult, fallback: SimulatorState): SimulatorActionResult {
+  if (!result.ok) {
+    return { success: false, message: result.message, state: fallback };
+  }
+  return { success: true, message: result.message, state: saveSimulator(result.state) };
 }
 
 export function buyHolding(
   ticker: string,
   amount: number,
-  tradePrice?: number,
+  quote: TradeQuote | null,
   thesis?: string,
   preMortem?: string,
 ): SimulatorActionResult {
   const state = getSimulator();
-  const normalizedAmount = normalizeAmount(amount);
   const profile = getStockProfile(ticker);
 
   if (!state) {
-    return {
-      success: false,
-      message: "Start a simulation before buying.",
-      state: null,
-    };
+    return { success: false, message: "Start a simulation before buying.", state: null };
   }
-
   if (!profile) {
     return {
       success: false,
@@ -219,55 +159,7 @@ export function buyHolding(
       state,
     };
   }
-
-  if (normalizedAmount <= 0) {
-    return {
-      success: false,
-      message: "Enter a dollar amount greater than $0.",
-      state,
-    };
-  }
-
-  if (normalizedAmount > state.cashBalance) {
-    return {
-      success: false,
-      message: "You do not have enough fake cash for that purchase.",
-      state,
-    };
-  }
-
-  const trimmedThesis = (thesis ?? "").trim();
-  if (trimmedThesis.length < 10) {
-    return {
-      success: false,
-      message:
-        "Write one sentence on why you're buying — at least 10 characters. This is the part that builds the skill.",
-      state,
-    };
-  }
-  if (trimmedThesis.length > 240) {
-    return {
-      success: false,
-      message: "Keep the thesis under 240 characters — one clear sentence.",
-      state,
-    };
-  }
-
-  const trimmedPreMortem = (preMortem ?? "").trim();
-  if (trimmedPreMortem.length > 240) {
-    return {
-      success: false,
-      message: "Keep the pre-mortem under 240 characters too.",
-      state,
-    };
-  }
-
-  const currentPrice =
-    typeof tradePrice === "number" && tradePrice > 0
-      ? tradePrice
-      : getCurrentPrice(profile.ticker);
-
-  if (currentPrice <= 0) {
+  if (!quote) {
     return {
       success: false,
       message: "Price data is unavailable for this asset right now.",
@@ -275,161 +167,49 @@ export function buyHolding(
     };
   }
 
-  const sharesBought = roundShares(normalizedAmount / currentPrice);
-  const existingHolding = state.holdings.find(
-    (holding) => holding.ticker === profile.ticker,
+  return persist(
+    applyBuy(state, {
+      ticker: profile.ticker,
+      name: profile.name,
+      amount,
+      quote,
+      thesis,
+      preMortem,
+      id: createTransactionId(),
+      now: new Date().toISOString(),
+    }),
+    state,
   );
-  let holdings: SimulatorHolding[];
-
-  if (existingHolding) {
-    const previousCostBasis = existingHolding.averageCost * existingHolding.shares;
-    const shares = roundShares(existingHolding.shares + sharesBought);
-    const costBasis = previousCostBasis + normalizedAmount;
-
-    holdings = state.holdings.map((holding) =>
-      holding.ticker === profile.ticker
-        ? {
-            ...holding,
-            shares,
-            averageCost: roundCurrency(costBasis / shares),
-          }
-        : holding,
-    );
-  } else {
-    holdings = [
-      ...state.holdings,
-      {
-        ticker: profile.ticker,
-        name: profile.name,
-        shares: sharesBought,
-        averageCost: currentPrice,
-        currentPrice,
-        investedAmount: normalizedAmount,
-        marketValue: normalizedAmount,
-        unrealizedGainLoss: 0,
-        unrealizedGainLossPercent: 0,
-        allocationPercent: 0,
-      },
-    ];
-  }
-
-  const updatedState = saveSimulator({
-    ...state,
-    cashBalance: roundCurrency(state.cashBalance - normalizedAmount),
-    holdings,
-    transactions: [
-      {
-        id: createTransactionId(),
-        type: "buy",
-        ticker: profile.ticker,
-        shares: sharesBought,
-        price: currentPrice,
-        amount: normalizedAmount,
-        createdAt: new Date().toISOString(),
-        thesis: trimmedThesis,
-        preMortem: trimmedPreMortem.length > 0 ? trimmedPreMortem : undefined,
-        reviews: [],
-      },
-      ...state.transactions,
-    ],
-  });
-
-  return {
-    success: true,
-    message: `Bought $${normalizedAmount.toFixed(2)} of ${profile.ticker}. Thesis saved to your journal.`,
-    state: updatedState,
-  };
 }
 
 export function sellHolding(
   ticker: string,
-  amount: number,
-  tradePrice?: number,
+  amount: number | "all",
+  quote: TradeQuote | null,
 ): SimulatorActionResult {
   const state = getSimulator();
-  const normalizedAmount = normalizeAmount(amount);
 
   if (!state) {
+    return { success: false, message: "Start a simulation before selling.", state: null };
+  }
+  if (!quote) {
     return {
       success: false,
-      message: "Start a simulation before selling.",
-      state: null,
+      message: "Price data is unavailable for this asset right now.",
+      state,
     };
   }
 
-  const holding = state.holdings.find(
-    (currentHolding) => currentHolding.ticker.toUpperCase() === ticker.toUpperCase(),
+  return persist(
+    applySell(state, {
+      ticker,
+      amount,
+      quote,
+      id: createTransactionId(),
+      now: new Date().toISOString(),
+    }),
+    state,
   );
-
-  if (!holding) {
-    return {
-      success: false,
-      message: "You do not own this asset in the simulator.",
-      state,
-    };
-  }
-
-  if (normalizedAmount <= 0) {
-    return {
-      success: false,
-      message: "Enter a dollar amount greater than $0.",
-      state,
-    };
-  }
-
-  if (normalizedAmount > holding.marketValue) {
-    return {
-      success: false,
-      message: "You cannot sell more than the holding is worth.",
-      state,
-    };
-  }
-
-  const livePrice =
-    typeof tradePrice === "number" && tradePrice > 0
-      ? tradePrice
-      : getCurrentPrice(holding.ticker);
-  const currentPrice = livePrice > 0 ? livePrice : holding.currentPrice;
-  const sharesSold = roundShares(normalizedAmount / currentPrice);
-  const remainingShares = roundShares(Math.max(holding.shares - sharesSold, 0));
-  const holdings = state.holdings
-    .map((currentHolding) =>
-      currentHolding.ticker === holding.ticker
-        ? {
-            ...currentHolding,
-            shares: remainingShares,
-          }
-        : currentHolding,
-    )
-    .filter((currentHolding) => {
-      const live = getCurrentPrice(currentHolding.ticker);
-      const price = live > 0 ? live : currentHolding.currentPrice;
-      return currentHolding.shares * price >= MIN_HOLDING_VALUE;
-    });
-
-  const updatedState = saveSimulator({
-    ...state,
-    cashBalance: roundCurrency(state.cashBalance + normalizedAmount),
-    holdings,
-    transactions: [
-      {
-        id: createTransactionId(),
-        type: "sell",
-        ticker: holding.ticker,
-        shares: sharesSold,
-        price: currentPrice,
-        amount: normalizedAmount,
-        createdAt: new Date().toISOString(),
-      },
-      ...state.transactions,
-    ],
-  });
-
-  return {
-    success: true,
-    message: `Sold $${normalizedAmount.toFixed(2)} of ${holding.ticker}.`,
-    state: updatedState,
-  };
 }
 
 export function addThesisReview(

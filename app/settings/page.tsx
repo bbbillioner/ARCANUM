@@ -66,6 +66,7 @@ export default function SettingsPage() {
   const [simTxs, setSimTxs] = useState(0);
   const [watchCount, setWatchCount] = useState(0);
   const [confirmingClear, setConfirmingClear] = useState(false);
+  const [confirmingSimClear, setConfirmingSimClear] = useState(false);
   const [flash, setFlash] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [syncStatus, setSyncStatus] = useState<CloudSyncStatus | null>(null);
@@ -173,10 +174,16 @@ export default function SettingsPage() {
   }
 
   function handleClearSimulator() {
+    if (!confirmingSimClear) {
+      setConfirmingSimClear(true);
+      window.setTimeout(() => setConfirmingSimClear(false), 4000);
+      return;
+    }
+    setConfirmingSimClear(false);
     localStorage.removeItem("arcanum-simulator");
     setSimPositions(0);
     setSimTxs(0);
-    setFlash("Simulator reset. Cash and history cleared.");
+    setFlash("Simulator cleared. Cash, trades, and journal entries removed.");
     requestCloudSync();
     window.setTimeout(() => setFlash(null), 3500);
   }
@@ -236,6 +243,9 @@ export default function SettingsPage() {
 
     for (const key of STORAGE_KEYS) localStorage.removeItem(key);
     localStorage.removeItem("arcanum-cloud-user");
+    // A full reload (not router.push) is deliberate: it drops every piece of
+    // in-memory state and the deleted session along with the page.
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
     window.location.assign("/");
   }
 
@@ -537,14 +547,20 @@ export default function SettingsPage() {
               <button
                 className="btn btn-ghost"
                 onClick={handleClearSimulator}
+                style={
+                  confirmingSimClear
+                    ? { borderColor: "rgba(255,104,120,0.5)", color: "#ff6878" }
+                    : undefined
+                }
                 type="button"
               >
-                Clear simulator
+                {confirmingSimClear ? "Click again to confirm" : "Clear simulator"}
               </button>
             </div>
             <p style={{ color: "var(--muted)", fontSize: "0.94rem" }}>
-              Resets your fake-cash balance, all open positions, and the
-              transaction log. Your onboarding profile is kept.
+              Resets your fake-cash balance, all open positions, the
+              transaction log, and every journal thesis and review. Your
+              onboarding profile is kept.
             </p>
           </div>
 

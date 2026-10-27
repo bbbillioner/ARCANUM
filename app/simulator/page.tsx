@@ -13,16 +13,19 @@ import { loadOnboardingAnswers } from "@/lib/portfolio";
 import {
   getCurrentPrice,
   getPriceBars,
-  getTimeframeChangePercent,
+  getTimeframeTotalReturnPercent,
   sliceByTimeframe,
 } from "@/lib/prices";
 import {
   buyHolding,
   calculateSimulatorSummary,
   getSimulator,
+  pricesFromQuotes,
   resetSimulator,
   sellHolding,
+  tradeQuoteFor,
 } from "@/lib/simulator";
+import { revalueState } from "@/lib/simulator-math";
 import type { SimulatorState } from "@/types/investing";
 
 const startingCashOptions = [100, 500, 1000, 5000, 10000, 100000];
@@ -62,6 +65,7 @@ export default function SimulatorPage() {
   const [amount, setAmount] = useState("100");
   const [thesis, setThesis] = useState("");
   const [preMortem, setPreMortem] = useState("");
+  const [confirmingReset, setConfirmingReset] = useState(false);
   const [message, setMessage] = useState<{
     type: "success" | "error";
     text: string;
@@ -93,13 +97,19 @@ export default function SimulatorPage() {
   const allTickers = useMemo(() => stockProfiles.map((p) => p.ticker), []);
   const { quotes } = useQuotes(allTickers);
 
-  function priceFor(ticker: string): number {
-    return quotes[ticker.toUpperCase()]?.price ?? getCurrentPrice(ticker);
-  }
-
+  // Trades settle at these prices and holdings are valued at them, so the
+  // two can never disagree.
+  const prices = useMemo(() => pricesFromQuotes(quotes), [quotes]);
+  const valued = useMemo(
+    () => (simulator ? revalueState(simulator, prices) : null),
+    [simulator, prices],
+  );
   const summary = useMemo(
-    () => (simulator ? calculateSimulatorSummary(simulator) : null),
-    [simulator],
+    () => (simulator ? calculateSimulatorSummary(simulator, prices) : null),
+    [simulator, prices],
+  );
+  const selectedHolding = valued?.holdings.find(
+    (h) => h.ticker === selectedTicker,
   );
 
   const selectedProfile = stockProfiles.find(
@@ -121,20 +131,24 @@ export default function SimulatorPage() {
   }
 
   function handleReset() {
-    const next = resetSimulator(startingCash);
+    if (!confirmingReset) {
+      setConfirmingReset(true);
+      return;
+    }
+    const next = resetSimulator(simulator?.startingCash ?? startingCash);
     setSimulator(next);
+    setConfirmingReset(false);
     setMessage({
       type: "success",
-      text: "Simulation reset. All positions and history cleared.",
+      text: "Simulation reset. All positions, trades, and journal entries cleared.",
     });
   }
 
   function handleBuy() {
-    const livePrice = priceFor(selectedTicker);
     const result = buyHolding(
       selectedTicker,
       Number(amount),
-      livePrice,
+      tradeQuoteFor(selectedTicker, quotes),
       thesis,
       preMortem,
     );
@@ -146,9 +160,12 @@ export default function SimulatorPage() {
     }
   }
 
-  function handleSell() {
-    const livePrice = priceFor(selectedTicker);
-    const result = sellHolding(selectedTicker, Number(amount), livePrice);
+  function handleSell(all = false) {
+    const result = sellHolding(
+      selectedTicker,
+      all ? "all" : Number(amount),
+      tradeQuoteFor(selectedTicker, quotes),
+    );
     setSimulator(result.state);
     setMessage({ type: result.success ? "success" : "error", text: result.message });
   }
@@ -166,8 +183,9 @@ export default function SimulatorPage() {
           </h1>
           <p className="lede">
             Use the simulator to understand allocation, risk, and portfolio
-            behavior. Buys and sells settle at the last close from the
-            historical dataset — realistic, but not live.
+            behavior. Buys and sells settle at the latest available quote:
+            the live price when available (delayed up to 5 minutes),
+            otherwise the latest daily close.
           </p>
           <div
             style={{
@@ -325,12 +343,28 @@ export default function SimulatorPage() {
                       </Link>
                     );
                   })()}
+                  {confirmingReset && (
+                    <button
+                      className="btn btn-ghost"
+                      onClick={() => setConfirmingReset(false)}
+                      type="button"
+                    >
+                      Cancel
+                    </button>
+                  )}
                   <button
                     className="btn btn-ghost"
                     onClick={handleReset}
+                    style={
+                      confirmingReset
+                        ? { borderColor: "rgba(255,104,120,0.5)", color: "#ff6878" }
+                        : undefined
+                    }
                     type="button"
                   >
-                    Reset simulation
+                    {confirmingReset
+                      ? "Confirm: erase all trades and journal"
+                      : "Reset simulation"}
                   </button>
                 </div>
               </div>
@@ -380,7 +414,9 @@ export default function SimulatorPage() {
                     {formatCurrency(summary.totalGainLoss)}
                   </div>
                   <div className="detail">
-                    {formatPercent(summary.totalGainLossPercent)}
+                    {formatChangePercent(summary.totalGainLossPercent)} ·
+                    realized {formatCurrency(summary.realizedGainLoss)} ·
+                    unrealized {formatCurrency(summary.unrealizedGainLoss)}
                   </div>
                 </div>
               </div>
@@ -417,9 +453,9 @@ export default function SimulatorPage() {
                   const quote = quotes[profile.ticker];
                   const currentPrice = quote?.price ?? getCurrentPrice(profile.ticker);
                   const intraday = quote?.changePercent ?? 0;
-                  const change6M = getTimeframeChangePercent(profile.ticker, "6M");
+                  const change6M = getTimeframeTotalReturnPercent(profile.ticker, "6M");
                   const isPositive = (quote ? intraday : change6M) >= 0;
-                  const tfShown = quote ? "today" : "6M";
+                  const tfShown = quote ? "today" : "6M total return";
                   const tfValue = quote ? intraday : change6M;
                   const panelBars = sliceByTimeframe(
                     getPriceBars(profile.ticker),
@@ -661,7 +697,7 @@ export default function SimulatorPage() {
                             className="trade-thesis"
                             maxLength={240}
                             onChange={(e) => setThesis(e.target.value)}
-                            placeholder="One sentence on why you're buying. e.g. 'AI infra demand keeps NVDA's data-center revenue compounding through 2026.'"
+                            placeholder="One sentence on why you're buying. e.g. 'Data-center demand keeps growing, and NVDA supplies most of the chips it runs on.'"
                             rows={2}
                             value={thesis}
                           />
@@ -748,12 +784,22 @@ export default function SimulatorPage() {
                           </button>
                           <button
                             className="btn btn-ghost"
-                            onClick={handleSell}
+                            onClick={() => handleSell()}
                             type="button"
                           >
                             Sell
                           </button>
                         </div>
+                        {selectedHolding && (
+                          <button
+                            className="btn btn-ghost"
+                            onClick={() => handleSell(true)}
+                            type="button"
+                          >
+                            Sell all {selectedHolding.ticker} ·{" "}
+                            {formatCurrency(selectedHolding.marketValue)}
+                          </button>
+                        )}
                       </div>
                     </div>
                   ) : (
@@ -783,9 +829,9 @@ export default function SimulatorPage() {
                   >
                     Allocation
                   </p>
-                  {simulator.holdings.length > 0 ? (
+                  {valued && valued.holdings.length > 0 ? (
                     <div style={{ display: "grid", gap: 14 }}>
-                      {simulator.holdings.map((holding) => (
+                      {valued.holdings.map((holding) => (
                         <div key={holding.ticker}>
                           <div
                             style={{
@@ -871,8 +917,8 @@ export default function SimulatorPage() {
                   gap: 14,
                 }}
               >
-                {simulator.holdings.length > 0 ? (
-                  simulator.holdings.map((holding) => (
+                {valued && valued.holdings.length > 0 ? (
+                  valued.holdings.map((holding) => (
                     <div className="card-line" key={holding.ticker}>
                       <div
                         style={{
@@ -1067,6 +1113,29 @@ export default function SimulatorPage() {
                         >
                           {tx.shares.toFixed(6)} sh @{" "}
                           {formatCurrency(tx.price)}
+                          {tx.priceSource && (
+                            <>
+                              {" "}
+                              ·{" "}
+                              {tx.priceSource === "live"
+                                ? "live quote"
+                                : `close of ${tx.priceAsOf}`}
+                            </>
+                          )}
+                          {tx.type === "sell" &&
+                            typeof tx.realizedGainLoss === "number" && (
+                              <span
+                                style={{
+                                  color:
+                                    tx.realizedGainLoss >= 0
+                                      ? "var(--accent)"
+                                      : "#ff6878",
+                                }}
+                              >
+                                {" "}
+                                · realized {formatCurrency(tx.realizedGainLoss)}
+                              </span>
+                            )}
                         </p>
                         {tx.thesis && (
                           <p
