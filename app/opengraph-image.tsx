@@ -1,11 +1,15 @@
 import { ImageResponse } from "next/og";
 
+import { getSiteUrl } from "@/lib/site-url";
+
 export const runtime = "edge";
 export const alt = "ARCANUM · Investing, made legible.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 export default async function OpengraphImage() {
+  // getSiteUrl() always returns a valid http(s) URL, so this cannot throw.
+  const siteHost = new URL(getSiteUrl()).host;
   return new ImageResponse(
     (
       <div
@@ -42,8 +46,10 @@ export default async function OpengraphImage() {
             position: "relative",
           }}
         >
+          {/* Satori requires explicit display:flex on any <div> with element children. */}
           <div
             style={{
+              display: "flex",
               width: 28,
               height: 28,
               background: "#00E5A8",
@@ -110,8 +116,9 @@ export default async function OpengraphImage() {
             }}
           >
             <span>Investing,</span>
-            <span>
-              made{" "}
+            {/* Explicit flex + gap keeps the word space between the two runs. */}
+            <span style={{ display: "flex", gap: 30 }}>
+              <span>made</span>
               <span style={{ color: "#00E5A8", fontStyle: "italic" }}>
                 legible.
               </span>
@@ -138,7 +145,7 @@ export default async function OpengraphImage() {
             <span style={{ color: "#2a2a2f" }}>·</span>
             <span>Paper-trading lab</span>
           </div>
-          <div style={{ color: "#00E5A8", fontWeight: 600 }}>arcanum.app</div>
+          <div style={{ color: "#00E5A8", fontWeight: 600 }}>{siteHost}</div>
         </div>
       </div>
     ),

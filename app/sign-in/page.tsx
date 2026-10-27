@@ -1,10 +1,35 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type FormEvent } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useState, type FormEvent } from "react";
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
+
+/**
+ * /auth/callback redirects here with ?error=callback when a magic link can't
+ * be exchanged. Reads search params, so it renders inside <Suspense> to keep
+ * the rest of the page prerendered.
+ */
+function CallbackErrorNotice() {
+  const searchParams = useSearchParams();
+  if (searchParams.get("error") !== "callback") return null;
+  return (
+    <div
+      role="status"
+      style={{
+        borderLeft: "2px solid #ff6878",
+        background: "var(--surface-2)",
+        padding: "10px 14px",
+        fontSize: "0.9rem",
+      }}
+    >
+      That sign-in link didn&apos;t work — it may have expired. Request a new
+      one.
+    </div>
+  );
+}
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
@@ -36,7 +61,7 @@ export default function SignInPage() {
     setErrorText(null);
 
     const siteUrl =
-      process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin;
+      (process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin).replace(/\/+$/, "");
     try {
       const { error } = await supabase.auth.signInWithOtp({
         email: cleaned,
@@ -172,6 +197,10 @@ export default function SignInPage() {
             </div>
           ) : (
             <form onSubmit={handleSubmit} style={{ display: "grid", gap: 16 }}>
+              <Suspense fallback={null}>
+                <CallbackErrorNotice />
+              </Suspense>
+
               <label style={{ display: "grid", gap: 8 }}>
                 <span
                   style={{

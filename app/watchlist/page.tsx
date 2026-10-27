@@ -4,9 +4,9 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 import { useQuotes } from "@/components/hooks/use-quotes";
-import { stockProfiles } from "@/data/stocks";
 import { ARCANUM_CLOUD_DATA_LOADED_EVENT } from "@/lib/cloud-sync";
 import { getCurrentPrice } from "@/lib/prices";
+import { getAnyProfile } from "@/lib/stocks";
 import { getWatchlist, removeFromWatchlist } from "@/lib/watchlist";
 
 function formatCurrency(value: number) {
@@ -37,11 +37,9 @@ export default function WatchlistPage() {
     };
   }, []);
 
+  // Any of the 30 researchable tickers (deep + lite profiles) can be watched.
   const knownTickers = useMemo(
-    () =>
-      tickers.filter((t) =>
-        stockProfiles.some((p) => p.ticker.toUpperCase() === t),
-      ),
+    () => tickers.filter((t) => getAnyProfile(t) !== null),
     [tickers],
   );
   const { quotes } = useQuotes(knownTickers);
@@ -51,27 +49,15 @@ export default function WatchlistPage() {
     setTickers(next);
   }
 
-  const rows = knownTickers
-    .map((ticker) => {
-      const profile = stockProfiles.find(
-        (p) => p.ticker.toUpperCase() === ticker,
-      );
-      if (!profile) return null;
-      const quote = quotes[ticker];
-      const price = quote?.price ?? getCurrentPrice(ticker);
-      const intraday = quote?.changePercent ?? 0;
-      const isLive = quote?.source === "live";
-      return { profile, price, intraday, isLive, ticker };
-    })
-    .filter(
-      (r): r is {
-        profile: (typeof stockProfiles)[number];
-        price: number;
-        intraday: number;
-        isLive: boolean;
-        ticker: string;
-      } => r !== null,
-    );
+  const rows = knownTickers.flatMap((ticker) => {
+    const profile = getAnyProfile(ticker);
+    if (!profile) return [];
+    const quote = quotes[ticker];
+    const price = quote?.price ?? getCurrentPrice(ticker);
+    const intraday = quote?.changePercent ?? 0;
+    const isLive = quote?.source === "live";
+    return [{ profile, price, intraday, isLive, hasQuote: Boolean(quote), ticker }];
+  });
 
   return (
     <main>
@@ -208,8 +194,15 @@ export default function WatchlistPage() {
                       <span aria-hidden style={{ color: row.isLive ? "var(--accent)" : "var(--muted)" }}>
                         {row.isLive ? "●" : "○"}
                       </span>{" "}
-                      {row.intraday >= 0 ? "+" : ""}
-                      {row.intraday.toFixed(2)}% today
+                      {row.hasQuote ? (
+                        <>
+                          {row.intraday >= 0 ? "+" : ""}
+                          {row.intraday.toFixed(2)}%{" "}
+                          {row.isLive ? "today" : "last session"}
+                        </>
+                      ) : (
+                        "last close"
+                      )}
                     </p>
                   </div>
                   <Link

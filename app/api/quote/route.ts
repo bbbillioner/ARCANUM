@@ -8,7 +8,7 @@ export const revalidate = 300;
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const raw = url.searchParams.get("tickers") ?? "";
-  const parsed = parseKnownTickers(raw, 20);
+  const parsed = parseKnownTickers(raw, 30);
 
   if (!parsed.ok) {
     return NextResponse.json({ error: parsed.message }, { status: 400 });

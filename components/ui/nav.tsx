@@ -57,7 +57,7 @@ export function Nav() {
           </div>
         </nav>
 
-        {/* Mobile nav strip — only visible on smaller widths */}
+        {/* Link strip — replaces .nav-links below 1280px (see globals.css) */}
         <div className="nav-mobile">
           {navLinks.map((link) => {
             const active = isActive(pathname, link.href);
@@ -80,11 +80,7 @@ export function Nav() {
         .nav-mobile {
           display: none;
         }
-        @media (max-width: 880px) {
-          .nav-cta {
-            padding: 0.65em 1.1em;
-            font-size: 0.85rem;
-          }
+        @media (max-width: 1279px) {
           .nav-mobile {
             display: flex;
             gap: 4px;

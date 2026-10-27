@@ -7,6 +7,7 @@ import "./globals.css";
 import { CloudSync } from "@/components/cloud-sync";
 import { Footer } from "@/components/ui/footer";
 import { Nav } from "@/components/ui/nav";
+import { getSiteUrl } from "@/lib/site-url";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -27,21 +28,9 @@ const fraunces = Fraunces({
   axes: ["opsz", "SOFT"],
 });
 
-// `new URL()` below runs at module load, so an unset or malformed value must
-// fall back rather than throw and take every page down.
-function resolveSiteUrl(): string {
-  const fallback = "http://localhost:3000";
-  const raw = process.env.NEXT_PUBLIC_SITE_URL?.trim();
-  if (!raw) return fallback;
-  try {
-    const { protocol } = new URL(raw);
-    return protocol === "http:" || protocol === "https:" ? raw : fallback;
-  } catch {
-    return fallback;
-  }
-}
-
-const SITE_URL = resolveSiteUrl();
+// `new URL()` below runs at module load; getSiteUrl() always returns a valid
+// http(s) URL, so an unset or malformed env value cannot take every page down.
+const SITE_URL = getSiteUrl();
 const SITE_NAME = "ARCANUM";
 const SITE_DESCRIPTION =
   "A beginner investor command center. Live prices, calm research, and a paper-trading lab — built for the first share, not the thousandth.";

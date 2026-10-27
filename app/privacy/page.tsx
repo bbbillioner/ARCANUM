@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Privacy · ARCANUM",
+  title: "Privacy",
   description:
     "How ARCANUM handles your data. Educational tool in early access.",
 };
@@ -127,71 +127,6 @@ export default function PrivacyPage() {
           </article>
         </div>
       </section>
-
-      <style>{`
-        .legal-prose h2 {
-          font-family: var(--font-fraunces);
-          font-weight: 600;
-          font-size: 1.5rem;
-          letter-spacing: -0.01em;
-          margin-top: 2.5rem;
-          margin-bottom: 1rem;
-          color: var(--foreground);
-        }
-        .legal-prose h2:first-child {
-          margin-top: 0;
-        }
-        .legal-prose p {
-          color: var(--muted);
-          font-size: 1rem;
-          line-height: 1.7;
-          margin-bottom: 1rem;
-        }
-        .legal-prose strong {
-          color: var(--foreground);
-          font-weight: 500;
-        }
-        .legal-prose code {
-          font-family: var(--font-jetbrains-mono);
-          font-size: 0.9em;
-          color: var(--accent);
-          background: var(--surface);
-          padding: 1px 6px;
-          border: 1px solid var(--stroke);
-        }
-        .legal-prose ul {
-          list-style: none;
-          padding: 0;
-          margin: 0 0 1.2rem;
-          display: grid;
-          gap: 10px;
-        }
-        .legal-prose li {
-          color: var(--muted);
-          font-size: 0.96rem;
-          line-height: 1.65;
-          padding-left: 22px;
-          position: relative;
-        }
-        .legal-prose li::before {
-          content: "";
-          position: absolute;
-          left: 0;
-          top: 9px;
-          width: 6px;
-          height: 6px;
-          background: var(--accent);
-          transform: rotate(45deg);
-        }
-        .legal-link {
-          color: var(--accent);
-          text-decoration: none;
-          border-bottom: 1px solid rgba(0, 229, 168, 0.4);
-        }
-        .legal-link:hover {
-          border-bottom-color: var(--accent);
-        }
-      `}</style>
     </main>
   );
 }

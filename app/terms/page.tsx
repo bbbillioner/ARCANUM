@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Terms · ARCANUM",
+  title: "Terms",
   description:
     "The terms of use for ARCANUM, an educational beginner-investor tool.",
 };
@@ -33,7 +33,7 @@ export default function TermsPage() {
               marginTop: 22,
             }}
           >
-            Last updated · 2026-07-13
+            Last updated · 2026-10-27
           </p>
         </div>
       </section>
@@ -49,7 +49,8 @@ export default function TermsPage() {
               ARCANUM is an educational web tool that helps beginners learn how
               investing works. It includes a starter-portfolio suggestion based
               on your answers, research pages on a small set of stocks and
-              ETFs, live news, a glossary, and a paper-trading simulator.
+              ETFs, live news, short lessons on core concepts, and a paper-trading
+              simulator.
             </p>
             <p>
               ARCANUM is not a broker. ARCANUM does not hold or move money.

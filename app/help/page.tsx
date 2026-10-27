@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Help · ARCANUM",
+  title: "Help",
   description:
     "How ARCANUM works, what each section does, and what to do when something looks wrong.",
 };
@@ -36,12 +36,17 @@ const faqs = [
   {
     question: "What's the difference between the dashboard and the simulator?",
     answer:
-      "The dashboard is the read-only command center for the starter portfolio ARCANUM picked for you: allocation, holdings, news, and a learning anchor. The simulator is a separate practice environment with fake cash where you can buy and sell at the latest available cached price and watch cost basis and gains evolve.",
+      "The dashboard is the read-only command center for the starter portfolio ARCANUM picked for you: allocation, holdings, news, and a learning anchor. The simulator is a separate practice environment with fake cash where you can buy and sell and watch cost basis and gains evolve.",
   },
   {
-    question: "Hover the underlined words?",
+    question: "What price do simulator trades use?",
     answer:
-      "Yes. Any word with a dotted underline (P/E ratio, allocation, concentration risk, etc.) has a plain-English definition. Hover on desktop, tap on mobile.",
+      "Trades settle at the latest available quote: the live Yahoo Finance price when available (cached up to 5 minutes), otherwise the most recent daily close, labeled with its date. Simulator trades use fake money and never reach a real market.",
+  },
+  {
+    question: "Where can I look up a term?",
+    answer:
+      "The Learn page explains core concepts such as ETFs, diversification, allocation, concentration risk, and the P/E ratio in plain English. Pages don't show pop-up definitions yet, so keep Learn open in another tab while you read research or the daily brief.",
   },
   {
     question: "What if news doesn't load?",
@@ -227,14 +232,6 @@ export default function HelpPage() {
           color: var(--muted);
           font-size: 0.96rem;
           line-height: 1.7;
-        }
-        .legal-link {
-          color: var(--accent);
-          text-decoration: none;
-          border-bottom: 1px solid rgba(0, 229, 168, 0.4);
-        }
-        .legal-link:hover {
-          border-bottom-color: var(--accent);
         }
       `}</style>
     </main>
