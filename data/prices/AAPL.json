@@ -1,19 +1,10 @@
 {
   "ticker": "AAPL",
-  "fetchedAt": "2026-10-27T15:13:31.638Z",
+  "fetchedAt": "2026-10-28T01:01:00.048Z",
   "lastBarDate": "2026-10-26",
   "currency": "USD",
   "exchange": "NMS",
   "bars": [
-    {
-      "date": "2021-10-27",
-      "open": 149.36,
-      "high": 149.73,
-      "low": 148.49,
-      "close": 148.85,
-      "adjClose": 145.18,
-      "volume": 56094900
-    },
     {
       "date": "2021-10-28",
       "open": 149.82,
@@ -11289,7 +11280,7 @@
       "low": 341.03,
       "close": 343.91,
       "adjClose": 343.91,
-      "volume": 42667300
+      "volume": 42743600
     }
   ]
 }
