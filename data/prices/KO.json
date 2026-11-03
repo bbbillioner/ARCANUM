@@ -1,28 +1,10 @@
 {
   "ticker": "KO",
-  "fetchedAt": "2026-10-31T01:26:35.846Z",
-  "lastBarDate": "2026-10-30",
+  "fetchedAt": "2026-11-03T03:20:18.389Z",
+  "lastBarDate": "2026-11-02",
   "currency": "USD",
   "exchange": "NYQ",
   "bars": [
-    {
-      "date": "2021-11-01",
-      "open": 56.39,
-      "high": 56.4,
-      "low": 55.9,
-      "close": 56.17,
-      "adjClose": 48.52,
-      "volume": 11651100
-    },
-    {
-      "date": "2021-11-02",
-      "open": 56.47,
-      "high": 56.5,
-      "low": 55.97,
-      "close": 56.1,
-      "adjClose": 48.46,
-      "volume": 11498900
-    },
     {
       "date": "2021-11-03",
       "open": 56,
@@ -1478,7 +1460,7 @@
       "high": 63.29,
       "low": 62.63,
       "close": 62.91,
-      "adjClose": 55.58,
+      "adjClose": 55.59,
       "volume": 12142100
     },
     {
@@ -1505,7 +1487,7 @@
       "high": 63.11,
       "low": 62.16,
       "close": 62.91,
-      "adjClose": 55.58,
+      "adjClose": 55.59,
       "volume": 15514200
     },
     {
@@ -1541,7 +1523,7 @@
       "high": 63.58,
       "low": 62.7,
       "close": 62.91,
-      "adjClose": 55.58,
+      "adjClose": 55.59,
       "volume": 14828400
     },
     {
@@ -11298,7 +11280,16 @@
       "low": 93.95,
       "close": 94.08,
       "adjClose": 94.08,
-      "volume": 18364600
+      "volume": 18375500
+    },
+    {
+      "date": "2026-11-02",
+      "open": 94.28,
+      "high": 96.26,
+      "low": 94.28,
+      "close": 95.83,
+      "adjClose": 95.83,
+      "volume": 22669400
     }
   ]
 }
