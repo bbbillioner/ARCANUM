@@ -1,19 +1,10 @@
 {
   "ticker": "VTI",
-  "fetchedAt": "2026-11-03T03:20:13.925Z",
+  "fetchedAt": "2026-11-04T01:57:56.416Z",
   "lastBarDate": "2026-11-02",
   "currency": "USD",
   "exchange": "PCX",
   "bars": [
-    {
-      "date": "2021-11-03",
-      "open": 238.69,
-      "high": 240.73,
-      "low": 238.3,
-      "close": 240.52,
-      "adjClose": 224.37,
-      "volume": 3704400
-    },
     {
       "date": "2021-11-04",
       "open": 241.03,
@@ -488,7 +479,7 @@
       "high": 231.91,
       "low": 225.14,
       "close": 225.37,
-      "adjClose": 211,
+      "adjClose": 210.99,
       "volume": 5175100
     },
     {
@@ -1154,7 +1145,7 @@
       "high": 207.82,
       "low": 203.11,
       "close": 205.95,
-      "adjClose": 193.42,
+      "adjClose": 193.41,
       "volume": 5193900
     },
     {
@@ -4655,7 +4646,7 @@
       "high": 225.76,
       "low": 224.53,
       "close": 225.14,
-      "adjClose": 216.69,
+      "adjClose": 216.68,
       "volume": 2880400
     },
     {
@@ -9416,7 +9407,7 @@
       "high": 339.61,
       "low": 337.85,
       "close": 338.84,
-      "adjClose": 335.96,
+      "adjClose": 335.97,
       "volume": 5442200
     },
     {
