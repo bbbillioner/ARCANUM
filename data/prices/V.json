@@ -1,19 +1,10 @@
 {
   "ticker": "V",
-  "fetchedAt": "2026-11-04T01:58:02.471Z",
-  "lastBarDate": "2026-11-02",
+  "fetchedAt": "2026-11-05T02:01:33.919Z",
+  "lastBarDate": "2026-11-03",
   "currency": "USD",
   "exchange": "NYQ",
   "bars": [
-    {
-      "date": "2021-11-04",
-      "open": 209.16,
-      "high": 212.36,
-      "low": 207.87,
-      "close": 208.78,
-      "adjClose": 201.02,
-      "volume": 11368200
-    },
     {
       "date": "2021-11-05",
       "open": 211.95,
@@ -4907,7 +4898,7 @@
       "high": 261.46,
       "low": 258.75,
       "close": 259.69,
-      "adjClose": 254.38,
+      "adjClose": 254.37,
       "volume": 3748400
     },
     {
@@ -8345,7 +8336,7 @@
       "high": 351.37,
       "low": 348.48,
       "close": 349.81,
-      "adjClose": 346.43,
+      "adjClose": 346.42,
       "volume": 4747100
     },
     {
@@ -11281,6 +11272,15 @@
       "close": 425.51,
       "adjClose": 425.51,
       "volume": 7426000
+    },
+    {
+      "date": "2026-11-03",
+      "open": 422.4,
+      "high": 423.72,
+      "low": 418.27,
+      "close": 420.42,
+      "adjClose": 420.42,
+      "volume": 5521500
     }
   ]
 }

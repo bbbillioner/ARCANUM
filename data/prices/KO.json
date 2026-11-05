@@ -1,19 +1,10 @@
 {
   "ticker": "KO",
-  "fetchedAt": "2026-11-04T01:58:01.250Z",
-  "lastBarDate": "2026-11-02",
+  "fetchedAt": "2026-11-05T02:01:32.695Z",
+  "lastBarDate": "2026-11-03",
   "currency": "USD",
   "exchange": "NYQ",
   "bars": [
-    {
-      "date": "2021-11-04",
-      "open": 56.11,
-      "high": 56.63,
-      "low": 56.03,
-      "close": 56.6,
-      "adjClose": 48.89,
-      "volume": 10820200
-    },
     {
       "date": "2021-11-05",
       "open": 56.84,
@@ -11281,6 +11272,15 @@
       "close": 95.83,
       "adjClose": 95.83,
       "volume": 22707300
+    },
+    {
+      "date": "2026-11-03",
+      "open": 94.88,
+      "high": 95.49,
+      "low": 94.18,
+      "close": 94.8,
+      "adjClose": 94.8,
+      "volume": 16107100
     }
   ]
 }
