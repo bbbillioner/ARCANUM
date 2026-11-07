@@ -1,7 +1,7 @@
 {
   "ticker": "QQQ",
-  "fetchedAt": "2026-11-06T02:01:18.957Z",
-  "lastBarDate": "2026-11-04",
+  "fetchedAt": "2026-11-07T01:42:02.570Z",
+  "lastBarDate": "2026-11-06",
   "currency": "USD",
   "exchange": "NGM",
   "bars": [
@@ -7859,7 +7859,7 @@
       "high": 487.18,
       "low": 480.74,
       "close": 481.68,
-      "adjClose": 478.33,
+      "adjClose": 478.34,
       "volume": 43316500
     },
     {
@@ -11281,6 +11281,24 @@
       "close": 691.95,
       "adjClose": 691.95,
       "volume": 62365900
+    },
+    {
+      "date": "2026-11-05",
+      "open": 683.12,
+      "high": 683.65,
+      "low": 647.05,
+      "close": 647.05,
+      "adjClose": 647.05,
+      "volume": 130677400
+    },
+    {
+      "date": "2026-11-06",
+      "open": 658.35,
+      "high": 664.52,
+      "low": 653.99,
+      "close": 656.1,
+      "adjClose": 656.1,
+      "volume": 70469100
     }
   ]
 }
