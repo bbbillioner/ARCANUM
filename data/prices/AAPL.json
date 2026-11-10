@@ -1,28 +1,10 @@
 {
   "ticker": "AAPL",
-  "fetchedAt": "2026-11-07T01:42:05.602Z",
-  "lastBarDate": "2026-11-06",
+  "fetchedAt": "2026-11-10T03:58:47.705Z",
+  "lastBarDate": "2026-11-09",
   "currency": "USD",
   "exchange": "NMS",
   "bars": [
-    {
-      "date": "2021-11-08",
-      "open": 151.41,
-      "high": 151.57,
-      "low": 150.16,
-      "close": 150.44,
-      "adjClose": 146.95,
-      "volume": 55020900
-    },
-    {
-      "date": "2021-11-09",
-      "open": 150.2,
-      "high": 151.43,
-      "low": 150.06,
-      "close": 150.81,
-      "adjClose": 147.31,
-      "volume": 56787900
-    },
     {
       "date": "2021-11-10",
       "open": 150.02,
@@ -11298,7 +11280,16 @@
       "low": 338.3,
       "close": 342.37,
       "adjClose": 342.37,
-      "volume": 44676300
+      "volume": 44703800
+    },
+    {
+      "date": "2026-11-09",
+      "open": 345,
+      "high": 352.33,
+      "low": 344.78,
+      "close": 350.69,
+      "adjClose": 350.69,
+      "volume": 48691200
     }
   ]
 }
