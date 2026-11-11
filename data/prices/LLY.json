@@ -1,19 +1,10 @@
 {
   "ticker": "LLY",
-  "fetchedAt": "2026-11-10T03:58:53.008Z",
-  "lastBarDate": "2026-11-09",
+  "fetchedAt": "2026-11-11T01:44:28.058Z",
+  "lastBarDate": "2026-11-10",
   "currency": "USD",
   "exchange": "NYQ",
   "bars": [
-    {
-      "date": "2021-11-10",
-      "open": 262,
-      "high": 266,
-      "low": 261.6,
-      "close": 264.65,
-      "adjClose": 252.91,
-      "volume": 2215100
-    },
     {
       "date": "2021-11-11",
       "open": 262.32,
@@ -3134,7 +3125,7 @@
       "high": 341.31,
       "low": 336.07,
       "close": 340.69,
-      "adjClose": 332.16,
+      "adjClose": 332.17,
       "volume": 2146900
     },
     {
@@ -5006,7 +4997,7 @@
       "high": 645.65,
       "low": 639.77,
       "close": 645,
-      "adjClose": 633.01,
+      "adjClose": 633.02,
       "volume": 2718500
     },
     {
@@ -5960,7 +5951,7 @@
       "high": 916.83,
       "low": 904.31,
       "close": 914.37,
-      "adjClose": 900.48,
+      "adjClose": 900.49,
       "volume": 2546100
     },
     {
@@ -6545,7 +6536,7 @@
       "high": 893.35,
       "low": 878.7,
       "close": 891.07,
-      "adjClose": 878.76,
+      "adjClose": 878.77,
       "volume": 1751600
     },
     {
@@ -7427,7 +7418,7 @@
       "high": 912,
       "low": 890.74,
       "close": 901.8,
-      "adjClose": 892.35,
+      "adjClose": 892.36,
       "volume": 5111300
     },
     {
@@ -11290,6 +11281,15 @@
       "close": 1411.95,
       "adjClose": 1411.95,
       "volume": 4029800
+    },
+    {
+      "date": "2026-11-10",
+      "open": 1408.49,
+      "high": 1438.88,
+      "low": 1400,
+      "close": 1432.29,
+      "adjClose": 1432.29,
+      "volume": 3017000
     }
   ]
 }
