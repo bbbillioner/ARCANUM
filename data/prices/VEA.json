@@ -1,19 +1,10 @@
 {
   "ticker": "VEA",
-  "fetchedAt": "2026-11-11T01:44:21.968Z",
-  "lastBarDate": "2026-11-10",
+  "fetchedAt": "2026-11-12T02:44:05.271Z",
+  "lastBarDate": "2026-11-11",
   "currency": "USD",
   "exchange": "PCX",
   "bars": [
-    {
-      "date": "2021-11-11",
-      "open": 52.41,
-      "high": 52.45,
-      "low": 52.29,
-      "close": 52.33,
-      "adjClose": 44.87,
-      "volume": 5638800
-    },
     {
       "date": "2021-11-12",
       "open": 52.53,
@@ -11290,6 +11281,15 @@
       "close": 69.36,
       "adjClose": 69.36,
       "volume": 10089100
+    },
+    {
+      "date": "2026-11-11",
+      "open": 69.61,
+      "high": 70.02,
+      "low": 69.35,
+      "close": 69.92,
+      "adjClose": 69.92,
+      "volume": 5590700
     }
   ]
 }
