@@ -1,19 +1,10 @@
 {
   "ticker": "HD",
-  "fetchedAt": "2026-11-12T02:44:08.576Z",
+  "fetchedAt": "2026-11-13T02:27:31.694Z",
   "lastBarDate": "2026-11-11",
   "currency": "USD",
   "exchange": "NYQ",
   "bars": [
-    {
-      "date": "2021-11-12",
-      "open": 369.12,
-      "high": 373.5,
-      "low": 366.7,
-      "close": 372.63,
-      "adjClose": 328.28,
-      "volume": 2793300
-    },
     {
       "date": "2021-11-15",
       "open": 374.39,
@@ -5816,7 +5807,7 @@
       "high": 332.8,
       "low": 326.5,
       "close": 332.56,
-      "adjClose": 314.01,
+      "adjClose": 314,
       "volume": 2691000
     },
     {
