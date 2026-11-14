@@ -1,7 +1,7 @@
 {
   "ticker": "SPY",
-  "fetchedAt": "2026-11-13T02:27:27.887Z",
-  "lastBarDate": "2026-11-11",
+  "fetchedAt": "2026-11-14T02:00:13.198Z",
+  "lastBarDate": "2026-11-13",
   "currency": "USD",
   "exchange": "PCX",
   "bars": [
@@ -1145,7 +1145,7 @@
       "high": 408.57,
       "low": 402.58,
       "close": 408.32,
-      "adjClose": 384.44,
+      "adjClose": 384.43,
       "volume": 83029700
     },
     {
@@ -5798,7 +5798,7 @@
       "high": 536.89,
       "low": 532.54,
       "close": 534.01,
-      "adjClose": 518.7,
+      "adjClose": 518.69,
       "volume": 43224500
     },
     {
@@ -5969,7 +5969,7 @@
       "high": 556.25,
       "low": 554.19,
       "close": 555.28,
-      "adjClose": 541.1,
+      "adjClose": 541.09,
       "volume": 36110500
     },
     {
@@ -8201,7 +8201,7 @@
       "high": 626.28,
       "low": 622.43,
       "close": 625.34,
-      "adjClose": 616.95,
+      "adjClose": 616.96,
       "volume": 51065800
     },
     {
@@ -11281,6 +11281,24 @@
       "close": 759.81,
       "adjClose": 759.81,
       "volume": 39151000
+    },
+    {
+      "date": "2026-11-12",
+      "open": 753.98,
+      "high": 763.04,
+      "low": 753.67,
+      "close": 757.12,
+      "adjClose": 757.12,
+      "volume": 37460600
+    },
+    {
+      "date": "2026-11-13",
+      "open": 760.07,
+      "high": 760.12,
+      "low": 747.88,
+      "close": 754.37,
+      "adjClose": 754.37,
+      "volume": 38391200
     }
   ]
 }
