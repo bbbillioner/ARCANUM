@@ -1,28 +1,10 @@
 {
   "ticker": "BRK-B",
-  "fetchedAt": "2026-11-14T02:00:19.080Z",
-  "lastBarDate": "2026-11-13",
+  "fetchedAt": "2026-11-17T04:21:14.614Z",
+  "lastBarDate": "2026-11-16",
   "currency": "USD",
   "exchange": "NYQ",
   "bars": [
-    {
-      "date": "2021-11-15",
-      "open": 286.6,
-      "high": 286.99,
-      "low": 284.24,
-      "close": 284.67,
-      "adjClose": 284.67,
-      "volume": 3217300
-    },
-    {
-      "date": "2021-11-16",
-      "open": 284.47,
-      "high": 285.16,
-      "low": 283.12,
-      "close": 283.36,
-      "adjClose": 283.36,
-      "volume": 4204200
-    },
     {
       "date": "2021-11-17",
       "open": 283.12,
@@ -11299,6 +11281,15 @@
       "close": 592.94,
       "adjClose": 592.94,
       "volume": 4765400
+    },
+    {
+      "date": "2026-11-16",
+      "open": 594.97,
+      "high": 595.83,
+      "low": 588.55,
+      "close": 592.85,
+      "adjClose": 592.85,
+      "volume": 3752600
     }
   ]
 }
