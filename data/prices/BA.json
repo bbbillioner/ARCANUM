@@ -1,19 +1,10 @@
 {
   "ticker": "BA",
-  "fetchedAt": "2026-11-17T04:21:14.967Z",
-  "lastBarDate": "2026-11-16",
+  "fetchedAt": "2026-11-18T03:22:05.137Z",
+  "lastBarDate": "2026-11-17",
   "currency": "USD",
   "exchange": "NYQ",
   "bars": [
-    {
-      "date": "2021-11-17",
-      "open": 229.54,
-      "high": 231.32,
-      "low": 224.2,
-      "close": 226.62,
-      "adjClose": 226.62,
-      "volume": 10750900
-    },
     {
       "date": "2021-11-18",
       "open": 230.3,
@@ -11289,7 +11280,16 @@
       "low": 164.71,
       "close": 165.22,
       "adjClose": 165.22,
-      "volume": 7907700
+      "volume": 7925600
+    },
+    {
+      "date": "2026-11-17",
+      "open": 165,
+      "high": 168.2,
+      "low": 163.3,
+      "close": 163.91,
+      "adjClose": 163.91,
+      "volume": 5563600
     }
   ]
 }

@@ -1,19 +1,10 @@
 {
   "ticker": "UNH",
-  "fetchedAt": "2026-11-17T04:21:14.002Z",
-  "lastBarDate": "2026-11-16",
+  "fetchedAt": "2026-11-18T03:22:04.045Z",
+  "lastBarDate": "2026-11-17",
   "currency": "USD",
   "exchange": "NYQ",
   "bars": [
-    {
-      "date": "2021-11-17",
-      "open": 450.39,
-      "high": 453.96,
-      "low": 448.73,
-      "close": 448.95,
-      "adjClose": 410.16,
-      "volume": 2281500
-    },
     {
       "date": "2021-11-18",
       "open": 448.73,
@@ -1370,7 +1361,7 @@
       "high": 511.89,
       "low": 492.58,
       "close": 505.66,
-      "adjClose": 466.5,
+      "adjClose": 466.51,
       "volume": 3907100
     },
     {
@@ -1973,7 +1964,7 @@
       "high": 516.55,
       "low": 504.84,
       "close": 505.04,
-      "adjClose": 467.39,
+      "adjClose": 467.4,
       "volume": 3116000
     },
     {
@@ -2207,7 +2198,7 @@
       "high": 546.95,
       "low": 535.47,
       "close": 545.02,
-      "adjClose": 504.39,
+      "adjClose": 504.4,
       "volume": 2540300
     },
     {
@@ -2369,7 +2360,7 @@
       "high": 538.61,
       "low": 532.44,
       "close": 536.16,
-      "adjClose": 497.73,
+      "adjClose": 497.72,
       "volume": 2346200
     },
     {
@@ -6257,7 +6248,7 @@
       "high": 585.21,
       "low": 578.45,
       "close": 584.51,
-      "adjClose": 555.3,
+      "adjClose": 555.29,
       "volume": 2376400
     },
     {
@@ -7490,7 +7481,7 @@
       "high": 484.06,
       "low": 475,
       "close": 481.52,
-      "adjClose": 462.81,
+      "adjClose": 462.8,
       "volume": 2876600
     },
     {
@@ -7625,7 +7616,7 @@
       "high": 548.5,
       "low": 529.29,
       "close": 540.44,
-      "adjClose": 519.43,
+      "adjClose": 519.44,
       "volume": 6457900
     },
     {
@@ -11290,6 +11281,15 @@
       "close": 412.02,
       "adjClose": 412.02,
       "volume": 4422800
+    },
+    {
+      "date": "2026-11-17",
+      "open": 399.23,
+      "high": 399.99,
+      "low": 387.14,
+      "close": 389.68,
+      "adjClose": 389.68,
+      "volume": 8040300
     }
   ]
 }
