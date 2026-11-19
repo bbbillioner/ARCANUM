@@ -1,19 +1,10 @@
 {
   "ticker": "JPM",
-  "fetchedAt": "2026-11-18T03:22:02.610Z",
-  "lastBarDate": "2026-11-17",
+  "fetchedAt": "2026-11-19T02:57:28.526Z",
+  "lastBarDate": "2026-11-18",
   "currency": "USD",
   "exchange": "NYQ",
   "bars": [
-    {
-      "date": "2021-11-18",
-      "open": 164.39,
-      "high": 164.85,
-      "low": 162.56,
-      "close": 163.05,
-      "adjClose": 144.02,
-      "volume": 8122500
-    },
     {
       "date": "2021-11-19",
       "open": 161.3,
@@ -11290,6 +11281,15 @@
       "close": 329.96,
       "adjClose": 329.96,
       "volume": 8210200
+    },
+    {
+      "date": "2026-11-18",
+      "open": 327.52,
+      "high": 330.09,
+      "low": 323.71,
+      "close": 324.11,
+      "adjClose": 324.11,
+      "volume": 6765600
     }
   ]
 }
