@@ -1,19 +1,10 @@
 {
   "ticker": "VOO",
-  "fetchedAt": "2026-11-19T02:57:21.773Z",
-  "lastBarDate": "2026-11-18",
+  "fetchedAt": "2026-11-20T02:52:24.643Z",
+  "lastBarDate": "2026-11-19",
   "currency": "USD",
   "exchange": "PCX",
   "bars": [
-    {
-      "date": "2021-11-19",
-      "open": 431.87,
-      "high": 432.99,
-      "low": 430.38,
-      "close": 431.05,
-      "adjClose": 401.85,
-      "volume": 4886200
-    },
     {
       "date": "2021-11-22",
       "open": 432.93,
@@ -605,7 +596,7 @@
       "high": 402.52,
       "low": 393.4,
       "close": 402.37,
-      "adjClose": 376.48,
+      "adjClose": 376.49,
       "volume": 11665200
     },
     {
@@ -1730,7 +1721,7 @@
       "high": 385.73,
       "low": 380.7,
       "close": 385.73,
-      "adjClose": 363.62,
+      "adjClose": 363.61,
       "volume": 2631300
     },
     {
@@ -7535,7 +7526,7 @@
       "high": 530.39,
       "low": 525.88,
       "close": 529.39,
-      "adjClose": 518.47,
+      "adjClose": 518.46,
       "volume": 22376300
     },
     {
@@ -8516,7 +8507,7 @@
       "high": 597.07,
       "low": 593.27,
       "close": 596.52,
-      "adjClose": 588.04,
+      "adjClose": 588.05,
       "volume": 5058700
     },
     {
@@ -11289,7 +11280,16 @@
       "low": 668.06,
       "close": 671.31,
       "adjClose": 671.31,
-      "volume": 9912300
+      "volume": 9939400
+    },
+    {
+      "date": "2026-11-19",
+      "open": 677.94,
+      "high": 680.14,
+      "low": 657.8,
+      "close": 658.01,
+      "adjClose": 658.01,
+      "volume": 12739400
     }
   ]
 }
