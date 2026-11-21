@@ -1,7 +1,7 @@
 {
   "ticker": "XOM",
-  "fetchedAt": "2026-11-20T02:52:34.950Z",
-  "lastBarDate": "2026-11-19",
+  "fetchedAt": "2026-11-21T03:00:02.552Z",
+  "lastBarDate": "2026-11-20",
   "currency": "USD",
   "exchange": "NYQ",
   "bars": [
@@ -1955,7 +1955,7 @@
       "high": 92.36,
       "low": 89.72,
       "close": 91.92,
-      "adjClose": 80.12,
+      "adjClose": 80.13,
       "volume": 23881300
     },
     {
@@ -11290,6 +11290,15 @@
       "close": 158.93,
       "adjClose": 158.93,
       "volume": 12263500
+    },
+    {
+      "date": "2026-11-20",
+      "open": 158.83,
+      "high": 161.53,
+      "low": 158.6,
+      "close": 159.99,
+      "adjClose": 159.99,
+      "volume": 18670900
     }
   ]
 }
