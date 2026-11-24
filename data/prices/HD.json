@@ -1,28 +1,10 @@
 {
   "ticker": "HD",
-  "fetchedAt": "2026-11-21T02:59:59.476Z",
-  "lastBarDate": "2026-11-20",
+  "fetchedAt": "2026-11-24T05:45:51.661Z",
+  "lastBarDate": "2026-11-23",
   "currency": "USD",
   "exchange": "NYQ",
   "bars": [
-    {
-      "date": "2021-11-22",
-      "open": 409.8,
-      "high": 416.56,
-      "low": 408.7,
-      "close": 408.79,
-      "adjClose": 360.13,
-      "volume": 4006400
-    },
-    {
-      "date": "2021-11-23",
-      "open": 405.67,
-      "high": 409.68,
-      "low": 403.01,
-      "close": 408.37,
-      "adjClose": 359.76,
-      "volume": 3557000
-    },
     {
       "date": "2021-11-24",
       "open": 403.66,
@@ -1136,7 +1118,7 @@
       "high": 290.34,
       "low": 280.32,
       "close": 286.03,
-      "adjClose": 254.55,
+      "adjClose": 254.56,
       "volume": 4305600
     },
     {
@@ -6806,7 +6788,7 @@
       "high": 420.14,
       "low": 410.95,
       "close": 420,
-      "adjClose": 398.97,
+      "adjClose": 398.98,
       "volume": 4932500
     },
     {
@@ -11299,6 +11281,15 @@
       "close": 339.04,
       "adjClose": 339.04,
       "volume": 7894000
+    },
+    {
+      "date": "2026-11-23",
+      "open": 342.48,
+      "high": 348.12,
+      "low": 339.25,
+      "close": 346.06,
+      "adjClose": 346.06,
+      "volume": 5747100
     }
   ]
 }
