@@ -1,19 +1,10 @@
 {
   "ticker": "UNH",
-  "fetchedAt": "2026-11-24T05:45:55.005Z",
-  "lastBarDate": "2026-11-23",
+  "fetchedAt": "2026-11-25T04:49:48.751Z",
+  "lastBarDate": "2026-11-24",
   "currency": "USD",
   "exchange": "NYQ",
   "bars": [
-    {
-      "date": "2021-11-24",
-      "open": 446.64,
-      "high": 450.98,
-      "low": 445.64,
-      "close": 450.16,
-      "adjClose": 411.26,
-      "volume": 2248800
-    },
     {
       "date": "2021-11-26",
       "open": 444.92,
@@ -1748,7 +1739,7 @@
       "high": 524.26,
       "low": 515.09,
       "close": 524,
-      "adjClose": 483.42,
+      "adjClose": 483.43,
       "volume": 2085300
     },
     {
@@ -1928,7 +1919,7 @@
       "high": 516.55,
       "low": 504.84,
       "close": 505.04,
-      "adjClose": 467.39,
+      "adjClose": 467.4,
       "volume": 3116000
     },
     {
@@ -2162,7 +2153,7 @@
       "high": 546.95,
       "low": 535.47,
       "close": 545.02,
-      "adjClose": 504.4,
+      "adjClose": 504.39,
       "volume": 2540300
     },
     {
@@ -7175,7 +7166,7 @@
       "high": 543.48,
       "low": 534.01,
       "close": 538.1,
-      "adjClose": 514.99,
+      "adjClose": 514.98,
       "volume": 2737600
     },
     {
@@ -7571,7 +7562,7 @@
       "high": 525,
       "low": 516.8,
       "close": 523.2,
-      "adjClose": 502.86,
+      "adjClose": 502.87,
       "volume": 2378900
     },
     {
@@ -8102,7 +8093,7 @@
       "high": 310.45,
       "low": 302.2,
       "close": 309.11,
-      "adjClose": 299.21,
+      "adjClose": 299.2,
       "volume": 15304400
     },
     {
@@ -11290,6 +11281,15 @@
       "close": 336.08,
       "adjClose": 336.08,
       "volume": 12929900
+    },
+    {
+      "date": "2026-11-24",
+      "open": 334,
+      "high": 346.46,
+      "low": 329.5,
+      "close": 341.88,
+      "adjClose": 341.88,
+      "volume": 8618100
     }
   ]
 }

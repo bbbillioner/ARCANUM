@@ -1,19 +1,10 @@
 {
   "ticker": "MCD",
-  "fetchedAt": "2026-11-24T05:45:52.085Z",
-  "lastBarDate": "2026-11-23",
+  "fetchedAt": "2026-11-25T04:49:46.171Z",
+  "lastBarDate": "2026-11-24",
   "currency": "USD",
   "exchange": "NYQ",
   "bars": [
-    {
-      "date": "2021-11-24",
-      "open": 254.5,
-      "high": 257.79,
-      "low": 254.05,
-      "close": 257.11,
-      "adjClose": 228.84,
-      "volume": 2642800
-    },
     {
       "date": "2021-11-26",
       "open": 252.51,
@@ -83,7 +74,7 @@
       "high": 260.38,
       "low": 256.45,
       "close": 259.91,
-      "adjClose": 232.62,
+      "adjClose": 232.61,
       "volume": 2596200
     },
     {
@@ -11290,6 +11281,15 @@
       "close": 276.38,
       "adjClose": 276.38,
       "volume": 3668900
+    },
+    {
+      "date": "2026-11-24",
+      "open": 277.73,
+      "high": 282.09,
+      "low": 276.25,
+      "close": 280.7,
+      "adjClose": 280.7,
+      "volume": 5325200
     }
   ]
 }
