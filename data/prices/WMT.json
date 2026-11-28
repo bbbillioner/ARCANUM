@@ -1,19 +1,10 @@
 {
   "ticker": "WMT",
-  "fetchedAt": "2026-11-27T03:57:54.765Z",
-  "lastBarDate": "2026-11-25",
+  "fetchedAt": "2026-11-28T03:45:33.719Z",
+  "lastBarDate": "2026-11-27",
   "currency": "USD",
   "exchange": "NMS",
   "bars": [
-    {
-      "date": "2021-11-26",
-      "open": 48.81,
-      "high": 49.29,
-      "low": 48.14,
-      "close": 48.3,
-      "adjClose": 45.37,
-      "volume": 21039600
-    },
     {
       "date": "2021-11-29",
       "open": 48.33,
@@ -11299,6 +11290,15 @@
       "close": 131.94,
       "adjClose": 131.94,
       "volume": 23619900
+    },
+    {
+      "date": "2026-11-27",
+      "open": 131.88,
+      "high": 133.16,
+      "low": 131.69,
+      "close": 133.13,
+      "adjClose": 133.13,
+      "volume": 10879700
     }
   ]
 }
